@@ -2,11 +2,70 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, FileText, TestTube, Droplet, AlertCircle, ChevronRight, Home } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar, FileText, TestTube, Droplet, AlertCircle, ChevronRight, Home, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 const Paciente = () => {
   const navigate = useNavigate();
+  const [consultaDate, setConsultaDate] = useState<Date>();
+  const [exameDate, setExameDate] = useState<Date>();
+  const [infusaoDate, setInfusaoDate] = useState<Date>();
+  const [consultaHora, setConsultaHora] = useState("");
+  const [exameHora, setExameHora] = useState("");
+  const [infusaoHora, setInfusaoHora] = useState("");
+  const [tipoExame, setTipoExame] = useState("");
+  const [openConsulta, setOpenConsulta] = useState(false);
+  const [openExame, setOpenExame] = useState(false);
+  const [openInfusao, setOpenInfusao] = useState(false);
+
+  const horarios = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
+  const tiposExame = [
+    "Hemograma Completo",
+    "Glicemia em Jejum",
+    "Colesterol Total",
+    "Função Renal (Creatinina e Ureia)",
+    "Função Hepática (TGO/TGP)",
+    "Marcadores Tumorais (CA 15-3, CEA)",
+    "Tomografia Computadorizada",
+    "Ressonância Magnética",
+    "Raio-X de Tórax",
+    "Ultrassonografia Abdominal"
+  ];
+
+  const handleAgendarConsulta = () => {
+    if (consultaDate && consultaHora) {
+      toast.success("Consulta agendada com sucesso!");
+      setOpenConsulta(false);
+    } else {
+      toast.error("Por favor, selecione data e horário");
+    }
+  };
+
+  const handleAgendarExame = () => {
+    if (exameDate && exameHora && tipoExame) {
+      toast.success(`${tipoExame} agendado com sucesso!`);
+      setOpenExame(false);
+    } else {
+      toast.error("Por favor, preencha todos os campos");
+    }
+  };
+
+  const handleAgendarInfusao = () => {
+    if (infusaoDate && infusaoHora) {
+      toast.success("Sessão de infusão agendada com sucesso!");
+      setOpenInfusao(false);
+    } else {
+      toast.error("Por favor, selecione data e horário");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,41 +83,191 @@ const Paciente = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Quick Actions */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-primary/20">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">Agendar Consulta</CardTitle>
+          <Dialog open={openConsulta} onOpenChange={setOpenConsulta}>
+            <DialogTrigger asChild>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-primary/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">Agendar Consulta</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Marque sua próxima consulta médica</p>
+                </CardContent>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Agendar Consulta</DialogTitle>
+                <DialogDescription>Selecione a data e horário de sua preferência</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Data Preferida</Label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={consultaDate}
+                    onSelect={setConsultaDate}
+                    locale={ptBR}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-md border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consulta-hora">Horário Preferido</Label>
+                  <Select value={consultaHora} onValueChange={setConsultaHora}>
+                    <SelectTrigger id="consulta-hora">
+                      <SelectValue placeholder="Selecione um horário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {horarios.map((hora) => (
+                        <SelectItem key={hora} value={hora}>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {hora}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Marque sua próxima consulta médica</p>
-            </CardContent>
-          </Card>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setOpenConsulta(false)}>Cancelar</Button>
+                <Button onClick={handleAgendarConsulta}>Confirmar Agendamento</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-secondary/20">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <TestTube className="h-5 w-5 text-secondary" />
-                <CardTitle className="text-base">Agendar Exame</CardTitle>
+          <Dialog open={openExame} onOpenChange={setOpenExame}>
+            <DialogTrigger asChild>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-secondary/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <TestTube className="h-5 w-5 text-secondary" />
+                    <CardTitle className="text-base">Agendar Exame</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Solicite seus exames laboratoriais</p>
+                </CardContent>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Agendar Exame</DialogTitle>
+                <DialogDescription>Selecione o tipo de exame, data e horário</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tipo-exame">Tipo de Exame</Label>
+                  <Select value={tipoExame} onValueChange={setTipoExame}>
+                    <SelectTrigger id="tipo-exame">
+                      <SelectValue placeholder="Selecione o tipo de exame" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tiposExame.map((exame) => (
+                        <SelectItem key={exame} value={exame}>
+                          {exame}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Data Preferida</Label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={exameDate}
+                    onSelect={setExameDate}
+                    locale={ptBR}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-md border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="exame-hora">Horário Preferido</Label>
+                  <Select value={exameHora} onValueChange={setExameHora}>
+                    <SelectTrigger id="exame-hora">
+                      <SelectValue placeholder="Selecione um horário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {horarios.map((hora) => (
+                        <SelectItem key={hora} value={hora}>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {hora}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Solicite seus exames laboratoriais</p>
-            </CardContent>
-          </Card>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setOpenExame(false)}>Cancelar</Button>
+                <Button onClick={handleAgendarExame}>Confirmar Agendamento</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-accent/20">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Droplet className="h-5 w-5 text-accent" />
-                <CardTitle className="text-base">Agendar Infusão</CardTitle>
+          <Dialog open={openInfusao} onOpenChange={setOpenInfusao}>
+            <DialogTrigger asChild>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-accent/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Droplet className="h-5 w-5 text-accent" />
+                    <CardTitle className="text-base">Agendar Infusão</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Marque sua sessão de quimioterapia</p>
+                </CardContent>
+              </Card>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Agendar Sessão de Infusão</DialogTitle>
+                <DialogDescription>Selecione a data e horário de sua preferência</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label>Data Preferida</Label>
+                  <CalendarComponent
+                    mode="single"
+                    selected={infusaoDate}
+                    onSelect={setInfusaoDate}
+                    locale={ptBR}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-md border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="infusao-hora">Horário Preferido</Label>
+                  <Select value={infusaoHora} onValueChange={setInfusaoHora}>
+                    <SelectTrigger id="infusao-hora">
+                      <SelectValue placeholder="Selecione um horário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {horarios.map((hora) => (
+                        <SelectItem key={hora} value={hora}>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {hora}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Marque sua sessão de quimioterapia</p>
-            </CardContent>
-          </Card>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setOpenInfusao(false)}>Cancelar</Button>
+                <Button onClick={handleAgendarInfusao}>Confirmar Agendamento</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Notifications Alert */}
@@ -106,14 +315,18 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                {[
+                  { id: 1, medico: "Dra. Ana Carolina Mendes", crm: "CRM 45892-SP", data: "15/10/2025" },
+                  { id: 2, medico: "Dr. Roberto Ferreira", crm: "CRM 23456-RJ", data: "08/10/2025" },
+                  { id: 3, medico: "Dr. Paulo Henrique Costa", crm: "CRM 67891-MG", data: "02/10/2025" }
+                ].map((prescricao) => (
+                  <div key={prescricao.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="space-y-1">
-                      <p className="font-medium">Prescrição #{i}</p>
+                      <p className="font-medium">Prescrição #{prescricao.id}</p>
                       <p className="text-sm text-muted-foreground">
-                        Dr. João Silva - CRM 12345
+                        {prescricao.medico} - {prescricao.crm}
                       </p>
-                      <p className="text-xs text-muted-foreground">18/10/2025</p>
+                      <p className="text-xs text-muted-foreground">{prescricao.data}</p>
                     </div>
                     <Button variant="ghost" size="sm">
                       <ChevronRight className="h-4 w-4" />
@@ -133,20 +346,24 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                {[
+                  { id: 1, tipo: "Marcadores Tumorais (CA 15-3)", data: "25/10/2025", hora: "08:30", status: "Agendado" },
+                  { id: 2, tipo: "Tomografia Computadorizada", data: "12/10/2025", hora: "14:00", status: "Realizado" },
+                  { id: 3, tipo: "Hemograma Completo", data: "05/10/2025", hora: "09:15", status: "Realizado" }
+                ].map((exame) => (
+                  <div key={exame.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="space-y-1">
-                      <p className="font-medium">Hemograma Completo</p>
-                      <p className="text-sm text-muted-foreground">22/10/2025 - 09:00</p>
-                      <Badge variant={i === 1 ? "default" : "secondary"}>
-                        {i === 1 ? "Agendado" : "Realizado"}
+                      <p className="font-medium">{exame.tipo}</p>
+                      <p className="text-sm text-muted-foreground">{exame.data} - {exame.hora}</p>
+                      <Badge variant={exame.status === "Agendado" ? "default" : "secondary"}>
+                        {exame.status}
                       </Badge>
                     </div>
                     <div className="flex gap-2">
-                      {i !== 1 && (
+                      {exame.status === "Realizado" && (
                         <Button variant="outline" size="sm">Ver Resultado</Button>
                       )}
-                      {i === 1 && (
+                      {exame.status === "Agendado" && (
                         <Button variant="destructive" size="sm">Cancelar</Button>
                       )}
                     </div>
@@ -165,18 +382,22 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                {[
+                  { id: 1, medico: "Dra. Mariana Alves", data: "28/10/2025", hora: "15:45", status: "Próxima" },
+                  { id: 2, medico: "Dr. Fernando Santos", data: "14/10/2025", hora: "11:00", status: "Realizada" },
+                  { id: 3, medico: "Dr. Lucas Rodrigues", data: "30/09/2025", hora: "16:30", status: "Realizada" }
+                ].map((consulta) => (
+                  <div key={consulta.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="space-y-1">
                       <p className="font-medium">Consulta Oncológica</p>
                       <p className="text-sm text-muted-foreground">
-                        Dr. João Silva - 25/10/2025 às 10:30
+                        {consulta.medico} - {consulta.data} às {consulta.hora}
                       </p>
-                      <Badge variant={i === 1 ? "default" : "secondary"}>
-                        {i === 1 ? "Próxima" : "Realizada"}
+                      <Badge variant={consulta.status === "Próxima" ? "default" : "secondary"}>
+                        {consulta.status}
                       </Badge>
                     </div>
-                    {i === 1 && (
+                    {consulta.status === "Próxima" && (
                       <Button variant="destructive" size="sm">Cancelar</Button>
                     )}
                   </div>
@@ -194,18 +415,23 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                {[
+                  { id: 1, sessao: 4, total: 6, protocolo: "AC-T", data: "22/10/2025", hora: "13:30", status: "Confirmada" },
+                  { id: 2, sessao: 3, total: 6, protocolo: "AC-T", data: "08/10/2025", hora: "14:00", status: "Concluída" },
+                  { id: 3, sessao: 2, total: 6, protocolo: "AC-T", data: "24/09/2025", hora: "13:30", status: "Concluída" },
+                  { id: 4, sessao: 1, total: 6, protocolo: "AC-T", data: "10/09/2025", hora: "14:00", status: "Concluída" }
+                ].map((infusao) => (
+                  <div key={infusao.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="space-y-1">
-                      <p className="font-medium">Sessão {i}/6 - Protocolo AC-T</p>
+                      <p className="font-medium">Sessão {infusao.sessao}/{infusao.total} - Protocolo {infusao.protocolo}</p>
                       <p className="text-sm text-muted-foreground">
-                        {i === 1 ? "20/10/2025 às 14:00" : `Realizada em 0${i}/10/2025`}
+                        {infusao.data} às {infusao.hora}
                       </p>
-                      <Badge variant={i === 1 ? "default" : "secondary"}>
-                        {i === 1 ? "Confirmada" : "Concluída"}
+                      <Badge variant={infusao.status === "Confirmada" ? "default" : "secondary"}>
+                        {infusao.status}
                       </Badge>
                     </div>
-                    {i === 1 && (
+                    {infusao.status === "Confirmada" && (
                       <Button variant="destructive" size="sm">Cancelar</Button>
                     )}
                   </div>
