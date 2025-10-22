@@ -8,6 +8,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Pill, Package, TrendingUp, CheckCircle, Home, QrCode, User, Clock, MapPin, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type EtapaStatus = "concluido" | "em_andamento" | "pendente" | "problema";
 
@@ -34,6 +37,72 @@ interface Medicamento {
 const Farmaceutico = () => {
   const navigate = useNavigate();
   const [selectedMedicamento, setSelectedMedicamento] = useState<Medicamento | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Mock data - catalogação de medicamentos
+  const catalogoMedicamentos = [
+    {
+      categoria: "Antineoplásicos",
+      medicamentos: [
+        { nome: "Paclitaxel", principioAtivo: "Paclitaxel", concentracao: "100mg/16,7mL", apresentacao: "Frasco-ampola", lote: "L2025001", validade: "12/2026", estoque: 25, estoqueMin: 10 },
+        { nome: "Doxorrubicina", principioAtivo: "Cloridrato de Doxorrubicina", concentracao: "50mg/25mL", apresentacao: "Frasco-ampola", lote: "L2025045", validade: "08/2026", estoque: 18, estoqueMin: 8 },
+        { nome: "Cisplatina", principioAtivo: "Cisplatina", concentracao: "50mg/50mL", apresentacao: "Frasco-ampola", lote: "L2025-789", validade: "06/2027", estoque: 50, estoqueMin: 15 },
+        { nome: "Oxaliplatina", principioAtivo: "Oxaliplatina", concentracao: "100mg/20mL", apresentacao: "Frasco-ampola", lote: "OX2025-12", validade: "03/2027", estoque: 22, estoqueMin: 12 },
+        { nome: "Carboplatina", principioAtivo: "Carboplatina", concentracao: "450mg/45mL", apresentacao: "Frasco-ampola", lote: "CARB-567", validade: "11/2026", estoque: 30, estoqueMin: 15 },
+        { nome: "Ciclofosfamida", principioAtivo: "Ciclofosfamida", concentracao: "1g", apresentacao: "Frasco-ampola", lote: "CF2025-88", validade: "05/2027", estoque: 45, estoqueMin: 20 },
+        { nome: "Vincristina", principioAtivo: "Sulfato de Vincristina", concentracao: "1mg/mL", apresentacao: "Frasco-ampola 1mL", lote: "VCR-234", validade: "07/2026", estoque: 15, estoqueMin: 8 },
+        { nome: "Fluorouracil", principioAtivo: "Fluorouracil", concentracao: "500mg/10mL", apresentacao: "Frasco-ampola", lote: "5FU-901", validade: "09/2026", estoque: 38, estoqueMin: 15 },
+        { nome: "Gencitabina", principioAtivo: "Cloridrato de Gencitabina", concentracao: "1g", apresentacao: "Frasco-ampola", lote: "GEM-445", validade: "04/2027", estoque: 12, estoqueMin: 10 },
+      ]
+    },
+    {
+      categoria: "Imunoterápicos",
+      medicamentos: [
+        { nome: "Rituximab", principioAtivo: "Rituximab", concentracao: "500mg/50mL", apresentacao: "Frasco-ampola", lote: "R2025-456", validade: "10/2026", estoque: 8, estoqueMin: 5 },
+        { nome: "Pembrolizumab", principioAtivo: "Pembrolizumab", concentracao: "100mg/4mL", apresentacao: "Frasco-ampola", lote: "PEMBRO-778", validade: "12/2026", estoque: 6, estoqueMin: 3 },
+        { nome: "Nivolumab", principioAtivo: "Nivolumab", concentracao: "100mg/10mL", apresentacao: "Frasco-ampola", lote: "NIVO-332", validade: "01/2027", estoque: 5, estoqueMin: 3 },
+        { nome: "Atezolizumab", principioAtivo: "Atezolizumab", concentracao: "1200mg/20mL", apresentacao: "Frasco-ampola", lote: "ATZ-991", validade: "11/2026", estoque: 4, estoqueMin: 2 },
+        { nome: "Trastuzumab", principioAtivo: "Trastuzumab", concentracao: "440mg", apresentacao: "Frasco-ampola", lote: "TRAS-556", validade: "08/2026", estoque: 10, estoqueMin: 5 },
+      ]
+    },
+    {
+      categoria: "Antieméticos",
+      medicamentos: [
+        { nome: "Ondansetrona", principioAtivo: "Cloridrato de Ondansetrona", concentracao: "8mg/4mL", apresentacao: "Ampola", lote: "OND-2025", validade: "06/2026", estoque: 120, estoqueMin: 50 },
+        { nome: "Metoclopramida", principioAtivo: "Cloridrato de Metoclopramida", concentracao: "10mg/2mL", apresentacao: "Ampola", lote: "MET-789", validade: "09/2026", estoque: 200, estoqueMin: 80 },
+        { nome: "Aprepitanto", principioAtivo: "Aprepitanto", concentracao: "125mg", apresentacao: "Cápsula", lote: "APR-445", validade: "07/2027", estoque: 60, estoqueMin: 30 },
+        { nome: "Dexametasona", principioAtivo: "Fosfato Dissódico de Dexametasona", concentracao: "4mg/mL", apresentacao: "Ampola 2,5mL", lote: "DEX-2025-11", validade: "10/2026", estoque: 150, estoqueMin: 60 },
+      ]
+    },
+    {
+      categoria: "Antibióticos",
+      medicamentos: [
+        { nome: "Meropenem", principioAtivo: "Meropenem", concentracao: "1g", apresentacao: "Frasco-ampola", lote: "MERO-334", validade: "05/2026", estoque: 40, estoqueMin: 20 },
+        { nome: "Vancomicina", principioAtivo: "Cloridrato de Vancomicina", concentracao: "500mg", apresentacao: "Frasco-ampola", lote: "VANCO-887", validade: "08/2026", estoque: 35, estoqueMin: 15 },
+        { nome: "Piperacilina + Tazobactam", principioAtivo: "Piperacilina sódica + Tazobactam sódico", concentracao: "4,5g", apresentacao: "Frasco-ampola", lote: "PIPE-221", validade: "04/2027", estoque: 28, estoqueMin: 15 },
+        { nome: "Ceftriaxona", principioAtivo: "Ceftriaxona Sódica", concentracao: "1g", apresentacao: "Frasco-ampola", lote: "CEFT-665", validade: "07/2026", estoque: 55, estoqueMin: 25 },
+        { nome: "Levofloxacino", principioAtivo: "Levofloxacino", concentracao: "500mg/100mL", apresentacao: "Bolsa", lote: "LEVO-998", validade: "11/2026", estoque: 30, estoqueMin: 15 },
+      ]
+    },
+    {
+      categoria: "Suporte e Profilaxia",
+      medicamentos: [
+        { nome: "Filgrastima", principioAtivo: "Filgrastima", concentracao: "300mcg/mL", apresentacao: "Seringa preenchida 0,5mL", lote: "FILG-123", validade: "09/2026", estoque: 25, estoqueMin: 10 },
+        { nome: "Ácido Zoledrônico", principioAtivo: "Ácido Zoledrônico", concentracao: "4mg/5mL", apresentacao: "Frasco-ampola", lote: "ZOLE-456", validade: "10/2026", estoque: 18, estoqueMin: 8 },
+        { nome: "Leucovorin", principioAtivo: "Folinato de Cálcio", concentracao: "50mg", apresentacao: "Frasco-ampola", lote: "LEUCO-789", validade: "06/2027", estoque: 40, estoqueMin: 20 },
+        { nome: "Mesna", principioAtivo: "Mesna", concentracao: "400mg/4mL", apresentacao: "Ampola", lote: "MESNA-334", validade: "08/2026", estoque: 22, estoqueMin: 12 },
+        { nome: "Dipirona", principioAtivo: "Dipirona Sódica", concentracao: "500mg/mL", apresentacao: "Ampola 2mL", lote: "DIP-2025", validade: "12/2026", estoque: 180, estoqueMin: 80 },
+      ]
+    },
+    {
+      categoria: "Anticoagulantes",
+      medicamentos: [
+        { nome: "Enoxaparina", principioAtivo: "Enoxaparina Sódica", concentracao: "40mg/0,4mL", apresentacao: "Seringa preenchida", lote: "ENOX-887", validade: "05/2027", estoque: 95, estoqueMin: 40 },
+        { nome: "Heparina", principioAtivo: "Heparina Sódica", concentracao: "5000UI/mL", apresentacao: "Ampola 5mL", lote: "HEP-2025", validade: "07/2026", estoque: 70, estoqueMin: 30 },
+        { nome: "Varfarina", principioAtivo: "Varfarina Sódica", concentracao: "5mg", apresentacao: "Comprimido", lote: "VARF-556", validade: "09/2027", estoque: 120, estoqueMin: 50 },
+      ]
+    }
+  ];
 
   // Mock data - medicamentos gerais
   const medicamentosGerais: Medicamento[] = [
@@ -522,51 +591,251 @@ const Farmaceutico = () => {
           <TabsContent value="catalogo" className="space-y-4">
             <div className="flex items-center gap-4 mb-6">
               <Input placeholder="Buscar medicamento..." className="max-w-md" />
-              <Button>Adicionar Medicamento</Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>Adicionar Medicamento</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Cadastrar Novo Medicamento</DialogTitle>
+                    <DialogDescription>
+                      Preencha os dados para adicionar um novo medicamento ao estoque
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-6 py-4">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="nome">Nome do Medicamento *</Label>
+                        <Input id="nome" placeholder="Ex: Paclitaxel" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="principioAtivo">Princípio Ativo *</Label>
+                        <Input id="principioAtivo" placeholder="Ex: Paclitaxel" />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="concentracao">Forma / Concentração *</Label>
+                        <Input id="concentracao" placeholder="Ex: 100mg/16,7mL" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="apresentacao">Apresentação *</Label>
+                        <Select>
+                          <SelectTrigger id="apresentacao">
+                            <SelectValue placeholder="Selecione a apresentação" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="frasco-ampola">Frasco-ampola</SelectItem>
+                            <SelectItem value="ampola">Ampola</SelectItem>
+                            <SelectItem value="comprimido">Comprimido</SelectItem>
+                            <SelectItem value="capsula">Cápsula</SelectItem>
+                            <SelectItem value="seringa">Seringa preenchida</SelectItem>
+                            <SelectItem value="bolsa">Bolsa</SelectItem>
+                            <SelectItem value="pote">Pote</SelectItem>
+                            <SelectItem value="bisnaga">Bisnaga</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="classeTerapeutica">Classe Terapêutica *</Label>
+                      <Select>
+                        <SelectTrigger id="classeTerapeutica">
+                          <SelectValue placeholder="Selecione a classe terapêutica" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="antineoplasicos">Antineoplásicos</SelectItem>
+                          <SelectItem value="imunoterapicos">Imunoterápicos</SelectItem>
+                          <SelectItem value="antiemeticos">Antieméticos</SelectItem>
+                          <SelectItem value="antibioticos">Antibióticos</SelectItem>
+                          <SelectItem value="anticoagulantes">Anticoagulantes</SelectItem>
+                          <SelectItem value="analgesicos">Analgésicos</SelectItem>
+                          <SelectItem value="corticoides">Corticoides</SelectItem>
+                          <SelectItem value="suporte">Suporte e Profilaxia</SelectItem>
+                          <SelectItem value="outros">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="lote">Lote *</Label>
+                        <Input id="lote" placeholder="Ex: L2025001" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="validade">Validade *</Label>
+                        <Input id="validade" type="month" placeholder="MM/AAAA" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="fabricante">Fabricante</Label>
+                        <Input id="fabricante" placeholder="Ex: Laboratório XYZ" />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="qtdeAtual">Quantidade Atual *</Label>
+                        <Input id="qtdeAtual" type="number" placeholder="Ex: 25" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="estoqueMin">Estoque Mínimo *</Label>
+                        <Input id="estoqueMin" type="number" placeholder="Ex: 10" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="unidade">Unidade</Label>
+                        <Select>
+                          <SelectTrigger id="unidade">
+                            <SelectValue placeholder="Unidade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unidades">Unidades</SelectItem>
+                            <SelectItem value="frascos">Frascos</SelectItem>
+                            <SelectItem value="ampolas">Ampolas</SelectItem>
+                            <SelectItem value="comprimidos">Comprimidos</SelectItem>
+                            <SelectItem value="ml">mL</SelectItem>
+                            <SelectItem value="mg">mg</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="armazenamento">Condições de Armazenamento</Label>
+                        <Select>
+                          <SelectTrigger id="armazenamento">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ambiente">Temperatura ambiente (15-30°C)</SelectItem>
+                            <SelectItem value="refrigerado">Refrigerado (2-8°C)</SelectItem>
+                            <SelectItem value="congelado">Congelado (-20°C)</SelectItem>
+                            <SelectItem value="proteger-luz">Proteger da luz</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="localizacao">Localização no Estoque</Label>
+                        <Input id="localizacao" placeholder="Ex: Geladeira A2 - Prateleira 3" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="registro">Registro ANVISA / MS</Label>
+                      <Input id="registro" placeholder="Ex: 1.0000.0000.000-0" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observacoes">Observações Técnicas</Label>
+                      <Textarea 
+                        id="observacoes" 
+                        placeholder="Ex: Vesicante - atenção na manipulação. Incompatível com solução salina. Uso exclusivo oncológico..."
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fornecedor">Fornecedor</Label>
+                        <Input id="fornecedor" placeholder="Nome do fornecedor" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="notaFiscal">Nota Fiscal</Label>
+                        <Input id="notaFiscal" placeholder="Número da NF" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                      Cancelar
+                    </Button>
+                    <Button onClick={() => {
+                      toast({
+                        title: "Medicamento cadastrado",
+                        description: "O medicamento foi adicionado ao catálogo com sucesso.",
+                      });
+                      setDialogOpen(false);
+                    }}>
+                      Salvar Medicamento
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="space-y-6">
-              {["Antineoplásicos", "Antieméticos", "Imunomoduladores"].map((categoria, idx) => (
+              {catalogoMedicamentos.map((catalogo, idx) => (
                 <Card key={idx}>
                   <CardHeader>
-                    <CardTitle>{categoria}</CardTitle>
-                    <CardDescription>Medicamentos da classe terapêutica</CardDescription>
+                    <CardTitle>{catalogo.categoria}</CardTitle>
+                    <CardDescription>
+                      {catalogo.medicamentos.length} medicamentos cadastrados
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {[1, 2].map((i) => (
-                        <Card key={i} className="border-l-4 border-l-primary">
-                          <CardContent className="pt-6">
-                            <div className="grid md:grid-cols-4 gap-4">
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Medicamento</p>
-                                <p className="font-semibold">Paclitaxel</p>
-                                <p className="text-sm text-muted-foreground">100mg/16,7mL</p>
+                      {catalogo.medicamentos.map((med, i) => {
+                        const estoqueAbaixoMin = med.estoque < med.estoqueMin;
+                        const estoqueProximoMin = med.estoque < med.estoqueMin * 1.5 && !estoqueAbaixoMin;
+                        
+                        return (
+                          <Card 
+                            key={i} 
+                            className={`border-l-4 ${
+                              estoqueAbaixoMin ? "border-l-destructive" : 
+                              estoqueProximoMin ? "border-l-warning" : 
+                              "border-l-primary"
+                            }`}
+                          >
+                            <CardContent className="pt-6">
+                              <div className="grid md:grid-cols-5 gap-4">
+                                <div className="md:col-span-2">
+                                  <p className="text-xs text-muted-foreground mb-1">Medicamento</p>
+                                  <p className="font-semibold">{med.nome}</p>
+                                  <p className="text-sm text-muted-foreground">{med.concentracao}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">{med.apresentacao}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Princípio Ativo</p>
+                                  <p className="font-medium text-sm">{med.principioAtivo}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Lote / Validade</p>
+                                  <p className="font-medium">{med.lote}</p>
+                                  <p className="text-sm text-muted-foreground">{med.validade}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-muted-foreground mb-1">Estoque</p>
+                                  <p className="font-medium">{med.estoque} unidades</p>
+                                  <Badge 
+                                    variant={estoqueAbaixoMin ? "destructive" : estoqueProximoMin ? "secondary" : "outline"} 
+                                    className="mt-1"
+                                  >
+                                    Mín: {med.estoqueMin}
+                                  </Badge>
+                                  {estoqueAbaixoMin && (
+                                    <p className="text-xs text-destructive mt-1">⚠️ Estoque baixo</p>
+                                  )}
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Lote / Validade</p>
-                                <p className="font-medium">L2025001</p>
-                                <p className="text-sm text-muted-foreground">12/2026</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Estoque</p>
-                                <p className="font-medium">25 unidades</p>
-                                <Badge variant="outline" className="mt-1">
-                                  Mín: 10
-                                </Badge>
-                              </div>
-                              <div className="flex items-end gap-2">
+                              <div className="flex items-end gap-2 mt-4">
                                 <Button variant="outline" size="sm" className="flex-1">
                                   Editar
+                                </Button>
+                                <Button variant="outline" size="sm" className="flex-1">
+                                  Ver Detalhes
                                 </Button>
                                 <Button variant="ghost" size="sm">
                                   Excluir
                                 </Button>
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
