@@ -1,13 +1,490 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Pill, Package, TrendingUp, CheckCircle, Home } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Pill, Package, TrendingUp, CheckCircle, Home, QrCode, User, Clock, MapPin, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
+
+type EtapaStatus = "concluido" | "em_andamento" | "pendente" | "problema";
+
+interface Etapa {
+  nome: string;
+  status: EtapaStatus;
+  responsavel?: string;
+  dataHora?: string;
+  localizacao?: string;
+  observacao?: string;
+}
+
+interface Medicamento {
+  id: string;
+  qrCode: string;
+  nome: string;
+  lote: string;
+  quantidade: string;
+  paciente?: string;
+  tipo: "medicamento" | "infusao";
+  etapas: Etapa[];
+}
 
 const Farmaceutico = () => {
   const navigate = useNavigate();
+  const [selectedMedicamento, setSelectedMedicamento] = useState<Medicamento | null>(null);
+
+  // Mock data - medicamentos gerais
+  const medicamentosGerais: Medicamento[] = [
+    {
+      id: "MED001",
+      qrCode: "QR-MED-2025-001",
+      nome: "Paclitaxel 100mg",
+      lote: "L2025001",
+      quantidade: "2 frascos",
+      paciente: "Ana Costa",
+      tipo: "medicamento",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. Carlos Lima - CRF 54321",
+          dataHora: "18/10/2025 09:00",
+          localizacao: "Recepção Farmácia",
+          observacao: "Conferência de nota fiscal e temperatura de transporte OK (2-8°C)"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. Beatriz Santos - CRF 99887",
+          dataHora: "18/10/2025 09:15",
+          localizacao: "Geladeira A2 - Prateleira 3",
+          observacao: "Armazenado conforme protocolo. Temperatura: 5°C"
+        },
+        {
+          nome: "Dispensação",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: "18/10/2025 14:00",
+          localizacao: "Central de Manipulação",
+          observacao: "Dispensado para preparo de infusão"
+        },
+        {
+          nome: "Transporte interno",
+          status: "concluido",
+          responsavel: "Aux. Pedro Rocha",
+          dataHora: "18/10/2025 14:20",
+          localizacao: "Sala de Infusão 3",
+          observacao: "Transporte em caixa térmica. Tempo: 5 minutos"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "concluido",
+          responsavel: "Enf. Maria Santos - COREN 98765",
+          dataHora: "18/10/2025 14:30",
+          localizacao: "Leito 15 - Ala B",
+          observacao: "Infusão iniciada. Paciente orientada e monitorada"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "concluido",
+          responsavel: "Enf. Maria Santos - COREN 98765",
+          dataHora: "18/10/2025 16:00",
+          localizacao: "Sala de Resíduos",
+          observacao: "Material descartado conforme RDC 222/2018"
+        }
+      ]
+    },
+    {
+      id: "MED002",
+      qrCode: "QR-MED-2025-002",
+      nome: "Cisplatina 50mg",
+      lote: "L2025-789",
+      quantidade: "50 frascos",
+      tipo: "medicamento",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. Carlos Lima - CRF 54321",
+          dataHora: "18/10/2025 09:00",
+          localizacao: "Recepção Farmácia",
+          observacao: "Lote conferido. Validade: 06/2027"
+        },
+        {
+          nome: "Armazenamento",
+          status: "em_andamento",
+          responsavel: "Farm. Beatriz Santos - CRF 99887",
+          dataHora: "18/10/2025 09:20",
+          localizacao: "Geladeira B1 - Prateleira 2",
+          observacao: "Em processo de catalogação no sistema"
+        },
+        {
+          nome: "Dispensação",
+          status: "pendente"
+        },
+        {
+          nome: "Transporte interno",
+          status: "pendente"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    },
+    {
+      id: "MED003",
+      qrCode: "QR-MED-2025-003",
+      nome: "Rituximab 500mg",
+      lote: "R2025-456",
+      quantidade: "2 frascos",
+      paciente: "Roberto Lima",
+      tipo: "medicamento",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. Ana Paula - CRF 67890",
+          dataHora: "17/10/2025 14:00",
+          localizacao: "Recepção Farmácia",
+          observacao: "Recebimento normal"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. Ricardo Mendes - CRF 33445",
+          dataHora: "17/10/2025 14:15",
+          localizacao: "Geladeira A1",
+          observacao: "Temperatura controlada"
+        },
+        {
+          nome: "Dispensação",
+          status: "concluido",
+          responsavel: "Farm. Ana Paula - CRF 67890",
+          dataHora: "17/10/2025 16:30",
+          localizacao: "Central de Manipulação",
+          observacao: "Preparado para administração"
+        },
+        {
+          nome: "Transporte interno",
+          status: "problema",
+          responsavel: "Aux. Lucas Silva",
+          dataHora: "17/10/2025 16:45",
+          localizacao: "Corredor Ala C",
+          observacao: "PROBLEMA: Paciente não compareceu. Medicamento retornado ao estoque às 18:00"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    },
+    {
+      id: "MED004",
+      qrCode: "QR-MED-2025-004",
+      nome: "Bevacizumab 400mg",
+      lote: "B2025-321",
+      quantidade: "15 frascos",
+      tipo: "medicamento",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "problema",
+          dataHora: "17/10/2025 11:20",
+          localizacao: "Recepção Farmácia",
+          observacao: "PROBLEMA: Entrega não realizada pelo fornecedor. NF #45678 cancelada. Previsão: 20/10/2025"
+        },
+        {
+          nome: "Armazenamento",
+          status: "pendente"
+        },
+        {
+          nome: "Dispensação",
+          status: "pendente"
+        },
+        {
+          nome: "Transporte interno",
+          status: "pendente"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    }
+  ];
+
+  // Mock data - infusões
+  const infusoes: Medicamento[] = [
+    {
+      id: "INF001",
+      qrCode: "QR-INF-2025-001",
+      nome: "Doxorrubicina 104mg + Ciclofosfamida 1.038mg",
+      lote: "Protocolo AC-T",
+      quantidade: "Bolsa preparada",
+      paciente: "Maria Santos Silva",
+      tipo: "infusao",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: "18/10/2025 11:00",
+          localizacao: "Farmácia Central",
+          observacao: "Medicamentos separados do estoque conforme prescrição médica"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: "18/10/2025 11:05",
+          localizacao: "Geladeira Manipulação",
+          observacao: "Componentes armazenados aguardando preparação"
+        },
+        {
+          nome: "Dispensação",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: "18/10/2025 13:00",
+          localizacao: "Cabine de Fluxo Laminar",
+          observacao: "Infusão preparada em ambiente estéril. Dupla checagem realizada"
+        },
+        {
+          nome: "Transporte interno",
+          status: "concluido",
+          responsavel: "Aux. Camila Rocha",
+          dataHora: "18/10/2025 13:40",
+          localizacao: "Sala de Infusão 2",
+          observacao: "Transporte em caixa térmica certificada. Doxorrubicina protegida da luz"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "concluido",
+          responsavel: "Enf. Maria Santos - COREN 98765",
+          dataHora: "18/10/2025 14:00",
+          localizacao: "Leito 08 - Ala Oncologia",
+          observacao: "Infusão concluída. Paciente sem intercorrências. SSVV estáveis"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "concluido",
+          responsavel: "Enf. Maria Santos - COREN 98765",
+          dataHora: "18/10/2025 16:30",
+          localizacao: "Sala de Resíduos Químicos",
+          observacao: "Descarte conforme protocolo de quimioterápicos"
+        }
+      ]
+    },
+    {
+      id: "INF002",
+      qrCode: "QR-INF-2025-002",
+      nome: "Rituximab 754mg (R-CHOP)",
+      lote: "Protocolo R-CHOP",
+      quantidade: "Bolsa preparada",
+      paciente: "Roberto Lima Santos",
+      tipo: "infusao",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. Carlos Lima - CRF 54321",
+          dataHora: "18/10/2025 10:00",
+          localizacao: "Farmácia Central",
+          observacao: "Rituximab retirado do estoque refrigerado"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. Carlos Lima - CRF 54321",
+          dataHora: "18/10/2025 10:05",
+          localizacao: "Geladeira Manipulação",
+          observacao: "Temperatura monitorada: 4°C"
+        },
+        {
+          nome: "Dispensação",
+          status: "concluido",
+          responsavel: "Farm. Ana Paula - CRF 67890",
+          dataHora: "18/10/2025 12:30",
+          localizacao: "Cabine de Fluxo Laminar",
+          observacao: "Diluição em SF 0,9% 500mL. Inspeção visual OK"
+        },
+        {
+          nome: "Transporte interno",
+          status: "em_andamento",
+          responsavel: "Aux. Pedro Rocha",
+          dataHora: "18/10/2025 13:15",
+          localizacao: "Em trânsito para Sala 5",
+          observacao: "Transporte em andamento. ETA: 5 minutos"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    },
+    {
+      id: "INF003",
+      qrCode: "QR-INF-2025-003",
+      nome: "Oxaliplatina 135mg (FOLFOX)",
+      lote: "Protocolo FOLFOX",
+      quantidade: "Bolsa preparada",
+      paciente: "Ana Paula Ferreira",
+      tipo: "infusao",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. Beatriz Santos - CRF 99887",
+          dataHora: "18/10/2025 09:30",
+          localizacao: "Farmácia Central",
+          observacao: "Componentes do protocolo FOLFOX separados"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. Beatriz Santos - CRF 99887",
+          dataHora: "18/10/2025 09:35",
+          localizacao: "Área de Preparação",
+          observacao: "Oxaliplatina protegida da luz"
+        },
+        {
+          nome: "Dispensação",
+          status: "em_andamento",
+          responsavel: "Farm. Ricardo Mendes - CRF 33445",
+          dataHora: "18/10/2025 11:00",
+          localizacao: "Cabine de Fluxo Laminar",
+          observacao: "Em preparação. ATENÇÃO: Usar apenas SG 5%, nunca SF 0,9%"
+        },
+        {
+          nome: "Transporte interno",
+          status: "pendente"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    }
+  ];
+
+  const handleScanQR = (med: Medicamento) => {
+    setSelectedMedicamento(med);
+    toast({
+      title: "QR Code Escaneado",
+      description: `${med.nome} - ${med.qrCode}`,
+    });
+  };
+
+  const renderEtapaIcon = (status: EtapaStatus) => {
+    switch (status) {
+      case "concluido":
+        return <CheckCircle className="h-5 w-5 text-success" />;
+      case "em_andamento":
+        return <Clock className="h-5 w-5 text-warning animate-pulse" />;
+      case "problema":
+        return <AlertCircle className="h-5 w-5 text-destructive" />;
+      default:
+        return <div className="h-5 w-5 rounded-full border-2 border-muted" />;
+    }
+  };
+
+  const renderEtapaCard = (etapa: Etapa, index: number, total: number) => {
+    const isLast = index === total - 1;
+    
+    return (
+      <div key={index} className="relative">
+        <div className="flex items-start gap-4">
+          <div className="flex flex-col items-center">
+            <div className={`
+              h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0
+              ${etapa.status === "concluido" ? "bg-success/20" : ""}
+              ${etapa.status === "em_andamento" ? "bg-warning/20" : ""}
+              ${etapa.status === "problema" ? "bg-destructive/20" : ""}
+              ${etapa.status === "pendente" ? "bg-muted" : ""}
+            `}>
+              {renderEtapaIcon(etapa.status)}
+            </div>
+            {!isLast && (
+              <div className={`
+                w-0.5 h-full min-h-[60px] mt-2
+                ${etapa.status === "concluido" ? "bg-success/40" : "bg-muted"}
+              `} />
+            )}
+          </div>
+
+          <Card className={`
+            flex-1 mb-4
+            ${etapa.status === "problema" ? "border-destructive" : ""}
+            ${etapa.status === "em_andamento" ? "border-warning" : ""}
+          `}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-semibold">{etapa.nome}</h4>
+                <Badge variant={
+                  etapa.status === "concluido" ? "default" :
+                  etapa.status === "em_andamento" ? "secondary" :
+                  etapa.status === "problema" ? "destructive" : "outline"
+                }>
+                  {etapa.status === "concluido" ? "Concluído" :
+                   etapa.status === "em_andamento" ? "Em Andamento" :
+                   etapa.status === "problema" ? "Problema" : "Pendente"}
+                </Badge>
+              </div>
+
+              {etapa.responsavel && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                  <User className="h-3 w-3" />
+                  <span>{etapa.responsavel}</span>
+                </div>
+              )}
+
+              {etapa.dataHora && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                  <Clock className="h-3 w-3" />
+                  <span>{etapa.dataHora}</span>
+                </div>
+              )}
+
+              {etapa.localizacao && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                  <MapPin className="h-3 w-3" />
+                  <span>{etapa.localizacao}</span>
+                </div>
+              )}
+
+              {etapa.observacao && (
+                <div className="mt-2 pt-2 border-t">
+                  <p className="text-sm text-muted-foreground">{etapa.observacao}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,178 +577,120 @@ const Farmaceutico = () => {
           <TabsContent value="rastreabilidade" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Movimentação de Medicamentos</CardTitle>
+                <CardTitle>Rastreabilidade de Medicamentos</CardTitle>
                 <CardDescription>
-                  Rastreamento completo de entrada e saída
+                  Ciclo de vida completo desde recebimento até descarte
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  {
-                    tipo: "Saída",
-                    medicamento: "Paclitaxel 100mg",
-                    quantidade: 2,
-                    responsavel: "Farm. João Silva - CRF 12345",
-                    retirada: "Enf. Maria Santos - COREN 98765",
-                    destino: "Paciente: Ana Costa",
-                    data: "18/10/2025 14:30",
-                    status: "Administrado",
-                    observacao: "Medicamento administrado conforme protocolo. Paciente tolerou bem o procedimento.",
-                  },
-                  {
-                    tipo: "Entrada",
-                    medicamento: "Cisplatina 50mg",
-                    quantidade: 50,
-                    responsavel: "Farm. Carlos Lima - CRF 54321",
-                    fornecedor: "Distribuidora MedFarma",
-                    data: "18/10/2025 09:00",
-                    status: "Estocado",
-                    observacao: "Lote L2025-789. Armazenado em geladeira (2-8°C). Validade: 06/2027.",
-                  },
-                  {
-                    tipo: "Saída",
-                    medicamento: "Doxorrubicina 50mg",
-                    quantidade: 1,
-                    responsavel: "Farm. João Silva - CRF 12345",
-                    retirada: "Enf. Pedro Alves - COREN 55555",
-                    destino: "Paciente: Carlos Souza",
-                    data: "18/10/2025 10:15",
-                    status: "Em administração",
-                    observacao: "Infusão iniciada às 10:15. Previsão de término: 12:15. Monitoramento de sinais vitais a cada 30min.",
-                  },
-                  {
-                    tipo: "Saída",
-                    medicamento: "Rituximab 500mg",
-                    quantidade: 2,
-                    responsavel: "Farm. Ana Paula - CRF 67890",
-                    retirada: "Enf. Juliana Costa - COREN 44444",
-                    destino: "Paciente: Roberto Lima",
-                    data: "17/10/2025 16:45",
-                    status: "Não recebido pelo paciente",
-                    observacao: "Paciente não compareceu à sessão agendada. Medicamento devolvido ao estoque às 18:00. Necessário reagendamento.",
-                  },
-                  {
-                    tipo: "Entrada",
-                    medicamento: "Bevacizumab 400mg",
-                    quantidade: 15,
-                    responsavel: "Farm. Mariana Souza - CRF 11223",
-                    fornecedor: "Distribuidora FarmaPlus",
-                    data: "17/10/2025 11:20",
-                    status: "Medicamento não recebido",
-                    observacao: "Entrega não realizada pelo fornecedor. Nota fiscal #45678 cancelada. Previsão de nova entrega: 20/10/2025.",
-                  },
-                  {
-                    tipo: "Saída",
-                    medicamento: "Carboplatina 450mg",
-                    quantidade: 1,
-                    responsavel: "Farm. Ricardo Mendes - CRF 33445",
-                    retirada: "Enf. Fernanda Silva - COREN 77777",
-                    destino: "Paciente: Lucia Ferreira",
-                    data: "16/10/2025 13:30",
-                    status: "Perda de medicamento",
-                    observacao: "Frasco quebrou durante transporte interno. Área descontaminada conforme protocolo. Relatório de ocorrência #2025-034 gerado.",
-                  },
-                  {
-                    tipo: "Entrada",
-                    medicamento: "Trastuzumab 440mg",
-                    quantidade: 8,
-                    responsavel: "Farm. Beatriz Santos - CRF 99887",
-                    fornecedor: "Distribuidora BioMed",
-                    data: "16/10/2025 08:15",
-                    status: "Quarentena",
-                    observacao: "Aguardando liberação de controle de qualidade. Temperatura de transporte verificada e conforme (2-8°C). Lote: T2025-456.",
-                  },
-                  {
-                    tipo: "Saída",
-                    medicamento: "Oxaliplatina 100mg",
-                    quantidade: 2,
-                    responsavel: "Farm. Paulo Roberto - CRF 55667",
-                    retirada: "Enf. Camila Rocha - COREN 22222",
-                    destino: "Paciente: José Santos",
-                    data: "15/10/2025 15:00",
-                    status: "Cancelado",
-                    observacao: "Prescrição cancelada pelo médico oncologista Dr. Fernando Costa devido a alteração nos exames laboratoriais do paciente. Medicamento devolvido ao estoque.",
-                  },
-                  {
-                    tipo: "Saída",
-                    medicamento: "Pembrolizumab 200mg",
-                    quantidade: 1,
-                    responsavel: "Farm. Laura Oliveira - CRF 77889",
-                    retirada: "Enf. Rodrigo Almeida - COREN 66666",
-                    destino: "Paciente: Helena Martins",
-                    data: "15/10/2025 09:30",
-                    status: "Aguardando coleta",
-                    observacao: "Medicamento preparado e armazenado em refrigeração. Enfermagem notificada. Paciente em processo de admissão na unidade.",
-                  },
-                ].map((mov, i) => (
-                  <Card key={i} className={`border-l-4 ${
-                    mov.status.includes("Não recebido") || mov.status === "Perda de medicamento" || mov.status === "Cancelado"
-                      ? "border-l-destructive"
-                      : mov.tipo === "Entrada" 
-                      ? "border-l-success" 
-                      : "border-l-primary"
-                  }`}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <Badge variant={mov.tipo === "Entrada" ? "default" : "secondary"}>
-                            {mov.tipo}
-                          </Badge>
-                          <p className="font-semibold mt-2">{mov.medicamento}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Quantidade: {mov.quantidade} {mov.quantidade === 1 ? "unidade" : "unidades"}
-                          </p>
-                        </div>
-                        <Badge 
-                          variant={
-                            mov.status.includes("Não recebido") || mov.status === "Perda de medicamento" || mov.status === "Cancelado"
-                              ? "destructive"
-                              : mov.status === "Administrado"
-                              ? "default"
-                              : "outline"
-                          }
-                        >
-                          {mov.status}
-                        </Badge>
-                      </div>
+                <div className="flex items-center gap-4 mb-4">
+                  <Input placeholder="Buscar por QR Code, medicamento ou paciente..." className="max-w-md" />
+                  <Button variant="outline">
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Escanear QR Code
+                  </Button>
+                </div>
 
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">Responsável estoque:</span>
-                          <span className="font-medium">{mov.responsavel}</span>
-                        </div>
-                        {mov.retirada && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Retirado por:</span>
-                            <span className="font-medium">{mov.retirada}</span>
+                <div className="grid gap-4">
+                  {medicamentosGerais.map((med) => {
+                    const etapaAtual = med.etapas.find(e => e.status === "em_andamento" || e.status === "problema") || 
+                                       med.etapas.filter(e => e.status === "concluido").pop() ||
+                                       med.etapas[0];
+                    const concluidas = med.etapas.filter(e => e.status === "concluido").length;
+                    const total = med.etapas.length;
+                    const temProblema = med.etapas.some(e => e.status === "problema");
+
+                    return (
+                      <Card key={med.id} className={`${temProblema ? "border-destructive/50" : ""}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <QrCode className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-xs font-mono text-muted-foreground">{med.qrCode}</span>
+                              </div>
+                              <h3 className="font-semibold text-lg mb-1">{med.nome}</h3>
+                              <div className="flex gap-4 text-sm text-muted-foreground">
+                                <span>Lote: {med.lote}</span>
+                                <span>{med.quantidade}</span>
+                                {med.paciente && <span>Paciente: {med.paciente}</span>}
+                              </div>
+                            </div>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => handleScanQR(med)}>
+                                  Ver Trilha Completa
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Trilha Completa - {med.nome}</DialogTitle>
+                                  <DialogDescription>
+                                    {med.qrCode} • {med.quantidade}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="mt-4">
+                                  {med.etapas.map((etapa, idx) => renderEtapaCard(etapa, idx, med.etapas.length))}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           </div>
-                        )}
-                        {mov.destino && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Destino:</span>
-                            <span className="font-medium">{mov.destino}</span>
+
+                          <div className="space-y-3">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium">Progresso do Ciclo</span>
+                                <span className="text-sm text-muted-foreground">{concluidas}/{total} etapas</span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all ${temProblema ? "bg-destructive" : "bg-primary"}`}
+                                  style={{ width: `${(concluidas / total) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <Card className="bg-muted/50">
+                              <CardContent className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <div className={`
+                                    h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0
+                                    ${etapaAtual.status === "concluido" ? "bg-success/20" : ""}
+                                    ${etapaAtual.status === "em_andamento" ? "bg-warning/20" : ""}
+                                    ${etapaAtual.status === "problema" ? "bg-destructive/20" : ""}
+                                    ${etapaAtual.status === "pendente" ? "bg-background" : ""}
+                                  `}>
+                                    {renderEtapaIcon(etapaAtual.status)}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <p className="font-medium">{etapaAtual.nome}</p>
+                                      <Badge variant={
+                                        etapaAtual.status === "concluido" ? "default" :
+                                        etapaAtual.status === "em_andamento" ? "secondary" :
+                                        etapaAtual.status === "problema" ? "destructive" : "outline"
+                                      } className="text-xs">
+                                        {etapaAtual.status === "concluido" ? "Concluído" :
+                                         etapaAtual.status === "em_andamento" ? "Em Andamento" :
+                                         etapaAtual.status === "problema" ? "Problema" : "Aguardando"}
+                                      </Badge>
+                                    </div>
+                                    {etapaAtual.responsavel && (
+                                      <p className="text-sm text-muted-foreground">{etapaAtual.responsavel}</p>
+                                    )}
+                                    {etapaAtual.dataHora && (
+                                      <p className="text-xs text-muted-foreground">{etapaAtual.dataHora} • {etapaAtual.localizacao}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </div>
-                        )}
-                        {mov.fornecedor && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Fornecedor:</span>
-                            <span className="font-medium">{mov.fornecedor}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 pt-2 border-t">
-                          <span className="text-muted-foreground">Data/Hora:</span>
-                          <span className="font-medium">{mov.data}</span>
-                        </div>
-                        {mov.observacao && (
-                          <div className="pt-2 border-t">
-                            <p className="text-muted-foreground mb-1">Observações:</p>
-                            <p className="text-sm">{mov.observacao}</p>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -680,78 +1099,123 @@ const Farmaceutico = () => {
           <TabsContent value="rastreio-infusoes" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Rastreabilidade das Infusões</CardTitle>
+                <CardTitle>Rastreio de Infusões</CardTitle>
                 <CardDescription>
-                  Acompanhe o caminho completo até o paciente
+                  Ciclo de vida completo das infusões oncológicas
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2].map((i) => (
-                  <Card key={i} className="border-l-4 border-l-success">
-                    <CardContent className="pt-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold">Paciente: Maria Santos Silva</p>
-                          <Badge>Completo</Badge>
-                        </div>
+                <div className="flex items-center gap-4 mb-4">
+                  <Input placeholder="Buscar por QR Code, protocolo ou paciente..." className="max-w-md" />
+                  <Button variant="outline">
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Escanear QR Code
+                  </Button>
+                </div>
 
-                        <div className="space-y-3">
-                          <div className="flex items-start gap-3">
-                            <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="h-4 w-4 text-success" />
-                            </div>
+                <div className="grid gap-4">
+                  {infusoes.map((inf) => {
+                    const etapaAtual = inf.etapas.find(e => e.status === "em_andamento" || e.status === "problema") || 
+                                       inf.etapas.filter(e => e.status === "concluido").pop() ||
+                                       inf.etapas[0];
+                    const concluidas = inf.etapas.filter(e => e.status === "concluido").length;
+                    const total = inf.etapas.length;
+                    const temProblema = inf.etapas.some(e => e.status === "problema");
+
+                    return (
+                      <Card key={inf.id} className={`border-l-4 ${temProblema ? "border-l-destructive" : "border-l-primary"}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
-                              <p className="text-sm font-medium">Manipulação</p>
-                              <p className="text-xs text-muted-foreground">
-                                Farm. João Silva - CRF 12345
-                              </p>
-                              <p className="text-xs text-muted-foreground">18/10/2025 - 13:00</p>
+                              <div className="flex items-center gap-2 mb-2">
+                                <QrCode className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-xs font-mono text-muted-foreground">{inf.qrCode}</span>
+                                <Badge variant="secondary" className="text-xs">Infusão</Badge>
+                              </div>
+                              <h3 className="font-semibold text-lg mb-1">{inf.nome}</h3>
+                              <div className="flex gap-4 text-sm text-muted-foreground">
+                                <span>{inf.lote}</span>
+                                {inf.paciente && <span>Paciente: {inf.paciente}</span>}
+                              </div>
                             </div>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => handleScanQR(inf)}>
+                                  Ver Trilha Completa
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Trilha Completa - {inf.nome}</DialogTitle>
+                                  <DialogDescription>
+                                    {inf.qrCode} • Paciente: {inf.paciente}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="mt-4">
+                                  {inf.etapas.map((etapa, idx) => renderEtapaCard(etapa, idx, inf.etapas.length))}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           </div>
 
-                          <div className="flex items-start gap-3">
-                            <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="h-4 w-4 text-success" />
+                          <div className="space-y-3">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium">Progresso do Ciclo</span>
+                                <span className="text-sm text-muted-foreground">{concluidas}/{total} etapas</span>
+                              </div>
+                              <div className="w-full bg-muted rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all ${temProblema ? "bg-destructive" : "bg-success"}`}
+                                  style={{ width: `${(concluidas / total) * 100}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">Liberação</p>
-                              <p className="text-xs text-muted-foreground">
-                                Farm. Carlos Lima - CRF 54321
-                              </p>
-                              <p className="text-xs text-muted-foreground">18/10/2025 - 13:30</p>
-                            </div>
-                          </div>
 
-                          <div className="flex items-start gap-3">
-                            <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="h-4 w-4 text-success" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">Retirada</p>
-                              <p className="text-xs text-muted-foreground">
-                                Enf. Ana Oliveira - COREN 98765
-                              </p>
-                              <p className="text-xs text-muted-foreground">18/10/2025 - 13:45</p>
-                            </div>
+                            <Card className="bg-muted/50">
+                              <CardContent className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <div className={`
+                                    h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0
+                                    ${etapaAtual.status === "concluido" ? "bg-success/20" : ""}
+                                    ${etapaAtual.status === "em_andamento" ? "bg-warning/20" : ""}
+                                    ${etapaAtual.status === "problema" ? "bg-destructive/20" : ""}
+                                    ${etapaAtual.status === "pendente" ? "bg-background" : ""}
+                                  `}>
+                                    {renderEtapaIcon(etapaAtual.status)}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <p className="font-medium">{etapaAtual.nome}</p>
+                                      <Badge variant={
+                                        etapaAtual.status === "concluido" ? "default" :
+                                        etapaAtual.status === "em_andamento" ? "secondary" :
+                                        etapaAtual.status === "problema" ? "destructive" : "outline"
+                                      } className="text-xs">
+                                        {etapaAtual.status === "concluido" ? "Concluído" :
+                                         etapaAtual.status === "em_andamento" ? "Em Andamento" :
+                                         etapaAtual.status === "problema" ? "Problema" : "Aguardando"}
+                                      </Badge>
+                                    </div>
+                                    {etapaAtual.responsavel && (
+                                      <p className="text-sm text-muted-foreground">{etapaAtual.responsavel}</p>
+                                    )}
+                                    {etapaAtual.dataHora && (
+                                      <p className="text-xs text-muted-foreground">{etapaAtual.dataHora} • {etapaAtual.localizacao}</p>
+                                    )}
+                                    {etapaAtual.observacao && (
+                                      <p className="text-xs text-muted-foreground mt-1">{etapaAtual.observacao}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
                           </div>
-
-                          <div className="flex items-start gap-3">
-                            <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="h-4 w-4 text-success" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">Aplicação</p>
-                              <p className="text-xs text-muted-foreground">
-                                Enf. Pedro Alves - COREN 55555
-                              </p>
-                              <p className="text-xs text-muted-foreground">18/10/2025 - 14:00</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
