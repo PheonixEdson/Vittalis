@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calendar as CalendarIcon, Users, ClipboardCheck, Home, AlertCircle, FileText } from "lucide-react";
+import { Calendar as CalendarIcon, Users, ClipboardCheck, Home, AlertCircle, FileText, TrendingUp, TrendingDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, isSameDay } from "date-fns";
 
 // Mock data de pacientes distribuídos em vários dias
@@ -43,62 +44,385 @@ const pacientesData = [
   { id: 20, nome: "Diego Alves Pereira", hora: "17:00", status: "Agendado", data: new Date(Date.now() + 432000000), diagnostico: "Leucemia Mielóide Aguda", matricula: "012.345.679-0", protocolo: "7+3" },
 ];
 
-// Mock data de exames
+// Valores de referência para exames
+const valoresReferencia: Record<string, { min?: string; max?: string; valor?: string }> = {
+  hemoglobina: { min: "12.0", max: "16.0" },
+  leucocitos: { min: "4.000", max: "11.000" },
+  plaquetas: { min: "150.000", max: "400.000" },
+  creatinina: { min: "0.6", max: "1.2" },
+  ureia: { min: "15", max: "45" },
+  tgo: { max: "40" },
+  tgp: { max: "41" },
+  ldh: { min: "120", max: "246" },
+  ca153: { max: "31.3" },
+  cea: { max: "3.0" },
+  ca125: { max: "35" },
+  cvf: { min: "80%" },
+  vef1: { min: "80%" },
+};
+
+// Mock data de exames com histórico (até 4 registros)
 const examesData: Record<number, any[]> = {
   1: [
-    { tipo: "Hemograma Completo", data: "20/10/2025", hemoglobina: "12.5 g/dL", leucocitos: "7.200/mm³", plaquetas: "180.000/mm³", status: "Normal" },
-    { tipo: "Bioquímica", data: "20/10/2025", creatinina: "0.9 mg/dL", ureia: "32 mg/dL", tgo: "28 U/L", tgp: "25 U/L", status: "Normal" },
-    { tipo: "Marcadores Tumorais", data: "18/10/2025", ca153: "25 U/mL", cea: "2.8 ng/mL", status: "Dentro dos limites" },
+    {
+      tipo: "Hemograma Completo",
+      historico: [
+        { data: "25/10/2025", hemoglobina: "12.5", leucocitos: "7.200", plaquetas: "180.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "18/10/2025", hemoglobina: "12.8", leucocitos: "7.500", plaquetas: "185.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+        { data: "11/10/2025", hemoglobina: "13.0", leucocitos: "7.000", plaquetas: "190.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "04/10/2025", hemoglobina: "13.2", leucocitos: "6.800", plaquetas: "195.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+      ]
+    },
+    {
+      tipo: "Bioquímica",
+      historico: [
+        { data: "25/10/2025", creatinina: "0.9", ureia: "32", tgo: "28", tgp: "25", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "18/10/2025", creatinina: "0.8", ureia: "30", tgo: "26", tgp: "24", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "11/10/2025", creatinina: "0.9", ureia: "31", tgo: "27", tgp: "26", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+      ]
+    },
+    {
+      tipo: "Marcadores Tumorais",
+      historico: [
+        { data: "25/10/2025", ca153: "25", cea: "2.8", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "11/10/2025", ca153: "28", cea: "3.2", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+      ]
+    },
   ],
   2: [
-    { tipo: "Hemograma Completo", data: "21/10/2025", hemoglobina: "13.2 g/dL", leucocitos: "6.800/mm³", plaquetas: "195.000/mm³", status: "Normal" },
-    { tipo: "Bioquímica", data: "21/10/2025", creatinina: "1.0 mg/dL", ureia: "35 mg/dL", tgo: "30 U/L", tgp: "28 U/L", status: "Normal" },
-    { tipo: "LDH", data: "21/10/2025", ldh: "245 U/L", status: "Normal" },
+    {
+      tipo: "Hemograma Completo",
+      historico: [
+        { data: "25/10/2025", hemoglobina: "13.2", leucocitos: "6.800", plaquetas: "195.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "18/10/2025", hemoglobina: "13.0", leucocitos: "7.000", plaquetas: "190.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+        { data: "11/10/2025", hemoglobina: "12.8", leucocitos: "7.200", plaquetas: "188.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+      ]
+    },
+    {
+      tipo: "Bioquímica",
+      historico: [
+        { data: "25/10/2025", creatinina: "1.0", ureia: "35", tgo: "30", tgp: "28", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "18/10/2025", creatinina: "0.9", ureia: "33", tgo: "29", tgp: "27", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+      ]
+    },
+    {
+      tipo: "LDH",
+      historico: [
+        { data: "25/10/2025", ldh: "245", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "18/10/2025", ldh: "240", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "11/10/2025", ldh: "238", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+      ]
+    },
   ],
   3: [
-    { tipo: "Hemograma Completo", data: "22/10/2025", hemoglobina: "11.8 g/dL", leucocitos: "6.500/mm³", plaquetas: "175.000/mm³", status: "Leve anemia" },
-    { tipo: "Bioquímica", data: "22/10/2025", creatinina: "0.8 mg/dL", ureia: "30 mg/dL", tgo: "26 U/L", tgp: "24 U/L", status: "Normal" },
-    { tipo: "Função Pulmonar", data: "20/10/2025", cvf: "85%", vef1: "80%", status: "Adequado" },
+    {
+      tipo: "Hemograma Completo",
+      historico: [
+        { data: "25/10/2025", hemoglobina: "11.8", leucocitos: "6.500", plaquetas: "175.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+        { data: "18/10/2025", hemoglobina: "12.0", leucocitos: "6.800", plaquetas: "180.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "11/10/2025", hemoglobina: "12.2", leucocitos: "7.000", plaquetas: "182.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+      ]
+    },
+    {
+      tipo: "Bioquímica",
+      historico: [
+        { data: "25/10/2025", creatinina: "0.8", ureia: "30", tgo: "26", tgp: "24", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+        { data: "18/10/2025", creatinina: "0.9", ureia: "32", tgo: "28", tgp: "25", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+      ]
+    },
+    {
+      tipo: "Função Pulmonar",
+      historico: [
+        { data: "25/10/2025", cvf: "85%", vef1: "80%", responsavel: "Dr. Paulo Henrique Dias", crm: "CRM-SP 678901" },
+        { data: "11/10/2025", cvf: "82%", vef1: "78%", responsavel: "Dr. Paulo Henrique Dias", crm: "CRM-SP 678901" },
+      ]
+    },
   ],
   4: [
-    { tipo: "Hemograma Completo", data: "23/10/2025", hemoglobina: "12.0 g/dL", leucocitos: "7.000/mm³", plaquetas: "190.000/mm³", status: "Normal" },
-    { tipo: "Bioquímica", data: "23/10/2025", creatinina: "0.9 mg/dL", ureia: "33 mg/dL", tgo: "29 U/L", tgp: "27 U/L", status: "Normal" },
-    { tipo: "CEA", data: "22/10/2025", cea: "4.2 ng/mL", status: "Discretamente elevado" },
+    {
+      tipo: "Hemograma Completo",
+      historico: [
+        { data: "25/10/2025", hemoglobina: "12.0", leucocitos: "7.000", plaquetas: "190.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "18/10/2025", hemoglobina: "12.2", leucocitos: "7.200", plaquetas: "192.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+        { data: "11/10/2025", hemoglobina: "12.5", leucocitos: "7.500", plaquetas: "195.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+      ]
+    },
+    {
+      tipo: "Bioquímica",
+      historico: [
+        { data: "25/10/2025", creatinina: "0.9", ureia: "33", tgo: "29", tgp: "27", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+        { data: "18/10/2025", creatinina: "0.8", ureia: "31", tgo: "28", tgp: "26", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+      ]
+    },
+    {
+      tipo: "CEA",
+      historico: [
+        { data: "25/10/2025", cea: "4.2", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "18/10/2025", cea: "3.8", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "11/10/2025", cea: "3.5", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "04/10/2025", cea: "3.2", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+      ]
+    },
   ],
   5: [
-    { tipo: "Hemograma Completo", data: "23/10/2025", hemoglobina: "11.5 g/dL", leucocitos: "6.200/mm³", plaquetas: "165.000/mm³", status: "Leve anemia" },
-    { tipo: "Bioquímica", data: "23/10/2025", creatinina: "0.8 mg/dL", ureia: "28 mg/dL", tgo: "27 U/L", tgp: "23 U/L", status: "Normal" },
-    { tipo: "CA-125", data: "22/10/2025", ca125: "45 U/mL", status: "Elevado" },
+    {
+      tipo: "Hemograma Completo",
+      historico: [
+        { data: "25/10/2025", hemoglobina: "11.5", leucocitos: "6.200", plaquetas: "165.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+        { data: "18/10/2025", hemoglobina: "11.8", leucocitos: "6.500", plaquetas: "170.000", responsavel: "Dra. Ana Paula Santos", crm: "CRM-SP 123456" },
+        { data: "11/10/2025", hemoglobina: "12.0", leucocitos: "6.800", plaquetas: "175.000", responsavel: "Dr. Carlos Eduardo Lima", crm: "CRM-SP 234567" },
+      ]
+    },
+    {
+      tipo: "Bioquímica",
+      historico: [
+        { data: "25/10/2025", creatinina: "0.8", ureia: "28", tgo: "27", tgp: "23", responsavel: "Dra. Mariana Costa", crm: "CRM-SP 456789" },
+        { data: "18/10/2025", creatinina: "0.9", ureia: "30", tgo: "28", tgp: "25", responsavel: "Dr. Ricardo Almeida", crm: "CRM-SP 345678" },
+      ]
+    },
+    {
+      tipo: "CA-125",
+      historico: [
+        { data: "25/10/2025", ca125: "45", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "18/10/2025", ca125: "42", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+        { data: "11/10/2025", ca125: "38", responsavel: "Dr. Fernando Silva", crm: "CRM-SP 567890" },
+      ]
+    },
   ],
 };
 
-// Mock data de prescrições
-const prescricoesData: Record<number, any[]> = {
-  1: [
-    { medicamento: "Doxorrubicina", dose: "60 mg/m²", via: "IV", frequencia: "Ciclo 21/21 dias", observacao: "Pré-medicação com antieméticos" },
-    { medicamento: "Ciclofosfamida", dose: "600 mg/m²", via: "IV", frequencia: "Ciclo 21/21 dias", observacao: "Hiperdiurese recomendada" },
-    { medicamento: "Ondansetrona", dose: "8 mg", via: "IV", frequencia: "Antes da quimioterapia", observacao: "Antiemético profilático" },
-  ],
-  2: [
-    { medicamento: "Rituximab", dose: "375 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Infusão lenta, monitorar reações" },
-    { medicamento: "Ciclofosfamida", dose: "750 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Hiperdiurese" },
-    { medicamento: "Doxorrubicina", dose: "50 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Verificar fração de ejeção" },
-    { medicamento: "Vincristina", dose: "1.4 mg/m² (máx 2mg)", via: "IV", frequencia: "Dia 1", observacao: "Não diluir em soro fisiológico" },
-    { medicamento: "Prednisona", dose: "100 mg", via: "VO", frequencia: "Dias 1-5", observacao: "Administrar pela manhã" },
-  ],
-  3: [
-    { medicamento: "Pembrolizumab", dose: "200 mg", via: "IV", frequencia: "Ciclo 21/21 dias", observacao: "Imunoterapia, monitorar eventos adversos imunes" },
-    { medicamento: "Dexametasona", dose: "4 mg", via: "VO", frequencia: "12/12h se necessário", observacao: "Para reações adversas" },
-  ],
-  4: [
-    { medicamento: "Oxaliplatina", dose: "85 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Infusão em 2-6 horas, evitar frio" },
-    { medicamento: "Leucovorin", dose: "400 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Antes do 5-FU" },
-    { medicamento: "5-Fluorouracil", dose: "400 mg/m² bolus + 2400 mg/m²", via: "IV", frequencia: "Infusão contínua 46h", observacao: "Bomba de infusão" },
-  ],
-  5: [
-    { medicamento: "Carboplatina", dose: "AUC 5", via: "IV", frequencia: "Dia 1", observacao: "Calcular por fórmula de Calvert" },
-    { medicamento: "Paclitaxel", dose: "175 mg/m²", via: "IV", frequencia: "Dia 1", observacao: "Pré-medicação obrigatória (corticóide, anti-histamínico)" },
-  ],
+// Mock data de prescrições com médico responsável
+const prescricoesData: Record<number, any> = {
+  1: {
+    medico: "Dr. José Carlos Oliveira",
+    crm: "CRM-SP 98765",
+    especialidade: "Oncologia Clínica",
+    dataPrescricao: "24/10/2025",
+    ciclo: "Ciclo 3/6",
+    superficieCorporal: "1.65 m²",
+    medicamentos: [
+      { 
+        medicamento: "Doxorrubicina", 
+        principioAtivo: "Doxorrubicina HCl",
+        dose: "60 mg/m²", 
+        doseCalculada: "99 mg",
+        via: "IV", 
+        frequencia: "Ciclo 21/21 dias", 
+        tempoInfusao: "15-30 minutos",
+        diluicao: "Soro Fisiológico 0,9% 100ml",
+        observacao: "Pré-medicação com antieméticos obrigatória. Vesicante - infundir em veia calibrosa.",
+        precaucoes: "Monitorar fração de ejeção do ventrículo esquerdo"
+      },
+      { 
+        medicamento: "Ciclofosfamida", 
+        principioAtivo: "Ciclofosfamida",
+        dose: "600 mg/m²", 
+        doseCalculada: "990 mg",
+        via: "IV", 
+        frequencia: "Ciclo 21/21 dias", 
+        tempoInfusao: "30-60 minutos",
+        diluicao: "Soro Fisiológico 0,9% 250ml",
+        observacao: "Hiperdiurese recomendada (2-3L de líquidos nas 24h seguintes)",
+        precaucoes: "Orientar paciente sobre coloração avermelhada da urina"
+      },
+      { 
+        medicamento: "Ondansetrona", 
+        principioAtivo: "Ondansetrona HCl",
+        dose: "8 mg", 
+        doseCalculada: "8 mg",
+        via: "IV", 
+        frequencia: "30 min antes da quimioterapia + 8/8h por 24h", 
+        tempoInfusao: "5 minutos",
+        diluicao: "Soro Fisiológico 0,9% 50ml",
+        observacao: "Antiemético profilático - controle de náuseas e vômitos",
+        precaucoes: "Pode causar cefaleia leve"
+      },
+    ]
+  },
+  2: {
+    medico: "Dra. Mariana Ferreira Santos",
+    crm: "CRM-SP 87654",
+    especialidade: "Hematologia e Oncologia",
+    dataPrescricao: "24/10/2025",
+    ciclo: "Ciclo 2/6",
+    superficieCorporal: "1.72 m²",
+    medicamentos: [
+      { 
+        medicamento: "Rituximab", 
+        principioAtivo: "Rituximab",
+        dose: "375 mg/m²", 
+        doseCalculada: "645 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "4-6 horas (primeira infusão)",
+        diluicao: "Soro Fisiológico 0,9% 500ml",
+        observacao: "Infusão lenta, monitorar reações infusionais. Pré-medicação: paracetamol + anti-histamínico",
+        precaucoes: "Sintomas gripais são comuns. Monitorar sinais vitais a cada 30 min"
+      },
+      { 
+        medicamento: "Ciclofosfamida", 
+        principioAtivo: "Ciclofosfamida",
+        dose: "750 mg/m²", 
+        doseCalculada: "1290 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "30-60 minutos",
+        diluicao: "Soro Fisiológico 0,9% 250ml",
+        observacao: "Hiperdiurese obrigatória",
+        precaucoes: "Mesna pode ser necessária em doses altas"
+      },
+      { 
+        medicamento: "Doxorrubicina", 
+        principioAtivo: "Doxorrubicina HCl",
+        dose: "50 mg/m²", 
+        doseCalculada: "86 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "15-30 minutos",
+        diluicao: "Soro Fisiológico 0,9% 100ml",
+        observacao: "Verificar fração de ejeção antes de cada ciclo",
+        precaucoes: "Dose cumulativa máxima: 550 mg/m²"
+      },
+      { 
+        medicamento: "Vincristina", 
+        principioAtivo: "Sulfato de Vincristina",
+        dose: "1.4 mg/m² (máx 2mg)", 
+        doseCalculada: "2 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "5-10 minutos",
+        diluicao: "Não diluir",
+        observacao: "EXCLUSIVAMENTE INTRAVENOSO. Nunca administrar via intratecal",
+        precaucoes: "Monitorar neuropatia periférica e constipação"
+      },
+      { 
+        medicamento: "Prednisona", 
+        principioAtivo: "Prednisona",
+        dose: "100 mg", 
+        doseCalculada: "100 mg",
+        via: "VO", 
+        frequencia: "Dias 1-5", 
+        tempoInfusao: "N/A",
+        diluicao: "N/A",
+        observacao: "Administrar pela manhã com alimento",
+        precaucoes: "Pode causar insônia, hiperglicemia e alterações de humor"
+      },
+    ]
+  },
+  3: {
+    medico: "Dr. Roberto Mendes Lima",
+    crm: "CRM-SP 76543",
+    especialidade: "Oncologia Torácica",
+    dataPrescricao: "23/10/2025",
+    ciclo: "Ciclo 5/12",
+    superficieCorporal: "1.68 m²",
+    medicamentos: [
+      { 
+        medicamento: "Pembrolizumab", 
+        principioAtivo: "Pembrolizumab",
+        dose: "200 mg", 
+        doseCalculada: "200 mg",
+        via: "IV", 
+        frequencia: "Ciclo 21/21 dias", 
+        tempoInfusao: "30 minutos",
+        diluicao: "Soro Fisiológico 0,9% 100ml",
+        observacao: "Imunoterapia - monitorar eventos adversos imuno-relacionados (pneumonite, colite, hepatite, endocrinopatias)",
+        precaucoes: "Educar paciente sobre sintomas de alerta. Realizar provas de função hepática, tireoidiana e pulmonar pré-ciclo"
+      },
+      { 
+        medicamento: "Dexametasona", 
+        principioAtivo: "Fosfato de Dexametasona",
+        dose: "4 mg", 
+        doseCalculada: "4 mg",
+        via: "VO", 
+        frequencia: "12/12h se necessário (reações adversas imunes)", 
+        tempoInfusao: "N/A",
+        diluicao: "N/A",
+        observacao: "Uso sob demanda para manejo de eventos adversos imunológicos",
+        precaucoes: "Iniciar apenas com orientação médica. Não suspender abruptamente"
+      },
+    ]
+  },
+  4: {
+    medico: "Dr. André Luiz Costa",
+    crm: "CRM-SP 65432",
+    especialidade: "Oncologia Gastrointestinal",
+    dataPrescricao: "24/10/2025",
+    ciclo: "Ciclo 4/12",
+    superficieCorporal: "1.75 m²",
+    medicamentos: [
+      { 
+        medicamento: "Oxaliplatina", 
+        principioAtivo: "Oxaliplatina",
+        dose: "85 mg/m²", 
+        doseCalculada: "149 mg",
+        via: "IV", 
+        frequencia: "Dia 1 - Ciclo 14/14 dias", 
+        tempoInfusao: "2-6 horas",
+        diluicao: "Soro Glicosado 5% 500ml (NUNCA soro fisiológico)",
+        observacao: "Evitar exposição ao frio nas 48h seguintes. Pode causar neuropatia periférica acumulativa",
+        precaucoes: "Orientar paciente a evitar líquidos gelados. Monitorar sinais de laringoespasmo"
+      },
+      { 
+        medicamento: "Leucovorin", 
+        principioAtivo: "Folinato de Cálcio",
+        dose: "400 mg/m²", 
+        doseCalculada: "700 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "2 horas",
+        diluicao: "Soro Fisiológico 0,9% 250ml",
+        observacao: "Administrar antes do 5-FU para potencializar ação",
+        precaucoes: "Respeitar tempo de infusão"
+      },
+      { 
+        medicamento: "5-Fluorouracil", 
+        principioAtivo: "5-Fluorouracil",
+        dose: "400 mg/m² bolus + 2400 mg/m² infusão", 
+        doseCalculada: "700 mg bolus + 4200 mg infusão",
+        via: "IV", 
+        frequencia: "Bolus dia 1 + Infusão contínua 46h", 
+        tempoInfusao: "Bolus: 5 min / Infusão: 46 horas",
+        diluicao: "Soro Fisiológico 0,9%",
+        observacao: "Utilizar bomba de infusão contínua portátil. Paciente retorna em 48h para retirada",
+        precaucoes: "Orientar sobre mucosite, diarreia e síndrome mão-pé"
+      },
+    ]
+  },
+  5: {
+    medico: "Dra. Patricia Alves Rocha",
+    crm: "CRM-SP 54321",
+    especialidade: "Ginecologia Oncológica",
+    dataPrescricao: "23/10/2025",
+    ciclo: "Ciclo 2/6",
+    superficieCorporal: "1.60 m²",
+    medicamentos: [
+      { 
+        medicamento: "Carboplatina", 
+        principioAtivo: "Carboplatina",
+        dose: "AUC 5", 
+        doseCalculada: "450 mg (calculado por Calvert)",
+        via: "IV", 
+        frequencia: "Dia 1 - Ciclo 21/21 dias", 
+        tempoInfusao: "30-60 minutos",
+        diluicao: "Soro Glicosado 5% 250ml",
+        observacao: "Dose calculada pela fórmula de Calvert considerando clearance de creatinina. Menor nefrotoxicidade que cisplatina",
+        precaucoes: "Monitorar função renal e hemograma. Nadir plaquetário entre dias 14-21"
+      },
+      { 
+        medicamento: "Paclitaxel", 
+        principioAtivo: "Paclitaxel",
+        dose: "175 mg/m²", 
+        doseCalculada: "280 mg",
+        via: "IV", 
+        frequencia: "Dia 1", 
+        tempoInfusao: "3 horas",
+        diluicao: "Soro Fisiológico 0,9% 500ml",
+        observacao: "Pré-medicação OBRIGATÓRIA: Dexametasona 20mg VO 12h e 6h antes + Difenidramina 50mg IV 30min antes + Ranitidina 50mg IV 30min antes",
+        precaucoes: "Alto risco de reações de hipersensibilidade. Monitorar sinais vitais rigorosamente na primeira hora. Alopecia universal esperada"
+      },
+    ]
+  },
 };
 
 const Medico = () => {
@@ -107,6 +431,7 @@ const Medico = () => {
   const [showExamesDialog, setShowExamesDialog] = useState(false);
   const [showPrescricoesDialog, setShowPrescricoesDialog] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
+  const [selectedExameIndex, setSelectedExameIndex] = useState<string>("0");
 
   // Filtrar pacientes por data selecionada
   const pacientesDoDia = useMemo(() => {
@@ -133,12 +458,30 @@ const Medico = () => {
 
   const handleVerExames = (paciente: any) => {
     setSelectedPaciente(paciente);
+    setSelectedExameIndex("0");
     setShowExamesDialog(true);
   };
 
   const handleVerPrescricoes = (paciente: any) => {
     setSelectedPaciente(paciente);
     setShowPrescricoesDialog(true);
+  };
+
+  const getStatusByValue = (parametro: string, valor: string) => {
+    const ref = valoresReferencia[parametro];
+    if (!ref) return { status: "normal", icon: null };
+
+    const valorNum = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    const minNum = ref.min ? parseFloat(ref.min.replace(/[^\d.-]/g, '')) : null;
+    const maxNum = ref.max ? parseFloat(ref.max.replace(/[^\d.-]/g, '')) : null;
+
+    if (minNum !== null && valorNum < minNum) {
+      return { status: "baixo", icon: <TrendingDown className="h-4 w-4 text-blue-500" /> };
+    }
+    if (maxNum !== null && valorNum > maxNum) {
+      return { status: "elevado", icon: <TrendingUp className="h-4 w-4 text-destructive" /> };
+    }
+    return { status: "normal", icon: null };
   };
 
   return (
@@ -371,51 +714,135 @@ const Medico = () => {
 
       {/* Dialog de Exames */}
       <Dialog open={showExamesDialog} onOpenChange={setShowExamesDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Exames - {selectedPaciente?.nome}</DialogTitle>
+            <DialogTitle>Exames Laboratoriais - {selectedPaciente?.nome}</DialogTitle>
             <DialogDescription>
-              Resultado dos exames laboratoriais e diagnósticos
+              Histórico de exames com valores de referência e responsáveis técnicos
             </DialogDescription>
           </DialogHeader>
           
           {selectedPaciente && examesData[selectedPaciente.id] && (
             <div className="space-y-6">
               {examesData[selectedPaciente.id].map((exame, idx) => (
-                <Card key={idx}>
+                <Card key={idx} className="border-2">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">{exame.tipo}</CardTitle>
-                      <Badge variant={exame.status.includes("Normal") || exame.status.includes("Adequado") ? "default" : "secondary"}>
-                        {exame.status}
-                      </Badge>
+                      <CardTitle className="text-lg">{exame.tipo}</CardTitle>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-muted-foreground">Selecionar Exame:</span>
+                        <Select
+                          value={selectedExameIndex}
+                          onValueChange={setSelectedExameIndex}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {exame.historico.slice(0, 4).map((hist: any, histIdx: number) => (
+                              <SelectItem key={histIdx} value={String(histIdx)}>
+                                {hist.data}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <CardDescription>Data: {exame.data}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Parâmetro</TableHead>
-                          <TableHead>Valor</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {Object.entries(exame).map(([key, value]) => {
-                          if (key !== 'tipo' && key !== 'data' && key !== 'status') {
-                            return (
-                              <TableRow key={key}>
-                                <TableCell className="font-medium capitalize">
-                                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                                </TableCell>
-                                <TableCell>{value as string}</TableCell>
+                  <CardContent className="space-y-4">
+                    {(() => {
+                      const selectedHist = exame.historico[parseInt(selectedExameIndex)] || exame.historico[0];
+                      return (
+                        <>
+                          <div className="bg-muted/50 p-3 rounded-lg">
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Responsável:</span>
+                                <span className="ml-2 font-medium">{selectedHist.responsavel}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Registro:</span>
+                                <span className="ml-2 font-medium">{selectedHist.crm}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Parâmetro</TableHead>
+                                <TableHead>Resultado</TableHead>
+                                <TableHead>Valor de Referência</TableHead>
+                                <TableHead className="text-center">Status</TableHead>
                               </TableRow>
-                            );
-                          }
-                          return null;
-                        })}
-                      </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {Object.entries(selectedHist).map(([key, value]) => {
+                                if (key !== 'data' && key !== 'responsavel' && key !== 'crm') {
+                                  const ref = valoresReferencia[key];
+                                  const { status, icon } = getStatusByValue(key, value as string);
+                                  
+                                  let refText = "N/A";
+                                  if (ref) {
+                                    if (ref.min && ref.max) {
+                                      refText = `${ref.min} - ${ref.max}`;
+                                    } else if (ref.max) {
+                                      refText = `até ${ref.max}`;
+                                    } else if (ref.min) {
+                                      refText = `mín. ${ref.min}`;
+                                    }
+                                  }
+
+                                  return (
+                                    <TableRow key={key} className={status !== "normal" ? "bg-muted/30" : ""}>
+                                      <TableCell className="font-medium capitalize">
+                                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                                      </TableCell>
+                                      <TableCell className="font-semibold">
+                                        {value as string}
+                                        {key === "hemoglobina" && " g/dL"}
+                                        {key === "leucocitos" && " /mm³"}
+                                        {key === "plaquetas" && " /mm³"}
+                                        {key === "creatinina" && " mg/dL"}
+                                        {key === "ureia" && " mg/dL"}
+                                        {(key === "tgo" || key === "tgp" || key === "ldh") && " U/L"}
+                                        {(key === "ca153" || key === "ca125") && " U/mL"}
+                                        {key === "cea" && " ng/mL"}
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        {refText}
+                                        {key === "hemoglobina" && ref && " g/dL"}
+                                        {key === "leucocitos" && ref && " /mm³"}
+                                        {key === "plaquetas" && ref && " /mm³"}
+                                        {key === "creatinina" && ref && " mg/dL"}
+                                        {key === "ureia" && ref && " mg/dL"}
+                                        {(key === "tgo" || key === "tgp" || key === "ldh") && ref && " U/L"}
+                                        {(key === "ca153" || key === "ca125") && ref && " U/mL"}
+                                        {key === "cea" && ref && " ng/mL"}
+                                      </TableCell>
+                                      <TableCell className="text-center">
+                                        {icon || (
+                                          <Badge variant="outline" className="bg-success/10 text-success border-success">
+                                            Normal
+                                          </Badge>
+                                        )}
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </TableBody>
+                          </Table>
+
+                          {exame.historico.length > 1 && (
+                            <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+                              Exibindo {parseInt(selectedExameIndex) + 1} de {Math.min(exame.historico.length, 4)} exames disponíveis
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               ))}
@@ -432,60 +859,145 @@ const Medico = () => {
 
       {/* Dialog de Prescrições */}
       <Dialog open={showPrescricoesDialog} onOpenChange={setShowPrescricoesDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Prescrições - {selectedPaciente?.nome}</DialogTitle>
+            <DialogTitle>Prescrição Médica Detalhada - {selectedPaciente?.nome}</DialogTitle>
             <DialogDescription>
-              Protocolo: {selectedPaciente?.protocolo}
+              Protocolo de Tratamento Oncológico Completo
             </DialogDescription>
           </DialogHeader>
           
           {selectedPaciente && prescricoesData[selectedPaciente.id] && (
-            <div className="space-y-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Medicamento</TableHead>
-                    <TableHead>Dose</TableHead>
-                    <TableHead>Via</TableHead>
-                    <TableHead>Frequência</TableHead>
-                    <TableHead>Observação</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {prescricoesData[selectedPaciente.id].map((prescricao, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">{prescricao.medicamento}</TableCell>
-                      <TableCell>{prescricao.dose}</TableCell>
-                      <TableCell>{prescricao.via}</TableCell>
-                      <TableCell>{prescricao.frequencia}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {prescricao.observacao}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              <Card className="bg-muted/50">
+            <div className="space-y-6">
+              {/* Informações do Médico Responsável */}
+              <Card className="border-2 border-primary/20 bg-primary/5">
                 <CardHeader>
-                  <CardTitle className="text-sm">Informações do Tratamento</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Médico Responsável
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Diagnóstico:</span>
-                    <span className="font-medium">{selectedPaciente.diagnostico}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Protocolo:</span>
-                    <span className="font-medium">{selectedPaciente.protocolo}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Matrícula SUS:</span>
-                    <span className="font-medium">{selectedPaciente.matricula}</span>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block">Nome:</span>
+                      <span className="font-semibold">{prescricoesData[selectedPaciente.id].medico}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Registro:</span>
+                      <span className="font-semibold">{prescricoesData[selectedPaciente.id].crm}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Especialidade:</span>
+                      <span className="font-semibold">{prescricoesData[selectedPaciente.id].especialidade}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Data da Prescrição:</span>
+                      <span className="font-semibold">{prescricoesData[selectedPaciente.id].dataPrescricao}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Informações do Tratamento */}
+              <Card className="bg-muted/50">
+                <CardHeader>
+                  <CardTitle className="text-base">Dados do Tratamento</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block">Diagnóstico:</span>
+                      <span className="font-medium">{selectedPaciente.diagnostico}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Protocolo:</span>
+                      <span className="font-medium">{selectedPaciente.protocolo}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Ciclo Atual:</span>
+                      <span className="font-medium">{prescricoesData[selectedPaciente.id].ciclo}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Superfície Corporal:</span>
+                      <span className="font-medium">{prescricoesData[selectedPaciente.id].superficieCorporal}</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t">
+                    <span className="text-muted-foreground text-sm">Matrícula SUS:</span>
+                    <span className="ml-2 font-medium text-sm">{selectedPaciente.matricula}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Medicamentos Detalhados */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Medicamentos Prescritos</h3>
+                {prescricoesData[selectedPaciente.id].medicamentos.map((med: any, idx: number) => (
+                  <Card key={idx} className="border-l-4 border-l-primary">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">{med.medicamento}</CardTitle>
+                        <Badge variant="outline">{med.via}</Badge>
+                      </div>
+                      <CardDescription className="text-xs">
+                        Princípio Ativo: {med.principioAtivo}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                        <div className="bg-muted/50 p-2 rounded">
+                          <span className="text-muted-foreground text-xs block">Dose Prescrita:</span>
+                          <span className="font-semibold">{med.dose}</span>
+                        </div>
+                        <div className="bg-muted/50 p-2 rounded">
+                          <span className="text-muted-foreground text-xs block">Dose Calculada:</span>
+                          <span className="font-semibold text-primary">{med.doseCalculada}</span>
+                        </div>
+                        <div className="bg-muted/50 p-2 rounded">
+                          <span className="text-muted-foreground text-xs block">Frequência:</span>
+                          <span className="font-semibold">{med.frequencia}</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded border border-blue-200 dark:border-blue-800">
+                          <span className="text-blue-700 dark:text-blue-300 font-medium text-xs block mb-1">
+                            Tempo de Infusão:
+                          </span>
+                          <span className="font-medium">{med.tempoInfusao}</span>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded border border-blue-200 dark:border-blue-800">
+                          <span className="text-blue-700 dark:text-blue-300 font-medium text-xs block mb-1">
+                            Diluição:
+                          </span>
+                          <span className="font-medium">{med.diluicao}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded border border-amber-200 dark:border-amber-800">
+                        <span className="text-amber-700 dark:text-amber-300 font-medium text-xs block mb-1">
+                          Observações Técnicas:
+                        </span>
+                        <p className="text-sm">{med.observacao}</p>
+                      </div>
+
+                      {med.precaucoes && (
+                        <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded border border-red-200 dark:border-red-800">
+                          <span className="text-red-700 dark:text-red-300 font-medium text-xs block mb-1">
+                            ⚠️ Precauções Importantes:
+                          </span>
+                          <p className="text-sm">{med.precaucoes}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="text-xs text-muted-foreground text-center pt-4 border-t">
+                Prescrição emitida por {prescricoesData[selectedPaciente.id].medico} - {prescricoesData[selectedPaciente.id].crm} em {prescricoesData[selectedPaciente.id].dataPrescricao}
+              </div>
             </div>
           )}
           
