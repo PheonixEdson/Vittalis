@@ -425,6 +425,360 @@ const prescricoesData: Record<number, any> = {
   },
 };
 
+// Mock data de pacientes aguardando liberação para quimioterapia
+const pacientesLiberacao = [
+  {
+    id: 101,
+    nome: "Maria Santos Silva",
+    sessao: "Sessão 3/6",
+    protocolo: "AC-T",
+    diagnostico: "Carcinoma de Mama HER2+",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "26/10/2025",
+      responsavel: "Dra. Ana Paula Santos",
+      registro: "CRM-SP 123456",
+      valores: {
+        hemoglobina: "12.5 g/dL",
+        leucocitos: "7.200/mm³",
+        neutrofilos: "4.800/mm³",
+        plaquetas: "180.000/mm³",
+        creatinina: "0.9 mg/dL",
+        tgo: "28 U/L",
+        tgp: "25 U/L",
+      }
+    },
+    reacao: "Náusea leve controlada com antiemético. Sem outras intercorrências.",
+    procedimentos: [],
+    observacoes: null,
+  },
+  {
+    id: 102,
+    nome: "João Oliveira Costa",
+    sessao: "Sessão 2/6",
+    protocolo: "R-CHOP",
+    diagnostico: "Linfoma Não-Hodgkin",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "25/10/2025",
+      responsavel: "Dr. Carlos Eduardo Lima",
+      registro: "CRM-SP 234567",
+      valores: {
+        hemoglobina: "13.2 g/dL",
+        leucocitos: "6.800/mm³",
+        neutrofilos: "4.200/mm³",
+        plaquetas: "195.000/mm³",
+        ldh: "245 U/L",
+        creatinina: "1.0 mg/dL",
+        ureia: "35 mg/dL",
+      }
+    },
+    reacao: "Reação infusional leve ao Rituximab (primeira dose). Controlada com redução da velocidade de infusão e anti-histamínicos.",
+    procedimentos: [
+      {
+        tipo: "Biópsia de Medula Óssea",
+        data: "10/10/2025",
+        descricao: "Avaliação de resposta ao tratamento. Resultado: redução de 60% da infiltração linfoide",
+        profissional: "Dr. Ricardo Martins Costa",
+        registro: "CRM-SP 445566"
+      }
+    ],
+    observacoes: "Monitorar velocidade de infusão do Rituximab. Paciente necessita pré-medicação reforçada.",
+  },
+  {
+    id: 103,
+    nome: "Patricia Alves Rocha",
+    sessao: "Sessão 4/6",
+    protocolo: "Carboplatina + Paclitaxel",
+    diagnostico: "Câncer de Ovário Avançado",
+    status: "Atenção Necessária",
+    exames: {
+      data: "26/10/2025",
+      responsavel: "Dra. Mariana Costa",
+      registro: "CRM-SP 456789",
+      valores: {
+        hemoglobina: "9.8 g/dL",
+        leucocitos: "3.200/mm³",
+        neutrofilos: "1.400/mm³",
+        plaquetas: "95.000/mm³",
+        creatinina: "1.4 mg/dL",
+        ca125: "85 U/mL",
+      }
+    },
+    reacao: "Neutropenia febril após última sessão. Tratada com antibióticos e G-CSF.",
+    procedimentos: [
+      {
+        tipo: "Cirurgia Citorredutora",
+        data: "05/09/2025",
+        descricao: "Ressecção tumoral com ooforectomia bilateral e histerectomia total. Sem complicações pós-operatórias",
+        profissional: "Dr. Eduardo Ferreira Santos",
+        registro: "CRM-SP 778899"
+      },
+      {
+        tipo: "Internação por Neutropenia Febril",
+        data: "12/10/2025",
+        descricao: "48h de internação, tratamento com Ceftriaxona IV e Filgrastim. Alta com melhora do quadro",
+        profissional: "Dra. Beatriz Lima Costa",
+        registro: "CRM-SP 889900"
+      }
+    ],
+    observacoes: "⚠️ CRITÉRIO DE ATENÇÃO: Neutrófilos <1.500/mm³ e plaquetas <100.000/mm³. Considerar redução de dose ou adiamento do ciclo. Avaliar necessidade de suporte com G-CSF profilático.",
+  },
+  {
+    id: 104,
+    nome: "Carlos Lima Santos",
+    sessao: "Sessão 8/12",
+    protocolo: "FOLFOX",
+    diagnostico: "Câncer Colorretal Metastático",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "26/10/2025",
+      responsavel: "Dr. Ricardo Almeida",
+      registro: "CRM-SP 345678",
+      valores: {
+        hemoglobina: "12.0 g/dL",
+        leucocitos: "6.500/mm³",
+        neutrofilos: "4.000/mm³",
+        plaquetas: "165.000/mm³",
+        creatinina: "0.9 mg/dL",
+        tgo: "32 U/L",
+        tgp: "28 U/L",
+        cea: "8.5 ng/mL",
+      }
+    },
+    reacao: "Neuropatia periférica grau 2 (formigamento em mãos e pés). Paciente refere desconforto ao frio. Mantendo atividades diárias sem limitação importante.",
+    procedimentos: [
+      {
+        tipo: "Ressecção de Metástases Hepáticas",
+        data: "22/08/2025",
+        descricao: "Hepatectomia parcial com ressecção de 3 lesões metastáticas. Recuperação satisfatória",
+        profissional: "Dr. Fernando Augusto Silva",
+        registro: "CRM-SP 556677"
+      },
+      {
+        tipo: "TC de Tórax e Abdome",
+        data: "18/10/2025",
+        descricao: "Resposta parcial ao tratamento. Redução de 40% das lesões residuais hepáticas",
+        profissional: "Dr. Paulo Henrique Dias",
+        registro: "CRM-SP 678901"
+      }
+    ],
+    observacoes: "Monitorar progressão da neuropatia. Considerar redução de dose de Oxaliplatina se atingir grau 3.",
+  },
+  {
+    id: 105,
+    nome: "Ana Costa Ferreira",
+    sessao: "Sessão 6/12",
+    protocolo: "Pembrolizumab",
+    diagnostico: "Câncer de Pulmão NSCLC PD-L1 >50%",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "25/10/2025",
+      responsavel: "Dr. Fernando Silva",
+      registro: "CRM-SP 567890",
+      valores: {
+        hemoglobina: "11.8 g/dL",
+        leucocitos: "6.200/mm³",
+        neutrofilos: "3.800/mm³",
+        plaquetas: "175.000/mm³",
+        creatinina: "0.8 mg/dL",
+        tsh: "2.8 mUI/L",
+        t4livre: "1.2 ng/dL",
+        tgo: "42 U/L",
+        tgp: "38 U/L",
+      }
+    },
+    reacao: "Astenia grau 1 e rash cutâneo leve (grau 1). Sem eventos adversos imunomediados significativos.",
+    procedimentos: [
+      {
+        tipo: "TC de Tórax de Controle",
+        data: "20/10/2025",
+        descricao: "Excelente resposta ao tratamento. Redução de 65% da massa tumoral primária. Sem novos nódulos",
+        profissional: "Dr. Paulo Henrique Dias",
+        registro: "CRM-SP 678901"
+      },
+      {
+        tipo: "Biópsia Pulmonar Guiada por TC",
+        data: "15/08/2025",
+        descricao: "Confirmação diagnóstica de adenocarcinoma pulmonar. Análise imunohistoquímica: PD-L1 70%",
+        profissional: "Dra. Claudia Regina Alves",
+        registro: "CRM-SP 334455"
+      }
+    ],
+    observacoes: null,
+  },
+  {
+    id: 106,
+    nome: "Roberto Mendes Silva",
+    sessao: "Sessão 5/10",
+    protocolo: "Docetaxel",
+    diagnostico: "Câncer de Próstata Resistente à Castração",
+    status: "Atenção Necessária",
+    exames: {
+      data: "25/10/2025",
+      responsavel: "Dr. Carlos Eduardo Lima",
+      registro: "CRM-SP 234567",
+      valores: {
+        hemoglobina: "10.2 g/dL",
+        leucocitos: "2.800/mm³",
+        neutrofilos: "1.200/mm³",
+        plaquetas: "140.000/mm³",
+        creatinina: "1.1 mg/dL",
+        psa: "45 ng/mL",
+      }
+    },
+    reacao: "Fadiga intensa (grau 2) e edema periférico. Neutropenia grau 3 identificada em exames.",
+    procedimentos: [
+      {
+        tipo: "Cintilografia Óssea",
+        data: "05/10/2025",
+        descricao: "Progressão de metástases ósseas em coluna lombar e pelve. Novas lesões em L4 e L5",
+        profissional: "Dr. Marcelo Augusto Dias",
+        registro: "CRM-SP 112233"
+      },
+      {
+        tipo: "Radioterapia Paliativa",
+        data: "08/10/2025 a 19/10/2025",
+        descricao: "10 sessões em coluna lombar para controle álgico. Paciente com melhora da dor",
+        profissional: "Dr. Renato Costa Lima",
+        registro: "CRM-SP 998877"
+      }
+    ],
+    observacoes: "⚠️ CRITÉRIO DE ATENÇÃO: Neutrófilos <1.500/mm³. Considerar uso de G-CSF e avaliação de adiamento do ciclo ou redução de dose em 25%.",
+  },
+  {
+    id: 107,
+    nome: "Juliana Ribeiro Lima",
+    sessao: "Sessão 2/4",
+    protocolo: "AC (Doxorrubicina + Ciclofosfamida)",
+    diagnostico: "Carcinoma de Mama Triplo Negativo",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "26/10/2025",
+      responsavel: "Dra. Ana Paula Santos",
+      registro: "CRM-SP 123456",
+      valores: {
+        hemoglobina: "11.2 g/dL",
+        leucocitos: "5.800/mm³",
+        neutrofilos: "3.500/mm³",
+        plaquetas: "158.000/mm³",
+        creatinina: "0.8 mg/dL",
+        tgo: "30 U/L",
+        tgp: "28 U/L",
+      }
+    },
+    reacao: "Náuseas e vômitos grau 2, mucosite oral leve. Alopecia total esperada e em curso.",
+    procedimentos: [
+      {
+        tipo: "Mastectomia + Linfadenectomia Axilar",
+        data: "20/09/2025",
+        descricao: "Ressecção completa da mama direita com margens livres. 3 de 12 linfonodos comprometidos",
+        profissional: "Dra. Fernanda Cristina Sousa",
+        registro: "CRM-SP 223344"
+      },
+      {
+        tipo: "Ecocardiograma com Doppler",
+        data: "23/10/2025",
+        descricao: "Avaliação de função cardíaca pré-quimioterapia. Fração de ejeção: 65% (normal)",
+        profissional: "Dr. Alexandre Martins Rocha",
+        registro: "CRM-SP 667788"
+      }
+    ],
+    observacoes: "Reforçar hidratação e uso de antieméticos profiláticos. Paciente respondendo bem ao protocolo neoadjuvante.",
+  },
+  {
+    id: 108,
+    nome: "Eduardo Martins Rocha",
+    sessao: "Sessão 3/6",
+    protocolo: "ABVD",
+    diagnostico: "Linfoma de Hodgkin Clássico",
+    status: "Aguardando Liberação",
+    exames: {
+      data: "26/10/2025",
+      responsavel: "Dr. Ricardo Almeida",
+      registro: "CRM-SP 345678",
+      valores: {
+        hemoglobina: "13.5 g/dL",
+        leucocitos: "7.800/mm³",
+        neutrofilos: "5.200/mm³",
+        plaquetas: "210.000/mm³",
+        creatinina: "0.9 mg/dL",
+        ldh: "180 U/L",
+      }
+    },
+    reacao: "Sem reações adversas significativas. Paciente mantém atividades normais.",
+    procedimentos: [
+      {
+        tipo: "PET-CT Interim",
+        data: "15/10/2025",
+        descricao: "Resposta metabólica completa (Deauville 2). Sem captação patológica residual",
+        profissional: "Dr. Paulo Henrique Dias",
+        registro: "CRM-SP 678901"
+      },
+      {
+        tipo: "Transplante Autólogo de Medula Óssea (Programado)",
+        data: "Previsto para Janeiro/2026",
+        descricao: "Consolidação terapêutica planejada após quimioterapia de indução",
+        profissional: "Dr. Gustavo Henrique Lima",
+        registro: "CRM-SP 445577"
+      }
+    ],
+    observacoes: null,
+  },
+];
+
+// Função auxiliar para formatar nome dos exames
+const formatExameName = (key: string): string => {
+  const nomes: Record<string, string> = {
+    hemoglobina: "Hemoglobina",
+    leucocitos: "Leucócitos",
+    neutrofilos: "Neutrófilos",
+    plaquetas: "Plaquetas",
+    creatinina: "Creatinina",
+    ureia: "Ureia",
+    tgo: "TGO",
+    tgp: "TGP",
+    ldh: "LDH",
+    ca125: "CA-125",
+    ca153: "CA 15-3",
+    cea: "CEA",
+    psa: "PSA",
+    tsh: "TSH",
+    t4livre: "T4 Livre",
+  };
+  return nomes[key] || key.charAt(0).toUpperCase() + key.slice(1);
+};
+
+// Função auxiliar para determinar status do exame
+const getStatusLiberacao = (exame: string, valor: string): "baixo" | "alto" | "normal" => {
+  const numericValue = parseFloat(valor.replace(/[^\d.]/g, ''));
+  
+  const limites: Record<string, { min?: number; max?: number }> = {
+    hemoglobina: { min: 10.0, max: 16.0 },
+    leucocitos: { min: 4000, max: 11000 },
+    neutrofilos: { min: 1500, max: 8000 },
+    plaquetas: { min: 100000, max: 400000 },
+    creatinina: { min: 0.6, max: 1.3 },
+    ureia: { min: 15, max: 45 },
+    tgo: { max: 40 },
+    tgp: { max: 41 },
+    ldh: { min: 120, max: 246 },
+    ca125: { max: 35 },
+    ca153: { max: 31.3 },
+    cea: { max: 5.0 },
+    psa: { max: 4.0 },
+    tsh: { min: 0.4, max: 4.0 },
+    t4livre: { min: 0.8, max: 1.8 },
+  };
+
+  const limite = limites[exame];
+  if (!limite) return "normal";
+
+  if (limite.min !== undefined && numericValue < limite.min) return "baixo";
+  if (limite.max !== undefined && numericValue > limite.max) return "alto";
+  return "normal";
+};
+
 const Medico = () => {
   const navigate = useNavigate();
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -647,56 +1001,123 @@ const Medico = () => {
               <CardHeader>
                 <CardTitle>Liberação para Quimioterapia</CardTitle>
                 <CardDescription>
-                  Analise exames e reações para liberar infusões
+                  Analise exames, procedimentos e reações para liberar infusões
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i} className="border-primary/20">
+                {pacientesLiberacao.map((paciente) => (
+                  <Card key={paciente.id} className={`border-2 ${
+                    paciente.status === "Aguardando Liberação" ? "border-yellow-500/30" : 
+                    paciente.status === "Atenção Necessária" ? "border-red-500/30" : 
+                    "border-primary/20"
+                  }`}>
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold">Maria Santos Silva</p>
+                            <p className="font-semibold">{paciente.nome}</p>
                             <p className="text-sm text-muted-foreground">
-                              Sessão {i}/6 - Protocolo AC-T
+                              {paciente.sessao} - Protocolo {paciente.protocolo}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {paciente.diagnostico}
                             </p>
                           </div>
-                          <Badge variant="outline">Pendente</Badge>
+                          <Badge 
+                            variant={
+                              paciente.status === "Atenção Necessária" ? "destructive" : 
+                              paciente.status === "Aguardando Liberação" ? "outline" : 
+                              "secondary"
+                            }
+                          >
+                            {paciente.status}
+                          </Badge>
                         </div>
                         
+                        {/* Exames Detalhados */}
                         <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium">Últimos Exames:</p>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                              <span className="text-muted-foreground">Hemoglobina:</span>
-                              <span className="ml-2 font-medium">12.5 g/dL</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Leucócitos:</span>
-                              <span className="ml-2 font-medium">7.200/mm³</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Plaquetas:</span>
-                              <span className="ml-2 font-medium">180.000/mm³</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Creatinina:</span>
-                              <span className="ml-2 font-medium">0.9 mg/dL</span>
-                            </div>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium">Exames Laboratoriais Recentes:</p>
+                            <p className="text-xs text-muted-foreground">
+                              Data: {paciente.exames.data} | {paciente.exames.responsavel} - {paciente.exames.registro}
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                            {Object.entries(paciente.exames.valores).map(([exame, valor]) => {
+                              const statusExame = getStatusLiberacao(exame, valor);
+                              return (
+                                <div key={exame} className="flex items-center gap-2">
+                                  <span className="text-muted-foreground">{formatExameName(exame)}:</span>
+                                  <span className={`font-medium ${
+                                    statusExame === "baixo" ? "text-red-500" :
+                                    statusExame === "alto" ? "text-yellow-500" :
+                                    "text-green-600"
+                                  }`}>
+                                    {valor}
+                                    {statusExame !== "normal" && (
+                                      statusExame === "baixo" ? 
+                                      <TrendingDown className="inline h-3 w-3 ml-1" /> :
+                                      <TrendingUp className="inline h-3 w-3 ml-1" />
+                                    )}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 
+                        {/* Procedimentos Adicionais */}
+                        {paciente.procedimentos && paciente.procedimentos.length > 0 && (
+                          <div className="space-y-2 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                              Procedimentos Recentes:
+                            </p>
+                            {paciente.procedimentos.map((proc, idx) => (
+                              <div key={idx} className="text-sm space-y-1 pb-2 border-b last:border-b-0 last:pb-0 border-blue-200 dark:border-blue-800">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium text-blue-900 dark:text-blue-100">
+                                    {proc.tipo}
+                                  </span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {proc.data}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground">{proc.descricao}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Responsável: {proc.profissional} - {proc.registro}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Reações e Observações */}
                         <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium">Reação Última Sessão:</p>
-                          <p className="text-sm text-muted-foreground">
-                            Náusea leve controlada com antiemético. Sem outras intercorrências.
-                          </p>
+                          <p className="text-sm font-medium">Última Sessão - Reações e Observações:</p>
+                          <p className="text-sm text-muted-foreground">{paciente.reacao}</p>
+                          {paciente.observacoes && (
+                            <div className="mt-2 pt-2 border-t">
+                              <p className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                                ⚠️ Observações Importantes:
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {paciente.observacoes}
+                              </p>
+                            </div>
+                          )}
                         </div>
 
+                        {/* Botões de Ação */}
                         <div className="flex gap-2">
-                          <Button variant="default" className="flex-1 bg-success hover:bg-success/90">
+                          <Button 
+                            variant="default" 
+                            className="flex-1 bg-success hover:bg-success/90"
+                            disabled={paciente.status === "Atenção Necessária"}
+                          >
                             Liberar para Infusão
+                          </Button>
+                          <Button variant="outline" className="flex-1">
+                            Ver Histórico Completo
                           </Button>
                           <Button variant="destructive" className="flex-1">
                             Não Liberar
