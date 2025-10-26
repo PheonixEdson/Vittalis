@@ -784,6 +784,7 @@ const Medico = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [showExamesDialog, setShowExamesDialog] = useState(false);
   const [showPrescricoesDialog, setShowPrescricoesDialog] = useState(false);
+  const [showDetalhesDialog, setShowDetalhesDialog] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [selectedExameIndex, setSelectedExameIndex] = useState<string>("0");
 
@@ -819,6 +820,11 @@ const Medico = () => {
   const handleVerPrescricoes = (paciente: any) => {
     setSelectedPaciente(paciente);
     setShowPrescricoesDialog(true);
+  };
+
+  const handleVerDetalhes = (paciente: any) => {
+    setSelectedPaciente(paciente);
+    setShowDetalhesDialog(true);
   };
 
   const getStatusByValue = (parametro: string, valor: string) => {
@@ -934,7 +940,12 @@ const Medico = () => {
                             <p className="text-xs text-muted-foreground">
                               Protocolo: {paciente.protocolo}
                             </p>
-                            <Button variant="outline" size="sm" className="w-full mt-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={() => handleVerDetalhes(paciente)}
+                            >
                               Ver Detalhes
                             </Button>
                           </div>
@@ -1426,6 +1437,325 @@ const Medico = () => {
             <p className="text-sm text-muted-foreground text-center py-8">
               Nenhuma prescrição disponível para este paciente
             </p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Detalhes do Paciente */}
+      <Dialog open={showDetalhesDialog} onOpenChange={setShowDetalhesDialog}>
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Ficha Completa do Paciente</DialogTitle>
+            <DialogDescription>
+              Informações gerais, histórico de exames e procedimentos
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPaciente && (
+            <div className="space-y-6">
+              {/* Informações Básicas do Paciente */}
+              <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-lg">{selectedPaciente.nome}</CardTitle>
+                  <CardDescription>Informações Gerais do Paciente</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block">Matrícula SUS:</span>
+                      <span className="font-semibold">{selectedPaciente.matricula}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Diagnóstico:</span>
+                      <span className="font-semibold">{selectedPaciente.diagnostico}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Protocolo:</span>
+                      <span className="font-semibold">{selectedPaciente.protocolo}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Horário Agendado:</span>
+                      <span className="font-semibold">{selectedPaciente.hora}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Data:</span>
+                      <span className="font-semibold">
+                        {selectedPaciente.data.toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Status:</span>
+                      <Badge>{selectedPaciente.status}</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Histórico de Exames */}
+              {examesData[selectedPaciente.id] && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Breve Histórico de Exames
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {examesData[selectedPaciente.id].slice(0, 3).map((exame, idx) => (
+                      <div key={idx} className="p-4 bg-muted/50 rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold text-sm">{exame.tipo}</h4>
+                          <Badge variant="outline">{exame.historico[0]?.data}</Badge>
+                        </div>
+                        
+                        {exame.historico[0] && (
+                          <>
+                            <div className="text-xs text-muted-foreground">
+                              <span>Responsável: </span>
+                              <span className="font-medium">{exame.historico[0].responsavel}</span>
+                              <span> - {exame.historico[0].crm}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs mt-2">
+                              {Object.entries(exame.historico[0]).map(([key, value]) => {
+                                if (key !== 'data' && key !== 'responsavel' && key !== 'crm') {
+                                  const { status, icon } = getStatusByValue(key, value as string);
+                                  return (
+                                    <div key={key} className="flex items-center gap-1">
+                                      <span className="text-muted-foreground capitalize">
+                                        {key.replace(/([A-Z])/g, ' $1').trim()}:
+                                      </span>
+                                      <span className={`font-medium ${
+                                        status === "baixo" ? "text-blue-500" :
+                                        status === "elevado" ? "text-destructive" :
+                                        "text-success"
+                                      }`}>
+                                        {value as string}
+                                        {icon && <span className="ml-1">{icon}</span>}
+                                      </span>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+                          </>
+                        )}
+                        
+                        {exame.historico.length > 1 && (
+                          <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                            + {exame.historico.length - 1} exame(s) anterior(es) disponível(is)
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => {
+                        setShowDetalhesDialog(false);
+                        handleVerExames(selectedPaciente);
+                      }}
+                    >
+                      Ver Histórico Completo de Exames
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Histórico de Procedimentos */}
+              {selectedPaciente.id <= 5 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <ClipboardCheck className="h-5 w-5" />
+                      Breve Histórico de Procedimentos
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Mock de procedimentos baseado no paciente */}
+                    {selectedPaciente.id === 1 && (
+                      <>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Biópsia de Mama</span>
+                            <Badge variant="outline" className="text-xs">15/09/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Confirmação histopatológica de carcinoma ductal invasivo grau II
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Eduardo Martins - CRM-SP 778899
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">PET-CT Estadiamento</span>
+                            <Badge variant="outline" className="text-xs">08/10/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Lesão primária em mama direita sem evidência de metástases à distância
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Paulo Henrique Dias - CRM-SP 678901
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {selectedPaciente.id === 2 && (
+                      <>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Biópsia de Linfonodo</span>
+                            <Badge variant="outline" className="text-xs">10/09/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Confirmação de Linfoma Não-Hodgkin tipo B difuso de grandes células
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dra. Mariana Ferreira Santos - CRM-SP 87654
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Ecocardiograma</span>
+                            <Badge variant="outline" className="text-xs">18/10/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Função cardíaca preservada. FEVE: 62%. Liberado para quimioterapia com antraciclinas
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Carlos Alberto Ramos - CRM-SP 334455
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedPaciente.id === 3 && (
+                      <>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Broncoscopia com Biópsia</span>
+                            <Badge variant="outline" className="text-xs">05/09/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Adenocarcinoma pulmonar confirmado. Teste molecular: EGFR negativo, ALK negativo
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Roberto Mendes Lima - CRM-SP 76543
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">TC de Tórax</span>
+                            <Badge variant="outline" className="text-xs">20/10/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Redução de 30% da lesão pulmonar após início do tratamento
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dra. Sandra Costa Lima - CRM-SP 556677
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedPaciente.id === 4 && (
+                      <>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Colonoscopia com Ressecção</span>
+                            <Badge variant="outline" className="text-xs">01/08/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Adenocarcinoma colorretal moderadamente diferenciado. Margens livres
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. André Luiz Costa - CRM-SP 65432
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">TC de Abdômen</span>
+                            <Badge variant="outline" className="text-xs">15/10/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Sem sinais de doença residual ou metástases hepáticas
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Paulo Henrique Dias - CRM-SP 678901
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedPaciente.id === 5 && (
+                      <>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Laparoscopia Diagnóstica</span>
+                            <Badge variant="outline" className="text-xs">20/08/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Carcinoma seroso de ovário de alto grau estadio IIIC
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dra. Patricia Santos Oliveira - CRM-SP 998877
+                          </p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-sm">Cirurgia Citorredutora</span>
+                            <Badge variant="outline" className="text-xs">01/09/2025</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Citorredução completa alcançada. Sem doença residual macroscópica
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Responsável: Dr. Gustavo Henrique Lima - CRM-SP 445577
+                          </p>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedPaciente.id > 5 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Nenhum procedimento registrado até o momento
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Botões de Ação */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDetalhesDialog(false);
+                    handleVerExames(selectedPaciente);
+                  }}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Ver Exames Completos
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDetalhesDialog(false);
+                    handleVerPrescricoes(selectedPaciente);
+                  }}
+                >
+                  <ClipboardCheck className="h-4 w-4 mr-2" />
+                  Ver Prescrições
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
