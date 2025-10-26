@@ -2,11 +2,91 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const Administrador = () => {
   const navigate = useNavigate();
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [showDocDialog, setShowDocDialog] = useState(false);
+  const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
+  const [novoStatus, setNovoStatus] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+
+  const procedimentosData = [
+    {
+      id: 1,
+      paciente: "Maria Santos Silva",
+      procedimento: "Quimioterapia - Carcinoma de Mama",
+      etapa: "Confirmação do procedimento",
+      prazo: "25/10/2025",
+      status: "Pendente",
+      documentos: [
+        { nome: "Laudo Médico Inicial", data: "15/10/2025", responsavel: "Dr. José Carlos", tipo: "PDF" },
+        { nome: "Solicitação APAC", data: "16/10/2025", responsavel: "Administração", tipo: "PDF" },
+        { nome: "Exames Pré-tratamento", data: "18/10/2025", responsavel: "Laboratório", tipo: "PDF" },
+      ]
+    },
+    {
+      id: 2,
+      paciente: "João Oliveira Costa",
+      procedimento: "Quimioterapia - Linfoma",
+      etapa: "Documentação complementar",
+      prazo: "22/10/2025",
+      status: "Atenção",
+      documentos: [
+        { nome: "Laudo Anatomopatológico", data: "10/10/2025", responsavel: "Dr. Paulo Silva", tipo: "PDF" },
+        { nome: "Termo de Consentimento", data: "12/10/2025", responsavel: "Paciente", tipo: "PDF" },
+      ]
+    },
+    {
+      id: 3,
+      paciente: "Ana Paula Lima",
+      procedimento: "Quimioterapia - Câncer de Pulmão",
+      etapa: "Aprovado",
+      prazo: "Concluído",
+      status: "Aprovado",
+      documentos: [
+        { nome: "APAC Aprovada", data: "05/10/2025", responsavel: "SUS", tipo: "PDF" },
+        { nome: "Protocolo de Tratamento", data: "06/10/2025", responsavel: "Dr. José Carlos", tipo: "PDF" },
+        { nome: "Comprovante de Medicamentos", data: "08/10/2025", responsavel: "Farmácia", tipo: "PDF" },
+        { nome: "Relatório de Execução", data: "20/10/2025", responsavel: "Enfermagem", tipo: "PDF" },
+      ]
+    },
+  ];
+
+  const handleAtualizarStatus = () => {
+    if (!novoStatus) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione um novo status",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Status Atualizado",
+      description: `O status do procedimento de ${selectedPaciente?.paciente} foi atualizado para "${novoStatus}"`,
+    });
+
+    setShowStatusDialog(false);
+    setNovoStatus("");
+    setObservacoes("");
+  };
+
+  const handleDownloadDoc = (nomeDoc: string) => {
+    toast({
+      title: "Download Iniciado",
+      description: `Baixando documento: ${nomeDoc}`,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,29 +126,7 @@ const Administrador = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  {
-                    paciente: "Maria Santos Silva",
-                    procedimento: "Quimioterapia - Carcinoma de Mama",
-                    etapa: "Confirmação do procedimento",
-                    prazo: "25/10/2025",
-                    status: "Pendente",
-                  },
-                  {
-                    paciente: "João Oliveira Costa",
-                    procedimento: "Quimioterapia - Linfoma",
-                    etapa: "Documentação complementar",
-                    prazo: "22/10/2025",
-                    status: "Atenção",
-                  },
-                  {
-                    paciente: "Ana Paula Lima",
-                    procedimento: "Quimioterapia - Câncer de Pulmão",
-                    etapa: "Aprovado",
-                    prazo: "Concluído",
-                    status: "Aprovado",
-                  },
-                ].map((item, i) => (
+                {procedimentosData.map((item, i) => (
                   <Card key={i} className={`border-l-4 ${
                     item.status === "Aprovado" ? "border-l-success" :
                     item.status === "Atenção" ? "border-l-warning" : "border-l-primary"
@@ -109,9 +167,30 @@ const Administrador = () => {
                           </div>
                         )}
 
-                        <Button variant="outline" className="w-full">
-                          {item.status === "Aprovado" ? "Ver Documentação" : "Atualizar Status"}
-                        </Button>
+                        {item.status === "Aprovado" ? (
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => {
+                              setSelectedPaciente(item);
+                              setShowDocDialog(true);
+                            }}
+                          >
+                            <FileCheck className="h-4 w-4 mr-2" />
+                            Ver Documentação
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            onClick={() => {
+                              setSelectedPaciente(item);
+                              setShowStatusDialog(true);
+                            }}
+                          >
+                            Atualizar Status
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -345,6 +424,182 @@ const Administrador = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Dialog para Atualizar Status */}
+      <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Atualizar Status do Procedimento</DialogTitle>
+            <DialogDescription>
+              Atualize o status e adicione observações sobre o procedimento
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Paciente</p>
+                <p className="font-semibold">{selectedPaciente?.paciente}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Procedimento</p>
+                <p className="font-medium">{selectedPaciente?.procedimento}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Status Atual</p>
+                <Badge variant={
+                  selectedPaciente?.status === "Aprovado" ? "default" :
+                  selectedPaciente?.status === "Atenção" ? "destructive" : "secondary"
+                }>
+                  {selectedPaciente?.status}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="novo-status">Novo Status</Label>
+                <Select value={novoStatus} onValueChange={setNovoStatus}>
+                  <SelectTrigger id="novo-status">
+                    <SelectValue placeholder="Selecione o novo status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Em Análise">Em Análise</SelectItem>
+                    <SelectItem value="Documentação Complementar">Documentação Complementar</SelectItem>
+                    <SelectItem value="Aguardando Aprovação">Aguardando Aprovação</SelectItem>
+                    <SelectItem value="Aprovado">Aprovado</SelectItem>
+                    <SelectItem value="Negado">Negado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="observacoes">Observações</Label>
+                <Textarea
+                  id="observacoes"
+                  placeholder="Adicione observações sobre a atualização do status..."
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  rows={4}
+                />
+              </div>
+
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                <p className="text-sm font-medium mb-2">Ações Recomendadas:</p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Verifique se toda documentação necessária está anexada</li>
+                  <li>• Confirme os dados do paciente e procedimento</li>
+                  <li>• Registre qualquer pendência ou observação relevante</li>
+                  <li>• Notifique as partes envolvidas sobre a atualização</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setShowStatusDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleAtualizarStatus}>
+                Confirmar Atualização
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para Ver Documentação */}
+      <Dialog open={showDocDialog} onOpenChange={setShowDocDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Documentação do Procedimento</DialogTitle>
+            <DialogDescription>
+              Todos os documentos relacionados ao procedimento APAC
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Paciente</p>
+                <p className="font-semibold">{selectedPaciente?.paciente}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Procedimento</p>
+                <p className="font-medium">{selectedPaciente?.procedimento}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">Status:</p>
+                <Badge variant="default">
+                  {selectedPaciente?.status}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">Documentos Anexados</h4>
+              
+              {selectedPaciente?.documentos && selectedPaciente.documentos.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedPaciente.documentos.map((doc: any, idx: number) => (
+                    <Card key={idx} className="border">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                              <FileText className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm">{doc.nome}</p>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+                                <span>📅 Data: {doc.data}</span>
+                                <span>👤 Responsável: {doc.responsavel}</span>
+                                <span>📄 Tipo: {doc.tipo}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDownloadDoc(doc.nome)}
+                            className="shrink-0"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-muted-foreground border rounded-lg border-dashed">
+                  <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum documento anexado ainda</p>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
+              <div className="flex items-start gap-3">
+                <FileCheck className="h-5 w-5 text-success mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm mb-1">Documentação Completa</p>
+                  <p className="text-sm text-muted-foreground">
+                    Todos os documentos necessários foram anexados e o procedimento foi aprovado.
+                    Os arquivos estão disponíveis para download e auditoria.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => setShowDocDialog(false)}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
