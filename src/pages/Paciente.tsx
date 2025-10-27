@@ -25,6 +25,10 @@ const Paciente = () => {
   const [openConsulta, setOpenConsulta] = useState(false);
   const [openExame, setOpenExame] = useState(false);
   const [openInfusao, setOpenInfusao] = useState(false);
+  const [selectedPrescricao, setSelectedPrescricao] = useState<any>(null);
+  const [selectedExame, setSelectedExame] = useState<any>(null);
+  const [showPrescricaoDialog, setShowPrescricaoDialog] = useState(false);
+  const [showExameDialog, setShowExameDialog] = useState(false);
 
   const horarios = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
   const tiposExame = [
@@ -65,6 +69,196 @@ const Paciente = () => {
     } else {
       toast.error("Por favor, selecione data e horário");
     }
+  };
+
+  const prescricoesData = [
+    {
+      id: 1,
+      medico: "Dra. Ana Carolina Mendes",
+      crm: "CRM 45892-SP",
+      data: "15/10/2025",
+      medicamentos: [
+        {
+          nome: "Paclitaxel",
+          nomePopular: "Medicamento quimioterápico",
+          dosagem: "175 mg/m²",
+          frequencia: "A cada 21 dias",
+          duracao: "6 ciclos",
+          instrucoes: "Aplicado por infusão na clínica. Pode causar cansaço e sensibilidade nas mãos e pés.",
+          cuidados: ["Beber bastante água", "Evitar exposição ao sol", "Comunicar qualquer febre ao médico imediatamente"]
+        },
+        {
+          nome: "Ondansetrona",
+          nomePopular: "Remédio para enjoo",
+          dosagem: "8 mg",
+          frequencia: "A cada 8 horas",
+          duracao: "3 dias após cada infusão",
+          instrucoes: "Tomar antes das refeições para prevenir náuseas e vômitos.",
+          cuidados: ["Pode causar dor de cabeça leve", "Tomar com água"]
+        },
+        {
+          nome: "Dexametasona",
+          nomePopular: "Anti-inflamatório",
+          dosagem: "4 mg",
+          frequencia: "2 vezes ao dia",
+          duracao: "2 dias após infusão",
+          instrucoes: "Ajuda a reduzir inchaço e reações alérgicas ao tratamento.",
+          cuidados: ["Tomar junto com alimentos", "Não parar de tomar abruptamente"]
+        }
+      ],
+      observacoes: "Fazer exames de sangue antes de cada sessão. Qualquer febre acima de 38°C, procurar atendimento imediato."
+    },
+    {
+      id: 2,
+      medico: "Dr. Roberto Ferreira",
+      crm: "CRM 23456-RJ",
+      data: "08/10/2025",
+      medicamentos: [
+        {
+          nome: "Trastuzumab",
+          nomePopular: "Terapia alvo (HER2)",
+          dosagem: "6 mg/kg",
+          frequencia: "A cada 21 dias",
+          duracao: "1 ano",
+          instrucoes: "Medicamento específico para tumores HER2 positivo. Aplicado por infusão.",
+          cuidados: ["Monitorar função cardíaca regularmente", "Avisar sobre qualquer falta de ar ou inchaço"]
+        },
+        {
+          nome: "Omeprazol",
+          nomePopular: "Protetor gástrico",
+          dosagem: "20 mg",
+          frequencia: "1 vez ao dia (em jejum)",
+          duracao: "Durante todo o tratamento",
+          instrucoes: "Protege o estômago dos outros medicamentos.",
+          cuidados: ["Tomar 30 minutos antes do café da manhã"]
+        }
+      ],
+      observacoes: "Realizar ecocardiograma a cada 3 meses para acompanhamento."
+    },
+    {
+      id: 3,
+      medico: "Dr. Paulo Henrique Costa",
+      crm: "CRM 67891-MG",
+      data: "02/10/2025",
+      medicamentos: [
+        {
+          nome: "Tamoxifeno",
+          nomePopular: "Hormonioterapia",
+          dosagem: "20 mg",
+          frequencia: "1 vez ao dia",
+          duracao: "5 anos",
+          instrucoes: "Bloqueia o hormônio que alimenta o tumor. Tomar todos os dias no mesmo horário.",
+          cuidados: ["Pode causar ondas de calor", "Importante fazer acompanhamento ginecológico anual", "Não esquecer doses"]
+        },
+        {
+          nome: "Carbonato de Cálcio + Vitamina D",
+          nomePopular: "Suplemento para ossos",
+          dosagem: "1 comprimido",
+          frequencia: "1 vez ao dia",
+          duracao: "Durante todo o tratamento",
+          instrucoes: "Fortalece os ossos durante o tratamento hormonal.",
+          cuidados: ["Tomar junto com alimentação"]
+        }
+      ],
+      observacoes: "Manter alimentação saudável e praticar exercícios leves regularmente."
+    }
+  ];
+
+  const examesData = [
+    {
+      id: 1,
+      tipo: "Marcadores Tumorais (CA 15-3)",
+      data: "25/10/2025",
+      hora: "08:30",
+      status: "Agendado"
+    },
+    {
+      id: 2,
+      tipo: "Tomografia Computadorizada",
+      data: "12/10/2025",
+      hora: "14:00",
+      status: "Realizado",
+      responsavel: "Dr. Carlos Eduardo Lima",
+      registro: "CRM-SP 98765",
+      resultado: {
+        titulo: "Tomografia de Tórax e Abdômen",
+        resumo: "O exame mostra que o tratamento está funcionando bem. As áreas anormais diminuíram de tamanho.",
+        detalhes: [
+          {
+            area: "Pulmões",
+            situacao: "Normal",
+            descricao: "Pulmões com aspecto saudável, sem sinais de comprometimento."
+          },
+          {
+            area: "Fígado",
+            situacao: "Normal",
+            descricao: "Fígado com tamanho e aparência normais. Sem alterações."
+          },
+          {
+            area: "Linfonodos",
+            situacao: "Melhorando",
+            descricao: "Os gânglios linfáticos que estavam aumentados diminuíram em 40%. Isso é um sinal muito positivo."
+          }
+        ],
+        conclusao: "Os resultados indicam boa resposta ao tratamento. Continue seguindo as orientações médicas.",
+        proximoPasso: "Manter o tratamento conforme prescrito. Próximo exame em 3 meses."
+      }
+    },
+    {
+      id: 3,
+      tipo: "Hemograma Completo",
+      data: "05/10/2025",
+      hora: "09:15",
+      status: "Realizado",
+      responsavel: "Dra. Patricia Oliveira",
+      registro: "CRM-SP 54321",
+      resultado: {
+        titulo: "Exame de Sangue Completo",
+        resumo: "Seus valores estão bons e dentro do esperado para quem está em tratamento.",
+        detalhes: [
+          {
+            item: "Hemoglobina",
+            valor: "12.3 g/dL",
+            referencia: "12.0 - 16.0 g/dL",
+            situacao: "Normal",
+            explicacao: "É a proteína que leva oxigênio no sangue. Seu valor está bom, indicando que você não está anêmica."
+          },
+          {
+            item: "Leucócitos (Glóbulos Brancos)",
+            valor: "6.800/mm³",
+            referencia: "4.000 - 11.000/mm³",
+            situacao: "Normal",
+            explicacao: "São as células de defesa do corpo. Seu valor está adequado, indicando boa capacidade de combater infecções."
+          },
+          {
+            item: "Plaquetas",
+            valor: "195.000/mm³",
+            referencia: "150.000 - 400.000/mm³",
+            situacao: "Normal",
+            explicacao: "Ajudam na coagulação do sangue. Seu valor está normal, baixo risco de sangramentos."
+          },
+          {
+            item: "Neutrófilos",
+            valor: "3.900/mm³",
+            referencia: "1.500 - 7.500/mm³",
+            situacao: "Normal",
+            explicacao: "Tipo especial de célula de defesa. Valor adequado para prosseguir com o tratamento."
+          }
+        ],
+        conclusao: "Seus exames de sangue estão dentro dos valores esperados. Você está liberada para a próxima sessão de tratamento.",
+        proximoPasso: "Repetir antes da próxima sessão de quimioterapia."
+      }
+    }
+  ];
+
+  const handleVerPrescricao = (prescricao: any) => {
+    setSelectedPrescricao(prescricao);
+    setShowPrescricaoDialog(true);
+  };
+
+  const handleVerResultado = (exame: any) => {
+    setSelectedExame(exame);
+    setShowExameDialog(true);
   };
 
   return (
@@ -315,12 +509,8 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { id: 1, medico: "Dra. Ana Carolina Mendes", crm: "CRM 45892-SP", data: "15/10/2025" },
-                  { id: 2, medico: "Dr. Roberto Ferreira", crm: "CRM 23456-RJ", data: "08/10/2025" },
-                  { id: 3, medico: "Dr. Paulo Henrique Costa", crm: "CRM 67891-MG", data: "02/10/2025" }
-                ].map((prescricao) => (
-                  <div key={prescricao.id} className="flex items-center justify-between p-4 border rounded-lg">
+                {prescricoesData.map((prescricao) => (
+                  <div key={prescricao.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
                     <div className="space-y-1">
                       <p className="font-medium">Prescrição #{prescricao.id}</p>
                       <p className="text-sm text-muted-foreground">
@@ -328,7 +518,7 @@ const Paciente = () => {
                       </p>
                       <p className="text-xs text-muted-foreground">{prescricao.data}</p>
                     </div>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => handleVerPrescricao(prescricao)}>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
@@ -346,12 +536,8 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { id: 1, tipo: "Marcadores Tumorais (CA 15-3)", data: "25/10/2025", hora: "08:30", status: "Agendado" },
-                  { id: 2, tipo: "Tomografia Computadorizada", data: "12/10/2025", hora: "14:00", status: "Realizado" },
-                  { id: 3, tipo: "Hemograma Completo", data: "05/10/2025", hora: "09:15", status: "Realizado" }
-                ].map((exame) => (
-                  <div key={exame.id} className="flex items-center justify-between p-4 border rounded-lg">
+                {examesData.map((exame) => (
+                  <div key={exame.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
                     <div className="space-y-1">
                       <p className="font-medium">{exame.tipo}</p>
                       <p className="text-sm text-muted-foreground">{exame.data} - {exame.hora}</p>
@@ -361,7 +547,7 @@ const Paciente = () => {
                     </div>
                     <div className="flex gap-2">
                       {exame.status === "Realizado" && (
-                        <Button variant="outline" size="sm">Ver Resultado</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleVerResultado(exame)}>Ver Resultado</Button>
                       )}
                       {exame.status === "Agendado" && (
                         <Button variant="destructive" size="sm">Cancelar</Button>
@@ -440,6 +626,168 @@ const Paciente = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Dialog de Prescrição Detalhada */}
+        <Dialog open={showPrescricaoDialog} onOpenChange={setShowPrescricaoDialog}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Detalhes da Prescrição #{selectedPrescricao?.id}</DialogTitle>
+              <DialogDescription>
+                Prescrição médica de {selectedPrescricao?.medico} ({selectedPrescricao?.crm}) - {selectedPrescricao?.data}
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedPrescricao && (
+              <div className="space-y-6 py-4">
+                {selectedPrescricao.medicamentos.map((med: any, index: number) => (
+                  <Card key={index} className="border-l-4 border-l-primary">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-start justify-between">
+                        <div>
+                          <div>{med.nome}</div>
+                          <div className="text-sm font-normal text-muted-foreground mt-1">
+                            {med.nomePopular}
+                          </div>
+                        </div>
+                        <Badge variant="outline">{med.dosagem}</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Como usar</p>
+                          <p className="text-sm mt-1">{med.frequencia}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Por quanto tempo</p>
+                          <p className="text-sm mt-1">{med.duracao}</p>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-2">Instruções</p>
+                        <p className="text-sm bg-muted/50 p-3 rounded-md">{med.instrucoes}</p>
+                      </div>
+                      
+                      {med.cuidados && med.cuidados.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground mb-2">Cuidados Importantes</p>
+                          <ul className="space-y-1">
+                            {med.cuidados.map((cuidado: string, idx: number) => (
+                              <li key={idx} className="text-sm flex items-start gap-2">
+                                <span className="text-primary mt-0.5">•</span>
+                                <span>{cuidado}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+                
+                {selectedPrescricao.observacoes && (
+                  <Card className="bg-warning/5 border-warning/20">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        Observações Importantes
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm">{selectedPrescricao.observacoes}</p>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                <div className="flex gap-2 justify-end pt-4">
+                  <Button variant="outline" onClick={() => setShowPrescricaoDialog(false)}>
+                    Fechar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog de Resultado de Exame */}
+        <Dialog open={showExameDialog} onOpenChange={setShowExameDialog}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedExame?.resultado?.titulo || "Resultado do Exame"}</DialogTitle>
+              <DialogDescription>
+                Realizado em {selectedExame?.data} às {selectedExame?.hora} • {selectedExame?.responsavel} ({selectedExame?.registro})
+              </DialogDescription>
+            </DialogHeader>
+            
+            {selectedExame?.resultado && (
+              <div className="space-y-6 py-4">
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-base">Resumo do Resultado</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm">{selectedExame.resultado.resumo}</p>
+                  </CardContent>
+                </Card>
+                
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Detalhes</h3>
+                  {selectedExame.resultado.detalhes?.map((detalhe: any, index: number) => (
+                    <Card key={index}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base">
+                            {detalhe.item || detalhe.area}
+                          </CardTitle>
+                          {detalhe.valor && (
+                            <Badge variant="outline" className="font-mono">
+                              {detalhe.valor}
+                            </Badge>
+                          )}
+                          <Badge 
+                            variant={detalhe.situacao === "Normal" ? "secondary" : detalhe.situacao === "Melhorando" ? "default" : "outline"}
+                          >
+                            {detalhe.situacao}
+                          </Badge>
+                        </div>
+                        {detalhe.referencia && (
+                          <p className="text-xs text-muted-foreground">
+                            Valores de referência: {detalhe.referencia}
+                          </p>
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm">{detalhe.explicacao || detalhe.descricao}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                <Card className="bg-secondary/5 border-secondary/20">
+                  <CardHeader>
+                    <CardTitle className="text-base">Conclusão</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm">{selectedExame.resultado.conclusao}</p>
+                    {selectedExame.resultado.proximoPasso && (
+                      <div className="pt-2 border-t">
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Próximos Passos</p>
+                        <p className="text-sm">{selectedExame.resultado.proximoPasso}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                <div className="flex gap-2 justify-end pt-4">
+                  <Button variant="outline" onClick={() => setShowExameDialog(false)}>
+                    Fechar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
