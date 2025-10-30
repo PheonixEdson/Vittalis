@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { HandHeart, Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
+import { HeartHandshake, Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -12,7 +12,7 @@ const Index = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <HandHeart className="h-10 w-10 text-primary" strokeWidth={2} />
+            <HeartHandshake className="h-10 w-10 text-primary" strokeWidth={2} />
             <div>
               <h1 className="text-2xl font-bold text-primary">Vittalis</h1>
               <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
@@ -32,7 +32,7 @@ const Index = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
-          <HandHeart className="h-20 w-20 text-primary mx-auto" strokeWidth={1.5} />
+          <HeartHandshake className="h-20 w-20 text-primary mx-auto" strokeWidth={1.5} />
           <h2 className="text-5xl font-bold text-foreground">
             Vittalis
           </h2>
@@ -184,7 +184,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <HandHeart className="h-6 w-6 text-primary" />
+              <HeartHandshake className="h-6 w-6 text-primary" />
               <span className="font-semibold">Vittalis</span>
             </div>
             <p className="text-sm text-muted-foreground text-center">
