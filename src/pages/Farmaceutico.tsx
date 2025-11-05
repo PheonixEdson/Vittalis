@@ -47,6 +47,12 @@ const Farmaceutico = () => {
   const [quantidadeDispensacao, setQuantidadeDispensacao] = useState("");
   const [observacaoDispensacao, setObservacaoDispensacao] = useState("");
 
+  // Estados para os novos diálogos
+  const [editarDialogOpen, setEditarDialogOpen] = useState(false);
+  const [estoqueDialogOpen, setEstoqueDialogOpen] = useState(false);
+  const [detalhesDialogOpen, setDetalhesDialogOpen] = useState(false);
+  const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<any>(null);
+
   // Mock data - catalogação de medicamentos
   const catalogoMedicamentos = [
     {
@@ -556,6 +562,29 @@ const Farmaceutico = () => {
     setMedicamentoParaDispensar(null);
   };
 
+  const handleEditarMedicamento = (medicamento: any) => {
+    setMedicamentoSelecionado(medicamento);
+    setEditarDialogOpen(true);
+  };
+
+  const handleVerEstoque = (medicamento: any) => {
+    setMedicamentoSelecionado(medicamento);
+    setEstoqueDialogOpen(true);
+  };
+
+  const handleVerDetalhes = (medicamento: any) => {
+    setMedicamentoSelecionado(medicamento);
+    setDetalhesDialogOpen(true);
+  };
+
+  const salvarEdicao = () => {
+    toast({
+      title: "Medicamento atualizado",
+      description: "As informações foram atualizadas com sucesso.",
+    });
+    setEditarDialogOpen(false);
+  };
+
   const renderEtapaIcon = (status: EtapaStatus) => {
     switch (status) {
       case "concluido":
@@ -912,7 +941,12 @@ const Farmaceutico = () => {
                                 </div>
                               </div>
                               <div className="flex items-end gap-2 mt-4">
-                                <Button variant="outline" size="sm" className="flex-1">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleEditarMedicamento(med)}
+                                >
                                   Editar
                                 </Button>
                                 <Button 
@@ -923,10 +957,20 @@ const Farmaceutico = () => {
                                 >
                                   Dispensar
                                 </Button>
-                                <Button variant="outline" size="sm" className="flex-1">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleVerEstoque(med)}
+                                >
                                   Ver Estoque
                                 </Button>
-                                <Button variant="outline" size="sm" className="flex-1">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleVerDetalhes(med)}
+                                >
                                   Ver Detalhes
                                 </Button>
                                 <Button variant="ghost" size="sm">
@@ -1661,6 +1705,290 @@ const Farmaceutico = () => {
               Confirmar Dispensação
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Editar Medicamento */}
+      <Dialog open={editarDialogOpen} onOpenChange={setEditarDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Medicamento</DialogTitle>
+            <DialogDescription>
+              Atualize as informações do medicamento
+            </DialogDescription>
+          </DialogHeader>
+          
+          {medicamentoSelecionado && (
+            <div className="space-y-4 mt-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nome do Medicamento</Label>
+                  <Input defaultValue={medicamentoSelecionado.nome} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Princípio Ativo</Label>
+                  <Input defaultValue={medicamentoSelecionado.principioAtivo} />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Concentração</Label>
+                  <Input defaultValue={medicamentoSelecionado.concentracao} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Apresentação</Label>
+                  <Input defaultValue={medicamentoSelecionado.apresentacao} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Lote</Label>
+                  <Input defaultValue={medicamentoSelecionado.lote} />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Validade</Label>
+                  <Input defaultValue={medicamentoSelecionado.validade} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Estoque Atual</Label>
+                  <Input type="number" defaultValue={medicamentoSelecionado.estoque} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Estoque Mínimo</Label>
+                  <Input type="number" defaultValue={medicamentoSelecionado.estoqueMin} />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <Button variant="outline" onClick={() => setEditarDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={salvarEdicao}>
+                  Salvar Alterações
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Ver Estoque */}
+      <Dialog open={estoqueDialogOpen} onOpenChange={setEstoqueDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Estoque</DialogTitle>
+            <DialogDescription>
+              {medicamentoSelecionado?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {medicamentoSelecionado && (
+            <div className="space-y-4 mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Informações de Estoque</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Quantidade Atual</p>
+                      <p className="text-2xl font-bold">{medicamentoSelecionado.estoque}</p>
+                      <p className="text-xs text-muted-foreground">unidades</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Estoque Mínimo</p>
+                      <p className="text-2xl font-bold">{medicamentoSelecionado.estoqueMin}</p>
+                      <p className="text-xs text-muted-foreground">unidades</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <Badge 
+                        variant={medicamentoSelecionado.estoque < medicamentoSelecionado.estoqueMin ? "destructive" : "default"}
+                        className="mt-1"
+                      >
+                        {medicamentoSelecionado.estoque < medicamentoSelecionado.estoqueMin ? "Baixo" : "Normal"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t">
+                    <p className="text-xs text-muted-foreground mb-1">Lote</p>
+                    <p className="font-medium">{medicamentoSelecionado.lote}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Validade</p>
+                    <p className="font-medium">{medicamentoSelecionado.validade}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Histórico de Movimentações</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium">Entrada</p>
+                        <p className="text-xs text-muted-foreground">Recebimento - NF 12345</p>
+                        <p className="text-xs text-muted-foreground">15/10/2025 10:30</p>
+                      </div>
+                      <Badge variant="default">+50</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium">Saída</p>
+                        <p className="text-xs text-muted-foreground">Dispensação - Sala Infusão 2</p>
+                        <p className="text-xs text-muted-foreground">16/10/2025 14:20</p>
+                      </div>
+                      <Badge variant="secondary">-15</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium">Saída</p>
+                        <p className="text-xs text-muted-foreground">Dispensação - Central Manipulação</p>
+                        <p className="text-xs text-muted-foreground">17/10/2025 09:15</p>
+                      </div>
+                      <Badge variant="secondary">-10</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Localização</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <p className="font-medium">Geladeira A2 - Prateleira 3</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Armazenamento: Refrigerado (2-8°C)
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Ver Detalhes */}
+      <Dialog open={detalhesDialogOpen} onOpenChange={setDetalhesDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes Completos do Medicamento</DialogTitle>
+            <DialogDescription>
+              Informações técnicas e regulatórias
+            </DialogDescription>
+          </DialogHeader>
+          
+          {medicamentoSelecionado && (
+            <div className="space-y-4 mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Identificação</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Nome Comercial</p>
+                    <p className="font-medium">{medicamentoSelecionado.nome}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Princípio Ativo</p>
+                    <p className="font-medium">{medicamentoSelecionado.principioAtivo}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Concentração</p>
+                      <p className="font-medium">{medicamentoSelecionado.concentracao}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Apresentação</p>
+                      <p className="font-medium">{medicamentoSelecionado.apresentacao}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Informações do Lote</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Número do Lote</p>
+                      <p className="font-medium">{medicamentoSelecionado.lote}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Validade</p>
+                      <p className="font-medium">{medicamentoSelecionado.validade}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Armazenamento</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Condições</p>
+                    <p className="font-medium">Refrigerado (2-8°C)</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Localização</p>
+                    <p className="font-medium">Geladeira A2 - Prateleira 3</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Observações</p>
+                    <p className="text-sm">Proteger da luz. Manter sob refrigeração.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Informações Regulatórias</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Registro ANVISA</p>
+                    <p className="font-medium">1.0000.0000.000-0</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Classe Terapêutica</p>
+                    <p className="font-medium">Antineoplásico</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Restrições</p>
+                    <Badge variant="destructive" className="mr-2">Uso Hospitalar</Badge>
+                    <Badge variant="secondary">Portaria 344/98</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Observações Técnicas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Medicamento vesicante - atenção especial na manipulação. 
+                    Incompatível com solução salina. Uso exclusivo oncológico.
+                    Preparação em cabine de fluxo laminar obrigatória.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
