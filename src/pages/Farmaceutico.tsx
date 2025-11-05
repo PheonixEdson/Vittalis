@@ -38,6 +38,14 @@ const Farmaceutico = () => {
   const navigate = useNavigate();
   const [selectedMedicamento, setSelectedMedicamento] = useState<Medicamento | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dispensacaoDialogOpen, setDispensacaoDialogOpen] = useState(false);
+  const [medicamentoParaDispensar, setMedicamentoParaDispensar] = useState<any>(null);
+  const [medicamentosDispensados, setMedicamentosDispensados] = useState<Medicamento[]>([]);
+  
+  // Estados para o formulário de dispensação
+  const [destinoDispensacao, setDestinoDispensacao] = useState("");
+  const [quantidadeDispensacao, setQuantidadeDispensacao] = useState("");
+  const [observacaoDispensacao, setObservacaoDispensacao] = useState("");
 
   // Mock data - catalogação de medicamentos
   const catalogoMedicamentos = [
@@ -104,8 +112,9 @@ const Farmaceutico = () => {
     }
   ];
 
-  // Mock data - medicamentos gerais
+  // Mock data - medicamentos gerais combinados com dispensações
   const medicamentosGerais: Medicamento[] = [
+    ...medicamentosDispensados,
     {
       id: "MED001",
       qrCode: "QR-MED-2025-001",
@@ -466,6 +475,87 @@ const Farmaceutico = () => {
     });
   };
 
+  const handleDispensarMedicamento = (med: any) => {
+    setMedicamentoParaDispensar(med);
+    setDispensacaoDialogOpen(true);
+    setDestinoDispensacao("");
+    setQuantidadeDispensacao("");
+    setObservacaoDispensacao("");
+  };
+
+  const confirmarDispensacao = () => {
+    if (!medicamentoParaDispensar || !destinoDispensacao || !quantidadeDispensacao) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha o destino e a quantidade.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const agora = new Date();
+    const dataHoraFormatada = `${agora.toLocaleDateString('pt-BR')} ${agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    const novoId = `MED${String(medicamentosDispensados.length + 298 + 1).padStart(3, '0')}`;
+    const novoQRCode = `QR-MED-2025-${String(medicamentosDispensados.length + 5).padStart(3, '0')}`;
+
+    const novoMedicamento: Medicamento = {
+      id: novoId,
+      qrCode: novoQRCode,
+      nome: medicamentoParaDispensar.nome,
+      lote: medicamentoParaDispensar.lote,
+      quantidade: quantidadeDispensacao,
+      tipo: "medicamento",
+      etapas: [
+        {
+          nome: "Recebimento",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: dataHoraFormatada,
+          localizacao: "Farmácia Central",
+          observacao: "Medicamento separado do estoque"
+        },
+        {
+          nome: "Armazenamento",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: dataHoraFormatada,
+          localizacao: "Estoque Principal",
+          observacao: "Armazenamento adequado conforme especificações"
+        },
+        {
+          nome: "Dispensação",
+          status: "concluido",
+          responsavel: "Farm. João Silva - CRF 12345",
+          dataHora: dataHoraFormatada,
+          localizacao: destinoDispensacao,
+          observacao: observacaoDispensacao || "Dispensado conforme solicitação"
+        },
+        {
+          nome: "Transporte interno",
+          status: "pendente"
+        },
+        {
+          nome: "Administração ao paciente",
+          status: "pendente"
+        },
+        {
+          nome: "Devolução / descarte",
+          status: "pendente"
+        }
+      ]
+    };
+
+    setMedicamentosDispensados([novoMedicamento, ...medicamentosDispensados]);
+    
+    toast({
+      title: "Medicamento dispensado",
+      description: `${medicamentoParaDispensar.nome} dispensado para ${destinoDispensacao}`,
+    });
+
+    setDispensacaoDialogOpen(false);
+    setMedicamentoParaDispensar(null);
+  };
+
   const renderEtapaIcon = (status: EtapaStatus) => {
     switch (status) {
       case "concluido":
@@ -824,6 +914,17 @@ const Farmaceutico = () => {
                               <div className="flex items-end gap-2 mt-4">
                                 <Button variant="outline" size="sm" className="flex-1">
                                   Editar
+                                </Button>
+                                <Button 
+                                  variant="default" 
+                                  size="sm" 
+                                  className="flex-1"
+                                  onClick={() => handleDispensarMedicamento(med)}
+                                >
+                                  Dispensar
+                                </Button>
+                                <Button variant="outline" size="sm" className="flex-1">
+                                  Ver Estoque
                                 </Button>
                                 <Button variant="outline" size="sm" className="flex-1">
                                   Ver Detalhes
@@ -1490,6 +1591,78 @@ const Farmaceutico = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Diálogo de Dispensação */}
+      <Dialog open={dispensacaoDialogOpen} onOpenChange={setDispensacaoDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Dispensar Medicamento</DialogTitle>
+            <DialogDescription>
+              {medicamentoParaDispensar && `${medicamentoParaDispensar.nome} - Lote: ${medicamentoParaDispensar.lote}`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="destino">Destino da Dispensação *</Label>
+              <Select value={destinoDispensacao} onValueChange={setDestinoDispensacao}>
+                <SelectTrigger id="destino">
+                  <SelectValue placeholder="Selecione o destino" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Central de Manipulação">Central de Manipulação</SelectItem>
+                  <SelectItem value="Sala de Infusão 1">Sala de Infusão 1</SelectItem>
+                  <SelectItem value="Sala de Infusão 2">Sala de Infusão 2</SelectItem>
+                  <SelectItem value="Sala de Infusão 3">Sala de Infusão 3</SelectItem>
+                  <SelectItem value="Sala de Infusão 4">Sala de Infusão 4</SelectItem>
+                  <SelectItem value="Sala de Infusão 5">Sala de Infusão 5</SelectItem>
+                  <SelectItem value="Enfermaria Ala A">Enfermaria Ala A</SelectItem>
+                  <SelectItem value="Enfermaria Ala B">Enfermaria Ala B</SelectItem>
+                  <SelectItem value="Enfermaria Ala C">Enfermaria Ala C</SelectItem>
+                  <SelectItem value="UTI">UTI</SelectItem>
+                  <SelectItem value="Centro Cirúrgico">Centro Cirúrgico</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="quantidade">Quantidade Dispensada *</Label>
+              <Input 
+                id="quantidade" 
+                placeholder="Ex: 2 frascos, 100mg, 5 ampolas..." 
+                value={quantidadeDispensacao}
+                onChange={(e) => setQuantidadeDispensacao(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="observacao">Observações</Label>
+              <Textarea 
+                id="observacao" 
+                placeholder="Observações sobre a dispensação (opcional)"
+                rows={3}
+                value={observacaoDispensacao}
+                onChange={(e) => setObservacaoDispensacao(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setDispensacaoDialogOpen(false);
+                setMedicamentoParaDispensar(null);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={confirmarDispensacao}>
+              Confirmar Dispensação
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
