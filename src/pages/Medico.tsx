@@ -785,6 +785,7 @@ const Medico = () => {
   const [showExamesDialog, setShowExamesDialog] = useState(false);
   const [showPrescricoesDialog, setShowPrescricoesDialog] = useState(false);
   const [showDetalhesDialog, setShowDetalhesDialog] = useState(false);
+  const [showHistoricoDialog, setShowHistoricoDialog] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [selectedExameIndex, setSelectedExameIndex] = useState<string>("0");
 
@@ -825,6 +826,11 @@ const Medico = () => {
   const handleVerDetalhes = (paciente: any) => {
     setSelectedPaciente(paciente);
     setShowDetalhesDialog(true);
+  };
+
+  const handleVerHistorico = (paciente: any) => {
+    setSelectedPaciente(paciente);
+    setShowHistoricoDialog(true);
   };
 
   const getStatusByValue = (parametro: string, valor: string) => {
@@ -1127,7 +1133,11 @@ const Medico = () => {
                           >
                             Liberar para Infusão
                           </Button>
-                          <Button variant="outline" className="flex-1">
+                          <Button 
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => handleVerHistorico(paciente)}
+                          >
                             Ver Histórico Completo
                           </Button>
                           <Button variant="destructive" className="flex-1">
@@ -1437,6 +1447,199 @@ const Medico = () => {
             <p className="text-sm text-muted-foreground text-center py-8">
               Nenhuma prescrição disponível para este paciente
             </p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Histórico Completo */}
+      <Dialog open={showHistoricoDialog} onOpenChange={setShowHistoricoDialog}>
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Histórico Médico Completo - {selectedPaciente?.nome}</DialogTitle>
+            <DialogDescription>
+              Histórico detalhado de exames laboratoriais e procedimentos realizados
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPaciente && (
+            <div className="space-y-6">
+              {/* Informações do Paciente */}
+              <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-base">Informações do Paciente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block">Nome:</span>
+                      <span className="font-semibold">{selectedPaciente.nome}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Matrícula SUS:</span>
+                      <span className="font-semibold">{selectedPaciente.matricula || "N/A"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Diagnóstico:</span>
+                      <span className="font-semibold">{selectedPaciente.diagnostico}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">Protocolo:</span>
+                      <span className="font-semibold">{selectedPaciente.protocolo}</span>
+                    </div>
+                  </div>
+                  {selectedPaciente.sessao && (
+                    <div className="mt-3 pt-3 border-t">
+                      <span className="text-muted-foreground text-sm">Sessão Atual:</span>
+                      <span className="ml-2 font-medium text-sm">{selectedPaciente.sessao}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Histórico de Exames */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Histórico de Exames Laboratoriais
+                </h3>
+                
+                {examesData[selectedPaciente.id] ? (
+                  examesData[selectedPaciente.id].map((exame, idx) => (
+                    <Card key={idx} className="border-l-4 border-l-primary">
+                      <CardHeader>
+                        <CardTitle className="text-base">{exame.tipo}</CardTitle>
+                        <CardDescription>
+                          Últimos {Math.min(exame.historico.length, 4)} exames realizados
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {exame.historico.slice(0, 4).map((hist: any, histIdx: number) => (
+                          <div key={histIdx} className={`p-4 rounded-lg ${histIdx === 0 ? 'bg-primary/5 border border-primary/20' : 'bg-muted/50'}`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <Badge variant={histIdx === 0 ? "default" : "secondary"} className="mb-1">
+                                  {hist.data}
+                                </Badge>
+                                {histIdx === 0 && (
+                                  <span className="text-xs text-muted-foreground ml-2">(Mais Recente)</span>
+                                )}
+                              </div>
+                              <div className="text-right text-xs">
+                                <div className="text-muted-foreground">{hist.responsavel}</div>
+                                <div className="font-medium">{hist.crm}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                              {Object.entries(hist).map(([key, value]) => {
+                                if (key !== 'data' && key !== 'responsavel' && key !== 'crm') {
+                                  const { status, icon } = getStatusByValue(key, value as string);
+                                  return (
+                                    <div key={key} className="flex items-center justify-between p-2 bg-background rounded">
+                                      <span className="text-muted-foreground capitalize">
+                                        {key.replace(/([A-Z])/g, ' $1').trim()}:
+                                      </span>
+                                      <div className="flex items-center gap-1">
+                                        <span className={`font-medium ${
+                                          status === "baixo" ? "text-blue-600" :
+                                          status === "elevado" ? "text-destructive" :
+                                          "text-success"
+                                        }`}>
+                                          {value as string}
+                                        </span>
+                                        {icon}
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      Nenhum exame disponível no histórico
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              {/* Histórico de Procedimentos */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <ClipboardCheck className="h-5 w-5" />
+                  Histórico de Procedimentos
+                </h3>
+                
+                {selectedPaciente.procedimentos && selectedPaciente.procedimentos.length > 0 ? (
+                  <Card className="border-l-4 border-l-blue-500">
+                    <CardContent className="pt-6 space-y-4">
+                      {selectedPaciente.procedimentos.map((proc: any, idx: number) => (
+                        <div key={idx} className={`p-4 rounded-lg ${idx === 0 ? 'bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800' : 'bg-muted/50'}`}>
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold text-base">{proc.tipo}</h4>
+                                <Badge variant="outline" className="text-xs">
+                                  {proc.data}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {proc.descricao}
+                              </p>
+                              <div className="flex items-center gap-4 text-xs">
+                                <div>
+                                  <span className="text-muted-foreground">Responsável: </span>
+                                  <span className="font-medium">{proc.profissional}</span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Registro: </span>
+                                  <span className="font-medium">{proc.registro}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      Nenhum procedimento registrado no histórico
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              {/* Últimas Observações */}
+              {selectedPaciente.reacao && (
+                <Card className="border-2 border-yellow-500/30 bg-yellow-50 dark:bg-yellow-950/20">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-yellow-600" />
+                      Última Sessão - Reações e Observações
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm">{selectedPaciente.reacao}</p>
+                    {selectedPaciente.observacoes && (
+                      <div className="mt-3 pt-3 border-t border-yellow-200 dark:border-yellow-800">
+                        <p className="text-xs font-medium text-orange-600 dark:text-orange-400 mb-1">
+                          ⚠️ Observações Importantes:
+                        </p>
+                        <p className="text-sm">{selectedPaciente.observacoes}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>
