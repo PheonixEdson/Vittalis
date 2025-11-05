@@ -1676,16 +1676,26 @@ const Medico = () => {
                       <span className="text-muted-foreground block">Protocolo:</span>
                       <span className="font-semibold">{selectedPaciente.protocolo}</span>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground block">Horário Agendado:</span>
-                      <span className="font-semibold">{selectedPaciente.hora}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block">Data:</span>
-                      <span className="font-semibold">
-                        {selectedPaciente.data.toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
+                    {selectedPaciente.hora && (
+                      <div>
+                        <span className="text-muted-foreground block">Horário Agendado:</span>
+                        <span className="font-semibold">{selectedPaciente.hora}</span>
+                      </div>
+                    )}
+                    {selectedPaciente.data && (
+                      <div>
+                        <span className="text-muted-foreground block">Data:</span>
+                        <span className="font-semibold">
+                          {selectedPaciente.data.toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                    )}
+                    {selectedPaciente.sessao && (
+                      <div>
+                        <span className="text-muted-foreground block">Sessão:</span>
+                        <span className="font-semibold">{selectedPaciente.sessao}</span>
+                      </div>
+                    )}
                     <div>
                       <span className="text-muted-foreground block">Status:</span>
                       <Badge>{selectedPaciente.status}</Badge>
