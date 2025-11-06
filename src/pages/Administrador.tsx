@@ -6,7 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -15,6 +16,7 @@ const Administrador = () => {
   const navigate = useNavigate();
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [showDocDialog, setShowDocDialog] = useState(false);
+  const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [novoStatus, setNovoStatus] = useState("");
   const [observacoes, setObservacoes] = useState("");
@@ -27,11 +29,36 @@ const Administrador = () => {
       etapa: "Confirmação do procedimento",
       prazo: "25/10/2025",
       status: "Pendente",
+      alertaApac: "sem_apac",
       documentos: [
         { nome: "Laudo Médico Inicial", data: "15/10/2025", responsavel: "Dr. José Carlos", tipo: "PDF" },
         { nome: "Solicitação APAC", data: "16/10/2025", responsavel: "Administração", tipo: "PDF" },
         { nome: "Exames Pré-tratamento", data: "18/10/2025", responsavel: "Laboratório", tipo: "PDF" },
-      ]
+      ],
+      dadosCompletos: {
+        identificacao: {
+          nome: "Maria Santos Silva",
+          cpf: "123.456.789-00",
+          cartaoSus: "123 4567 8901 2345",
+          dataNascimento: "15/03/1968",
+          idade: "57 anos",
+          telefone: "(11) 98765-4321",
+          endereco: "Rua das Flores, 123 - São Paulo/SP"
+        },
+        diagnostico: "Carcinoma Ductal Invasivo de Mama Esquerda",
+        estadiamento: "Estádio IIA (T2N0M0)",
+        cid: "C50.9 - Neoplasia maligna da mama, não especificada",
+        tratamentoSigtap: {
+          codigo: "03.04.02.019-2",
+          descricao: "Quimioterapia do Carcinoma de Mama Avançado - 1ª Linha",
+          protocolo: "AC-T (Doxorrubicina + Ciclofosfamida seguido de Paclitaxel)"
+        },
+        apacInfo: {
+          status: "Não possui APAC",
+          inicioTratamento: "30/10/2025",
+          urgencia: "Alta - Tratamento iniciará em 5 dias"
+        }
+      }
     },
     {
       id: 2,
@@ -40,10 +67,37 @@ const Administrador = () => {
       etapa: "Documentação complementar",
       prazo: "22/10/2025",
       status: "Atenção",
+      alertaApac: "vencimento_proximo",
       documentos: [
         { nome: "Laudo Anatomopatológico", data: "10/10/2025", responsavel: "Dr. Paulo Silva", tipo: "PDF" },
         { nome: "Termo de Consentimento", data: "12/10/2025", responsavel: "Paciente", tipo: "PDF" },
-      ]
+      ],
+      dadosCompletos: {
+        identificacao: {
+          nome: "João Oliveira Costa",
+          cpf: "987.654.321-00",
+          cartaoSus: "987 6543 2109 8765",
+          dataNascimento: "22/07/1975",
+          idade: "50 anos",
+          telefone: "(11) 91234-5678",
+          endereco: "Av. Paulista, 1500 - São Paulo/SP"
+        },
+        diagnostico: "Linfoma Não-Hodgkin Difuso de Grandes Células B",
+        estadiamento: "Estádio III (Ann Arbor)",
+        cid: "C83.3 - Linfoma não-Hodgkin difuso de grandes células B",
+        tratamentoSigtap: {
+          codigo: "03.04.02.027-3",
+          descricao: "Quimioterapia de Linfoma Não-Hodgkin de Alto Grau - Adulto - 1ª Linha",
+          protocolo: "R-CHOP (Rituximabe + CHOP)"
+        },
+        apacInfo: {
+          status: "APAC válida - vence em 15 dias",
+          numeroApac: "2025.01.123456",
+          dataEmissao: "15/08/2025",
+          dataValidade: "10/11/2025",
+          urgencia: "Média - Renovar nos próximos 15 dias"
+        }
+      }
     },
     {
       id: 3,
@@ -52,14 +106,44 @@ const Administrador = () => {
       etapa: "Aprovado",
       prazo: "Concluído",
       status: "Aprovado",
+      alertaApac: null,
       documentos: [
         { nome: "APAC Aprovada", data: "05/10/2025", responsavel: "SUS", tipo: "PDF" },
         { nome: "Protocolo de Tratamento", data: "06/10/2025", responsavel: "Dr. José Carlos", tipo: "PDF" },
         { nome: "Comprovante de Medicamentos", data: "08/10/2025", responsavel: "Farmácia", tipo: "PDF" },
         { nome: "Relatório de Execução", data: "20/10/2025", responsavel: "Enfermagem", tipo: "PDF" },
-      ]
+      ],
+      dadosCompletos: {
+        identificacao: {
+          nome: "Ana Paula Lima",
+          cpf: "456.789.123-00",
+          cartaoSus: "456 7891 2304 5678",
+          dataNascimento: "10/12/1960",
+          idade: "64 anos",
+          telefone: "(11) 93456-7890",
+          endereco: "Rua Augusta, 789 - São Paulo/SP"
+        },
+        diagnostico: "Adenocarcinoma de Pulmão",
+        estadiamento: "Estádio IIIB (T3N2M0)",
+        cid: "C34.9 - Neoplasia maligna dos brônquios e dos pulmões, não especificada",
+        tratamentoSigtap: {
+          codigo: "03.04.02.007-9",
+          descricao: "Quimioterapia de Câncer de Pulmão Avançado - 1ª Linha",
+          protocolo: "Carboplatina + Paclitaxel"
+        },
+        apacInfo: {
+          status: "APAC válida - Regular",
+          numeroApac: "2025.01.098765",
+          dataEmissao: "01/09/2025",
+          dataValidade: "01/03/2026",
+          urgencia: "Baixa - APAC válida por mais 4 meses"
+        }
+      }
     },
   ];
+
+  // Filtrar pacientes com alertas de APAC
+  const alertasApac = procedimentosData.filter(p => p.alertaApac);
 
   const handleAtualizarStatus = () => {
     if (!novoStatus) {
@@ -85,6 +169,17 @@ const Administrador = () => {
     toast({
       title: "Download Iniciado",
       description: `Baixando documento: ${nomeDoc}`,
+    });
+  };
+
+  const handleExtrairInfo = (paciente: any) => {
+    setSelectedPaciente(paciente);
+    setShowInfoDialog(true);
+    
+    // Simular notificação ao médico
+    toast({
+      title: "Informações Extraídas",
+      description: "Dados do paciente carregados. Notificação enviada ao médico responsável.",
     });
   };
 
@@ -118,6 +213,48 @@ const Administrador = () => {
           </TabsList>
 
           <TabsContent value="faturamento" className="space-y-4">
+            {/* Alertas de APAC */}
+            {alertasApac.length > 0 && (
+              <div className="space-y-3">
+                {alertasApac.map((item) => (
+                  <Alert 
+                    key={item.id} 
+                    variant={item.alertaApac === "sem_apac" ? "destructive" : "default"}
+                    className="border-l-4"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle className="flex items-center gap-2">
+                      {item.alertaApac === "sem_apac" ? "⚠️ Paciente sem APAC" : "📅 APAC próxima do vencimento"}
+                    </AlertTitle>
+                    <AlertDescription className="mt-2 space-y-2">
+                      <div>
+                        <span className="font-semibold">{item.paciente}</span> - {item.procedimento}
+                      </div>
+                      <div className="text-sm">
+                        {item.alertaApac === "sem_apac" 
+                          ? `Tratamento iniciará em breve e o paciente não possui APAC autorizada.`
+                          : `A APAC vence em ${item.dadosCompletos.apacInfo.dataValidade}. Necessário renovação.`
+                        }
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleExtrairInfo(item)}
+                        >
+                          <Info className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
+                        <Badge variant="outline" className="text-xs">
+                          ✉️ Médico e Admin notificados
+                        </Badge>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                ))}
+              </div>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Autorização de Procedimentos de Alta Complexidade (APAC)</CardTitle>
@@ -167,30 +304,41 @@ const Administrador = () => {
                           </div>
                         )}
 
-                        {item.status === "Aprovado" ? (
+                        <div className="grid grid-cols-2 gap-2">
                           <Button 
-                            variant="outline" 
-                            className="w-full"
-                            onClick={() => {
-                              setSelectedPaciente(item);
-                              setShowDocDialog(true);
-                            }}
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleExtrairInfo(item)}
                           >
-                            <FileCheck className="h-4 w-4 mr-2" />
-                            Ver Documentação
+                            <Info className="h-4 w-4 mr-2" />
+                            Extrair Info
                           </Button>
-                        ) : (
-                          <Button 
-                            variant="outline" 
-                            className="w-full"
-                            onClick={() => {
-                              setSelectedPaciente(item);
-                              setShowStatusDialog(true);
-                            }}
-                          >
-                            Atualizar Status
-                          </Button>
-                        )}
+                          
+                          {item.status === "Aprovado" ? (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPaciente(item);
+                                setShowDocDialog(true);
+                              }}
+                            >
+                              <FileCheck className="h-4 w-4 mr-2" />
+                              Ver Docs
+                            </Button>
+                          ) : (
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPaciente(item);
+                                setShowStatusDialog(true);
+                              }}
+                            >
+                              Atualizar
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -505,6 +653,168 @@ const Administrador = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para Extrair Informações do Paciente */}
+      <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Informações Completas do Paciente - APAC</DialogTitle>
+            <DialogDescription>
+              Dados extraídos para autorização e faturamento APAC
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPaciente?.dadosCompletos && (
+            <div className="space-y-6">
+              {/* Status APAC */}
+              <Card className={`border-l-4 ${
+                selectedPaciente.alertaApac === "sem_apac" ? "border-l-destructive bg-destructive/5" :
+                selectedPaciente.alertaApac === "vencimento_proximo" ? "border-l-warning bg-warning/5" :
+                "border-l-success bg-success/5"
+              }`}>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        Status APAC
+                      </h4>
+                      <p className="text-sm font-medium">
+                        {selectedPaciente.dadosCompletos.apacInfo.status}
+                      </p>
+                      {selectedPaciente.dadosCompletos.apacInfo.numeroApac && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Número: {selectedPaciente.dadosCompletos.apacInfo.numeroApac}
+                        </p>
+                      )}
+                      {selectedPaciente.dadosCompletos.apacInfo.dataEmissao && (
+                        <p className="text-sm text-muted-foreground">
+                          Emissão: {selectedPaciente.dadosCompletos.apacInfo.dataEmissao} | 
+                          Validade: {selectedPaciente.dadosCompletos.apacInfo.dataValidade}
+                        </p>
+                      )}
+                    </div>
+                    <Badge variant={
+                      selectedPaciente.alertaApac === "sem_apac" ? "destructive" :
+                      selectedPaciente.alertaApac === "vencimento_proximo" ? "default" : "outline"
+                    }>
+                      {selectedPaciente.dadosCompletos.apacInfo.urgencia}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Dados de Identificação */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Dados de Identificação</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nome Completo</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.nome}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">CPF</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.cpf}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Cartão SUS</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.cartaoSus}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Data de Nascimento</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.dataNascimento} ({selectedPaciente.dadosCompletos.identificacao.idade})</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Telefone</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.telefone}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Endereço</p>
+                      <p className="font-medium">{selectedPaciente.dadosCompletos.identificacao.endereco}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Diagnóstico e CID */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Diagnóstico e Estadiamento</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Diagnóstico Principal</p>
+                    <p className="font-medium text-base">{selectedPaciente.dadosCompletos.diagnostico}</p>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">CID-10</p>
+                      <p className="font-semibold text-primary">{selectedPaciente.dadosCompletos.cid}</p>
+                    </div>
+                    <div className="p-3 bg-secondary/5 border border-secondary/20 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Estadiamento</p>
+                      <p className="font-semibold text-secondary">{selectedPaciente.dadosCompletos.estadiamento}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Tratamento SIGTAP */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Tipo de Tratamento (SIGTAP)</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="text-sm text-muted-foreground">Código SIGTAP</p>
+                      <Badge variant="outline">{selectedPaciente.dadosCompletos.tratamentoSigtap.codigo}</Badge>
+                    </div>
+                    <p className="font-semibold mb-2">{selectedPaciente.dadosCompletos.tratamentoSigtap.descricao}</p>
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-sm text-muted-foreground mb-1">Protocolo de Tratamento</p>
+                      <p className="text-sm font-medium">{selectedPaciente.dadosCompletos.tratamentoSigtap.protocolo}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Ações */}
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-primary mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm mb-1">Notificações Enviadas</p>
+                    <p className="text-sm text-muted-foreground">
+                      ✓ Médico responsável notificado sobre a consulta de dados<br/>
+                      ✓ Administrador tem acesso aos dados completos para faturamento<br/>
+                      {selectedPaciente.alertaApac && "⚠️ Alerta sobre situação da APAC registrado no sistema"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline" onClick={() => setShowInfoDialog(false)}>
+                  Fechar
+                </Button>
+                <Button onClick={() => {
+                  toast({
+                    title: "Dados Exportados",
+                    description: "Informações do paciente exportadas com sucesso para o sistema APAC.",
+                  });
+                }}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar para APAC
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
