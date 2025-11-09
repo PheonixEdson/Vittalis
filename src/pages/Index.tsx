@@ -13,7 +13,7 @@ const Index = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoVittalis} alt="Vittalis Logo" className="h-10 w-10 object-contain" />
+            <img src={logoVittalis} alt="Vittalis Logo" className="h-14 w-14 object-contain" />
             <div>
               <h1 className="text-2xl font-bold text-primary">Vittalis</h1>
               <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
