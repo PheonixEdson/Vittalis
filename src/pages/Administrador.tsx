@@ -11,6 +11,7 @@ import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, Fil
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Administrador = () => {
   const navigate = useNavigate();
@@ -164,6 +165,37 @@ const Administrador = () => {
         respostasPesquisa
       }
     };
+  }, [periodoFiltro, departamentoFiltro]);
+
+  // Gerar dados temporais para os gráficos
+  const dadosGraficos = useMemo(() => {
+    const numPontos = periodoFiltro === "semanal" ? 7 : 
+                      periodoFiltro === "mensal" ? 4 : 
+                      periodoFiltro === "trimestral" ? 12 : 12;
+    
+    const labelPeriodo = periodoFiltro === "semanal" ? "Dia" : 
+                         periodoFiltro === "mensal" ? "Semana" : 
+                         periodoFiltro === "trimestral" ? "Semana" : "Mês";
+
+    const ajustesDepartamento = {
+      todos: { mortalidade: 2.1, infeccao: 1.8, nps: 72 },
+      oncologia: { mortalidade: 1.9, infeccao: 1.5, nps: 75 },
+      quimioterapia: { mortalidade: 2.3, infeccao: 2.1, nps: 71 },
+      radioterapia: { mortalidade: 1.7, infeccao: 1.2, nps: 73 },
+      cirurgia: { mortalidade: 2.8, infeccao: 2.5, nps: 68 },
+      internacao: { mortalidade: 2.5, infeccao: 2.2, nps: 70 },
+      ambulatorio: { mortalidade: 1.4, infeccao: 1.0, nps: 78 }
+    }[departamentoFiltro];
+
+    return Array.from({ length: numPontos }, (_, i) => {
+      const variacao = Math.sin(i / 2) * 0.3;
+      return {
+        periodo: `${labelPeriodo} ${i + 1}`,
+        mortalidade: parseFloat((ajustesDepartamento.mortalidade + variacao).toFixed(1)),
+        infeccao: parseFloat((ajustesDepartamento.infeccao + variacao * 0.5).toFixed(1)),
+        nps: Math.round(ajustesDepartamento.nps + variacao * 3)
+      };
+    });
   }, [periodoFiltro, departamentoFiltro]);
 
   const procedimentosData = [
@@ -656,6 +688,137 @@ const Administrador = () => {
                 </AlertDescription>
               </Alert>
             )}
+
+            {/* Gráficos de Evolução Temporal */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Evolução Temporal dos Indicadores
+                </CardTitle>
+                <CardDescription>
+                  Acompanhe a tendência dos principais indicadores ao longo do período selecionado
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                {/* Gráfico de Taxa de Mortalidade */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                    Taxa de Mortalidade (%)
+                  </h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={dadosGraficos}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis 
+                        dataKey="periodo" 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                        domain={[0, 'auto']}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px'
+                        }}
+                        formatter={(value: number) => [`${value}%`, 'Mortalidade']}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="mortalidade" 
+                        stroke="hsl(0, 84%, 60%)" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(0, 84%, 60%)', r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Gráfico de Taxa de Infecção */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                    Taxa de Infecção Hospitalar (%)
+                  </h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={dadosGraficos}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis 
+                        dataKey="periodo" 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                        domain={[0, 'auto']}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px'
+                        }}
+                        formatter={(value: number) => [`${value}%`, 'Infecção']}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="infeccao" 
+                        stroke="hsl(25, 95%, 53%)" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(25, 95%, 53%)', r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Gráfico de NPS */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                    NPS - Net Promoter Score
+                  </h4>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={dadosGraficos}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis 
+                        dataKey="periodo" 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis 
+                        className="text-xs"
+                        stroke="hsl(var(--muted-foreground))"
+                        domain={[0, 100]}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '6px'
+                        }}
+                        formatter={(value: number) => [value, 'NPS']}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="nps" 
+                        stroke="hsl(142, 76%, 36%)" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(142, 76%, 36%)', r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Qualidade do Cuidado */}
             <Card>
