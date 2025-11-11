@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar, Image as ImageIcon, FileSpreadsheet } from "lucide-react";
+import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -360,112 +360,6 @@ const Administrador = () => {
     });
   };
 
-  // Função para exportar gráficos como PNG
-  const exportarGraficosPNG = async () => {
-    try {
-      const graficosElement = document.getElementById('graficos-container');
-      if (!graficosElement) return;
-
-      toast({
-        title: "Gerando imagens...",
-        description: "Aguarde enquanto os gráficos são exportados.",
-      });
-
-      // Importação dinâmica do html2canvas
-      const html2canvas = (await import('html2canvas')).default;
-
-      const canvas = await html2canvas(graficosElement, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        logging: false,
-      });
-
-      const link = document.createElement('a');
-      link.download = `vittalis-graficos-${periodoFiltro}-${departamentoFiltro}-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-
-      toast({
-        title: "Exportação concluída!",
-        description: "Os gráficos foram salvos como imagem PNG.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao exportar",
-        description: "Não foi possível exportar os gráficos como imagem.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Função para exportar dados como Excel
-  const exportarDadosExcel = async () => {
-    try {
-      // Importação dinâmica do XLSX
-      const XLSX = await import('xlsx');
-
-      // Preparar dados dos gráficos
-      const dadosExportacao = dadosGraficos.map(item => ({
-        'Período': item.periodo,
-        'Taxa de Mortalidade (%)': item.mortalidade,
-        'Taxa de Infecção (%)': item.infeccao,
-        'NPS': item.nps
-      }));
-
-      // Preparar dados dos indicadores
-      const dadosIndicadores = [
-        { 'Indicador': 'Taxa de Mortalidade', 'Valor': `${dadosFiltrados.qualidade.mortalidade}%`, 'Detalhes': `${dadosFiltrados.qualidade.obitos} óbitos de ${dadosFiltrados.qualidade.pacientes} pacientes` },
-        { 'Indicador': 'Taxa de Infecção', 'Valor': `${dadosFiltrados.qualidade.infeccao}%`, 'Detalhes': `${dadosFiltrados.qualidade.infeccoes} casos de ${dadosFiltrados.qualidade.internacoes} internações` },
-        { 'Indicador': 'Adesão a Protocolos', 'Valor': `${dadosFiltrados.qualidade.protocolos}%`, 'Detalhes': `${dadosFiltrados.qualidade.conformidade} de ${dadosFiltrados.qualidade.procedimentos} procedimentos` },
-        { 'Indicador': 'Ocupação de Leitos', 'Valor': `${dadosFiltrados.eficiencia.ocupacao}%`, 'Detalhes': `${dadosFiltrados.eficiencia.leitosOcupados} de ${dadosFiltrados.eficiencia.leitosTotal} leitos` },
-        { 'Indicador': 'Tempo de Espera', 'Valor': `${dadosFiltrados.eficiencia.espera} min`, 'Detalhes': `${dadosFiltrados.eficiencia.atendimentos} atendimentos` },
-        { 'Indicador': 'Produtividade Médica', 'Valor': dadosFiltrados.eficiencia.produtividade, 'Detalhes': `${dadosFiltrados.eficiencia.medicos} médicos ativos` },
-        { 'Indicador': 'Custo por Internação', 'Valor': `R$ ${dadosFiltrados.eficiencia.custoInternacao}k`, 'Detalhes': `Total: R$ ${dadosFiltrados.eficiencia.custoTotalInternacao}` },
-        { 'Indicador': 'Custo por Paciente', 'Valor': `R$ ${dadosFiltrados.financeiro.custoPorPaciente}k`, 'Detalhes': `${dadosFiltrados.financeiro.pacientesAtendidos} pacientes` },
-        { 'Indicador': 'Índice de Glosa', 'Valor': `${dadosFiltrados.financeiro.glosa}%`, 'Detalhes': `R$ ${dadosFiltrados.financeiro.valorGlosado}` },
-        { 'Indicador': 'Margem Operacional', 'Valor': `${dadosFiltrados.financeiro.margemOperacional}%`, 'Detalhes': `Lucro: R$ ${dadosFiltrados.financeiro.lucro}` },
-        { 'Indicador': 'NPS', 'Valor': dadosFiltrados.satisfacao.nps, 'Detalhes': `${dadosFiltrados.satisfacao.respostasNPS} respostas` },
-        { 'Indicador': 'Reclamações/1000', 'Valor': (dadosFiltrados.satisfacao.reclamacoes / (dadosFiltrados.satisfacao.pacientesAtendidos / 1000)).toFixed(1), 'Detalhes': `${dadosFiltrados.satisfacao.reclamacoes} reclamações` },
-        { 'Indicador': 'Absenteísmo', 'Valor': `${dadosFiltrados.rh.absenteismo}%`, 'Detalhes': `${dadosFiltrados.rh.ausencias} ausências` },
-        { 'Indicador': 'Satisfação Profissional', 'Valor': `${dadosFiltrados.rh.satisfacaoProfissional}/10`, 'Detalhes': `${dadosFiltrados.rh.respostasPesquisa} respostas` }
-      ];
-
-      // Criar workbook
-      const wb = XLSX.utils.book_new();
-      
-      // Adicionar sheet de evolução temporal
-      const ws1 = XLSX.utils.json_to_sheet(dadosExportacao);
-      XLSX.utils.book_append_sheet(wb, ws1, "Evolução Temporal");
-      
-      // Adicionar sheet de indicadores
-      const ws2 = XLSX.utils.json_to_sheet(dadosIndicadores);
-      XLSX.utils.book_append_sheet(wb, ws2, "Indicadores Atuais");
-
-      // Adicionar sheet de informações
-      const infoData = [
-        { 'Campo': 'Período', 'Valor': periodoFiltro === "semanal" ? "Última semana" : periodoFiltro === "mensal" ? "Último mês" : periodoFiltro === "trimestral" ? "Últimos 3 meses" : "Últimos 12 meses" },
-        { 'Campo': 'Departamento', 'Valor': departamentoFiltro === "todos" ? "Todos os Departamentos" : departamentoFiltro === "oncologia" ? "Oncologia Clínica" : departamentoFiltro === "quimioterapia" ? "Quimioterapia" : departamentoFiltro === "radioterapia" ? "Radioterapia" : departamentoFiltro === "cirurgia" ? "Cirurgia Oncológica" : departamentoFiltro === "internacao" ? "Internação" : "Ambulatório" },
-        { 'Campo': 'Data da Exportação', 'Valor': new Date().toLocaleString('pt-BR') }
-      ];
-      const ws3 = XLSX.utils.json_to_sheet(infoData);
-      XLSX.utils.book_append_sheet(wb, ws3, "Informações");
-
-      // Exportar
-      XLSX.writeFile(wb, `vittalis-dados-${periodoFiltro}-${departamentoFiltro}-${new Date().toISOString().split('T')[0]}.xlsx`);
-
-      toast({
-        title: "Exportação concluída!",
-        description: "Os dados foram salvos em formato Excel.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao exportar",
-        description: "Não foi possível exportar os dados para Excel.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card sticky top-0 z-50">
@@ -798,37 +692,13 @@ const Administrador = () => {
             {/* Gráficos de Evolução Temporal */}
             <Card id="graficos-container">
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-primary" />
-                      Evolução Temporal dos Indicadores
-                    </CardTitle>
-                    <CardDescription>
-                      Acompanhe a tendência dos principais indicadores ao longo do período selecionado
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={exportarGraficosPNG}
-                      className="gap-2"
-                    >
-                      <ImageIcon className="h-4 w-4" />
-                      Exportar PNG
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={exportarDadosExcel}
-                      className="gap-2"
-                    >
-                      <FileSpreadsheet className="h-4 w-4" />
-                      Exportar Excel
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Evolução Temporal dos Indicadores
+                </CardTitle>
+                <CardDescription>
+                  Acompanhe a tendência dos principais indicadores ao longo do período selecionado
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8">
                 {/* Gráfico de Taxa de Mortalidade */}
