@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { UploadAPACDialog } from "@/components/dialogs/UploadAPACDialog";
 
 const Paciente = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const Paciente = () => {
   const [showPrescricaoDialog, setShowPrescricaoDialog] = useState(false);
   const [showExameDialog, setShowExameDialog] = useState(false);
   const [apacAlertDismissed, setApacAlertDismissed] = useState(false);
+  const [showUploadAPACDialog, setShowUploadAPACDialog] = useState(false);
   
   // Dados da notificação APAC - viria da área administrativa
   const apacNotificacao = {
@@ -40,8 +42,13 @@ const Paciente = () => {
   };
 
   const handleAtualizarAPAC = () => {
-    toast.info("Redirecionando para upload de documentação APAC...");
-    // Aqui seria a lógica para abrir formulário de upload ou redirecionar
+    setShowUploadAPACDialog(true);
+  };
+
+  const handleUploadSuccess = () => {
+    // Após upload bem-sucedido, ocultar o alerta
+    setApacAlertDismissed(true);
+    toast.success("Documento enviado! Aguarde a validação do setor administrativo.");
   };
 
   const horarios = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
@@ -838,6 +845,13 @@ const Paciente = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Dialog de Upload APAC */}
+        <UploadAPACDialog 
+          open={showUploadAPACDialog}
+          onOpenChange={setShowUploadAPACDialog}
+          onUploadSuccess={handleUploadSuccess}
+        />
       </div>
     </div>
   );
