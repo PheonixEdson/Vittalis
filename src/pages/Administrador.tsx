@@ -20,6 +20,10 @@ const Administrador = () => {
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [novoStatus, setNovoStatus] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  
+  // Estados dos filtros
+  const [periodoFiltro, setPeriodoFiltro] = useState("mensal");
+  const [departamentoFiltro, setDepartamentoFiltro] = useState("todos");
 
   const procedimentosData = [
     {
@@ -348,6 +352,147 @@ const Administrador = () => {
           </TabsContent>
 
           <TabsContent value="dashboards" className="space-y-6">
+            {/* Filtros */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Filtros de Visualização</CardTitle>
+                <CardDescription>
+                  Selecione o período e departamento para visualizar os indicadores
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="periodo">Período</Label>
+                    <Select value={periodoFiltro} onValueChange={setPeriodoFiltro}>
+                      <SelectTrigger id="periodo">
+                        <SelectValue placeholder="Selecione o período" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="semanal">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>Semanal (Última semana)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="mensal">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>Mensal (Último mês)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="trimestral">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>Trimestral (Últimos 3 meses)</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="anual">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>Anual (Últimos 12 meses)</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="departamento">Departamento/Setor</Label>
+                    <Select value={departamentoFiltro} onValueChange={setDepartamentoFiltro}>
+                      <SelectTrigger id="departamento">
+                        <SelectValue placeholder="Selecione o departamento" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">
+                          <span className="font-medium">Todos os Departamentos</span>
+                        </SelectItem>
+                        <SelectItem value="oncologia">
+                          <span>Oncologia Clínica</span>
+                        </SelectItem>
+                        <SelectItem value="quimioterapia">
+                          <span>Quimioterapia</span>
+                        </SelectItem>
+                        <SelectItem value="radioterapia">
+                          <span>Radioterapia</span>
+                        </SelectItem>
+                        <SelectItem value="cirurgia">
+                          <span>Cirurgia Oncológica</span>
+                        </SelectItem>
+                        <SelectItem value="internacao">
+                          <span>Internação</span>
+                        </SelectItem>
+                        <SelectItem value="ambulatorio">
+                          <span>Ambulatório</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Badges dos filtros ativos */}
+                <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
+                  <span className="text-sm text-muted-foreground">Filtros ativos:</span>
+                  <Badge variant="secondary" className="gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {periodoFiltro === "semanal" && "Última semana"}
+                    {periodoFiltro === "mensal" && "Último mês"}
+                    {periodoFiltro === "trimestral" && "Últimos 3 meses"}
+                    {periodoFiltro === "anual" && "Últimos 12 meses"}
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1">
+                    <Users className="h-3 w-3" />
+                    {departamentoFiltro === "todos" && "Todos os Departamentos"}
+                    {departamentoFiltro === "oncologia" && "Oncologia Clínica"}
+                    {departamentoFiltro === "quimioterapia" && "Quimioterapia"}
+                    {departamentoFiltro === "radioterapia" && "Radioterapia"}
+                    {departamentoFiltro === "cirurgia" && "Cirurgia Oncológica"}
+                    {departamentoFiltro === "internacao" && "Internação"}
+                    {departamentoFiltro === "ambulatorio" && "Ambulatório"}
+                  </Badge>
+                  {(periodoFiltro !== "mensal" || departamentoFiltro !== "todos") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setPeriodoFiltro("mensal");
+                        setDepartamentoFiltro("todos");
+                        toast({
+                          title: "Filtros redefinidos",
+                          description: "Os filtros foram restaurados para os valores padrão.",
+                        });
+                      }}
+                      className="h-6 text-xs"
+                    >
+                      Limpar filtros
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Alerta informativo sobre os filtros */}
+            {(periodoFiltro !== "mensal" || departamentoFiltro !== "todos") && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Dados Filtrados</AlertTitle>
+                <AlertDescription>
+                  Os indicadores abaixo estão sendo exibidos com base nos filtros selecionados:
+                  <strong> {periodoFiltro === "semanal" ? "Última semana" : periodoFiltro === "mensal" ? "Último mês" : periodoFiltro === "trimestral" ? "Últimos 3 meses" : "Últimos 12 meses"}</strong>
+                  {departamentoFiltro !== "todos" && (
+                    <> e <strong>
+                      {departamentoFiltro === "oncologia" ? "Oncologia Clínica" : 
+                       departamentoFiltro === "quimioterapia" ? "Quimioterapia" :
+                       departamentoFiltro === "radioterapia" ? "Radioterapia" :
+                       departamentoFiltro === "cirurgia" ? "Cirurgia Oncológica" :
+                       departamentoFiltro === "internacao" ? "Internação" : "Ambulatório"}
+                    </strong></>
+                  )}
+                  .
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Qualidade do Cuidado */}
             <Card>
               <CardHeader>
