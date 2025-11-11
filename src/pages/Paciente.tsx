@@ -6,12 +6,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, FileText, TestTube, Droplet, AlertCircle, ChevronRight, Home, Clock } from "lucide-react";
+import { Calendar, FileText, TestTube, Droplet, AlertCircle, ChevronRight, Home, Clock, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Paciente = () => {
   const navigate = useNavigate();
@@ -29,6 +30,19 @@ const Paciente = () => {
   const [selectedExame, setSelectedExame] = useState<any>(null);
   const [showPrescricaoDialog, setShowPrescricaoDialog] = useState(false);
   const [showExameDialog, setShowExameDialog] = useState(false);
+  const [apacAlertDismissed, setApacAlertDismissed] = useState(false);
+  
+  // Dados da notificação APAC - viria da área administrativa
+  const apacNotificacao = {
+    dataVencimento: "30/11/2025",
+    diasRestantes: 19,
+    urgente: true // Se faltam menos de 30 dias
+  };
+
+  const handleAtualizarAPAC = () => {
+    toast.info("Redirecionando para upload de documentação APAC...");
+    // Aqui seria a lógica para abrir formulário de upload ou redirecionar
+  };
 
   const horarios = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
   const tiposExame = [
@@ -275,6 +289,42 @@ const Paciente = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Alerta APAC */}
+        {!apacAlertDismissed && apacNotificacao.urgente && (
+          <Alert variant="destructive" className="mb-6 border-2">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="text-lg font-semibold mb-2">
+              Atenção: Atualização de Documentação APAC Necessária
+            </AlertTitle>
+            <AlertDescription className="space-y-3">
+              <div className="text-sm">
+                <p className="mb-2">
+                  Sua documentação APAC (Autorização de Procedimento de Alta Complexidade) vence em{" "}
+                  <strong className="font-bold">{apacNotificacao.dataVencimento}</strong> (faltam {apacNotificacao.diasRestantes} dias).
+                </p>
+                <p className="mb-3 font-semibold">
+                  ⚠️ IMPORTANTE: Sem a documentação atualizada, você não poderá realizar suas sessões de medicação/infusão.
+                </p>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <Button 
+                  onClick={handleAtualizarAPAC}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  Atualizar Documentação
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setApacAlertDismissed(true)}
+                >
+                  Dispensar
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Quick Actions */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Dialog open={openConsulta} onOpenChange={setOpenConsulta}>
