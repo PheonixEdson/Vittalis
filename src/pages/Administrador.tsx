@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
 
 const Administrador = () => {
@@ -24,6 +24,147 @@ const Administrador = () => {
   // Estados dos filtros
   const [periodoFiltro, setPeriodoFiltro] = useState("mensal");
   const [departamentoFiltro, setDepartamentoFiltro] = useState("todos");
+
+  // Função para calcular dados baseado nos filtros
+  const dadosFiltrados = useMemo(() => {
+    // Multiplicadores baseados no período
+    const multiplicadorPeriodo = {
+      semanal: 0.25,
+      mensal: 1,
+      trimestral: 3,
+      anual: 12
+    }[periodoFiltro];
+
+    // Ajustes baseados no departamento
+    const ajustesDepartamento = {
+      todos: { mortalidade: 2.1, infeccao: 1.8, protocolos: 94, ocupacao: 87, espera: 12, produtividade: 8.5, custoInternacao: 2.8 },
+      oncologia: { mortalidade: 1.9, infeccao: 1.5, protocolos: 96, ocupacao: 92, espera: 10, produtividade: 9.2, custoInternacao: 3.1 },
+      quimioterapia: { mortalidade: 2.3, infeccao: 2.1, protocolos: 93, ocupacao: 85, espera: 8, produtividade: 7.8, custoInternacao: 2.5 },
+      radioterapia: { mortalidade: 1.7, infeccao: 1.2, protocolos: 97, ocupacao: 78, espera: 15, produtividade: 8.8, custoInternacao: 2.2 },
+      cirurgia: { mortalidade: 2.8, infeccao: 2.5, protocolos: 91, ocupacao: 95, espera: 18, produtividade: 6.5, custoInternacao: 4.2 },
+      internacao: { mortalidade: 2.5, infeccao: 2.2, protocolos: 92, ocupacao: 89, espera: 14, produtividade: 7.2, custoInternacao: 3.5 },
+      ambulatorio: { mortalidade: 1.4, infeccao: 1.0, protocolos: 95, ocupacao: 82, espera: 9, produtividade: 9.8, custoInternacao: 1.8 }
+    }[departamentoFiltro];
+
+    const base = ajustesDepartamento;
+    
+    // Calcular números absolutos baseados no período
+    const pacientes = Math.round(380 * multiplicadorPeriodo);
+    const obitos = Math.round((pacientes * base.mortalidade) / 100);
+    const internacoes = Math.round(390 * multiplicadorPeriodo);
+    const infeccoes = Math.round((internacoes * base.infeccao) / 100);
+    const procedimentos = Math.round(380 * multiplicadorPeriodo);
+    const conformidade = Math.round((procedimentos * base.protocolos) / 100);
+    
+    // Leitos (não varia com período, apenas com departamento)
+    const leitosTotal = departamentoFiltro === "todos" ? 200 : 
+                        departamentoFiltro === "cirurgia" ? 85 :
+                        departamentoFiltro === "internacao" ? 120 : 
+                        departamentoFiltro === "oncologia" ? 95 : 50;
+    const leitosOcupados = Math.round((leitosTotal * base.ocupacao) / 100);
+    
+    // Atendimentos e custos escalam com período
+    const atendimentos = Math.round(1450 * multiplicadorPeriodo);
+    const internacoesCalc = Math.round(390 * multiplicadorPeriodo);
+    const custoTotalInternacao = internacoesCalc * base.custoInternacao * 1000;
+    
+    // Médicos (não varia com período)
+    const medicos = departamentoFiltro === "todos" ? 45 : 
+                    departamentoFiltro === "oncologia" ? 18 :
+                    departamentoFiltro === "quimioterapia" ? 12 :
+                    departamentoFiltro === "cirurgia" ? 15 : 8;
+    
+    // Financeiro escala com período
+    const pacientesAtendidos = Math.round(1540 * multiplicadorPeriodo);
+    const custoTotal = Math.round(4928000 * multiplicadorPeriodo);
+    const custoPorPaciente = custoTotal / pacientesAtendidos;
+    const faturamento = Math.round(4928000 * multiplicadorPeriodo);
+    const glosa = departamentoFiltro === "todos" ? 4.5 :
+                  departamentoFiltro === "cirurgia" ? 5.8 :
+                  departamentoFiltro === "radioterapia" ? 3.2 : 4.1;
+    const valorGlosado = (faturamento * glosa) / 100;
+    
+    const receita = Math.round(5600000 * multiplicadorPeriodo);
+    const custos = Math.round(4883200 * multiplicadorPeriodo);
+    const lucro = receita - custos;
+    const margemOperacional = ((lucro / receita) * 100).toFixed(1);
+    
+    // NPS e satisfação variam por departamento
+    const nps = departamentoFiltro === "todos" ? 72 :
+                departamentoFiltro === "ambulatorio" ? 78 :
+                departamentoFiltro === "oncologia" ? 75 :
+                departamentoFiltro === "cirurgia" ? 68 : 71;
+    
+    const respostasNPS = Math.round(1235 * multiplicadorPeriodo);
+    const promotores = Math.round((respostasNPS * (nps + 28)) / 100);
+    const neutros = Math.round((respostasNPS * 28) / 100);
+    const detratores = respostasNPS - promotores - neutros;
+    
+    const reclamacoes = Math.round((pacientesAtendidos * 3.2) / 1000);
+    
+    // RH (não escala linearmente com período)
+    const colaboradores = 278;
+    const ausencias = Math.round(156 * multiplicadorPeriodo);
+    const absenteismo = ((ausencias / (colaboradores * (periodoFiltro === "semanal" ? 7 : periodoFiltro === "mensal" ? 30 : periodoFiltro === "trimestral" ? 90 : 365))) * 100).toFixed(1);
+    const satisfacaoProfissional = departamentoFiltro === "todos" ? 8.4 :
+                                    departamentoFiltro === "oncologia" ? 8.7 :
+                                    departamentoFiltro === "cirurgia" ? 8.0 : 8.3;
+    const respostasPesquisa = Math.round(234 * (periodoFiltro === "anual" ? 1 : periodoFiltro === "trimestral" ? 1 : periodoFiltro === "mensal" ? 1 : 0.25));
+
+    return {
+      qualidade: {
+        mortalidade: base.mortalidade.toFixed(1),
+        obitos,
+        pacientes,
+        infeccao: base.infeccao.toFixed(1),
+        infeccoes,
+        internacoes,
+        protocolos: base.protocolos,
+        conformidade,
+        procedimentos
+      },
+      eficiencia: {
+        ocupacao: base.ocupacao,
+        leitosOcupados,
+        leitosTotal,
+        espera: base.espera,
+        atendimentos,
+        produtividade: base.produtividade.toFixed(1),
+        medicos,
+        custoInternacao: base.custoInternacao.toFixed(1),
+        custoTotalInternacao: custoTotalInternacao.toLocaleString('pt-BR'),
+        internacoesCalc
+      },
+      financeiro: {
+        custoPorPaciente: (custoPorPaciente / 1000).toFixed(1),
+        custoTotal: custoTotal.toLocaleString('pt-BR'),
+        pacientesAtendidos,
+        glosa: glosa.toFixed(1),
+        valorGlosado: valorGlosado.toLocaleString('pt-BR'),
+        faturamento: faturamento.toLocaleString('pt-BR'),
+        margemOperacional,
+        receita: receita.toLocaleString('pt-BR'),
+        custos: custos.toLocaleString('pt-BR'),
+        lucro: lucro.toLocaleString('pt-BR')
+      },
+      satisfacao: {
+        nps,
+        respostasNPS,
+        promotores,
+        neutros,
+        detratores,
+        reclamacoes,
+        pacientesAtendidos
+      },
+      rh: {
+        absenteismo,
+        ausencias,
+        colaboradores,
+        satisfacaoProfissional: satisfacaoProfissional.toFixed(1),
+        respostasPesquisa
+      }
+    };
+  }, [periodoFiltro, departamentoFiltro]);
 
   const procedimentosData = [
     {
@@ -364,7 +505,17 @@ const Administrador = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="periodo">Período</Label>
-                    <Select value={periodoFiltro} onValueChange={setPeriodoFiltro}>
+                    <Select value={periodoFiltro} onValueChange={(value) => {
+                      setPeriodoFiltro(value);
+                      toast({
+                        title: "Filtro de período atualizado",
+                        description: `Os dados estão sendo exibidos para: ${
+                          value === "semanal" ? "Última semana" :
+                          value === "mensal" ? "Último mês" :
+                          value === "trimestral" ? "Últimos 3 meses" : "Últimos 12 meses"
+                        }`,
+                      });
+                    }}>
                       <SelectTrigger id="periodo">
                         <SelectValue placeholder="Selecione o período" />
                       </SelectTrigger>
@@ -399,7 +550,20 @@ const Administrador = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="departamento">Departamento/Setor</Label>
-                    <Select value={departamentoFiltro} onValueChange={setDepartamentoFiltro}>
+                    <Select value={departamentoFiltro} onValueChange={(value) => {
+                      setDepartamentoFiltro(value);
+                      toast({
+                        title: "Filtro de departamento atualizado",
+                        description: `Os dados estão sendo exibidos para: ${
+                          value === "todos" ? "Todos os Departamentos" :
+                          value === "oncologia" ? "Oncologia Clínica" :
+                          value === "quimioterapia" ? "Quimioterapia" :
+                          value === "radioterapia" ? "Radioterapia" :
+                          value === "cirurgia" ? "Cirurgia Oncológica" :
+                          value === "internacao" ? "Internação" : "Ambulatório"
+                        }`,
+                      });
+                    }}>
                       <SelectTrigger id="departamento">
                         <SelectValue placeholder="Selecione o departamento" />
                       </SelectTrigger>
@@ -506,33 +670,42 @@ const Administrador = () => {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Taxa de Mortalidade</p>
-                    <p className="text-3xl font-bold text-foreground">2.1%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.qualidade.mortalidade}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• 8 óbitos de 380 pacientes</p>
-                      <p>• Mês anterior: 2.4% (9/375)</p>
+                      <p>• {dadosFiltrados.qualidade.obitos} óbitos de {dadosFiltrados.qualidade.pacientes} pacientes</p>
+                      <p>• Período anterior: 2.4%</p>
                       <p>• Média nacional: 2.8%</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">↓ 0.3% vs mês anterior</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {parseFloat(dadosFiltrados.qualidade.mortalidade) < 2.4 ? "↓" : "↑"} 
+                      {Math.abs(parseFloat(dadosFiltrados.qualidade.mortalidade) - 2.4).toFixed(1)}% vs anterior
+                    </Badge>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Taxa de Infecção Hospitalar</p>
-                    <p className="text-3xl font-bold text-foreground">1.8%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.qualidade.infeccao}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• 7 casos de 390 internações</p>
-                      <p>• Mês anterior: 2.3% (9/391)</p>
+                      <p>• {dadosFiltrados.qualidade.infeccoes} casos de {dadosFiltrados.qualidade.internacoes} internações</p>
+                      <p>• Período anterior: 2.3%</p>
                       <p>• Meta institucional: &lt; 2.0%</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">↓ 0.5% vs mês anterior</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {parseFloat(dadosFiltrados.qualidade.infeccao) < 2.3 ? "↓" : "↑"}
+                      {Math.abs(parseFloat(dadosFiltrados.qualidade.infeccao) - 2.3).toFixed(1)}% vs anterior
+                    </Badge>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Adesão a Protocolos Clínicos</p>
-                    <p className="text-3xl font-bold text-foreground">94%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.qualidade.protocolos}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• 357 procedimentos em conformidade</p>
-                      <p>• Total de 380 procedimentos</p>
-                      <p>• Mês anterior: 92% (345/375)</p>
+                      <p>• {dadosFiltrados.qualidade.conformidade} procedimentos em conformidade</p>
+                      <p>• Total de {dadosFiltrados.qualidade.procedimentos} procedimentos</p>
+                      <p>• Período anterior: 92%</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">↑ 2% vs mês anterior</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {dadosFiltrados.qualidade.protocolos > 92 ? "↑" : "↓"}
+                      {Math.abs(dadosFiltrados.qualidade.protocolos - 92)}% vs anterior
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
@@ -551,38 +724,38 @@ const Administrador = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Ocupação de Leitos</p>
-                    <p className="text-3xl font-bold text-foreground">87%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.eficiencia.ocupacao}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• 174 leitos ocupados</p>
-                      <p>• Total de 200 leitos</p>
-                      <p>• 26 leitos disponíveis</p>
+                      <p>• {dadosFiltrados.eficiencia.leitosOcupados} leitos ocupados</p>
+                      <p>• Total de {dadosFiltrados.eficiencia.leitosTotal} leitos</p>
+                      <p>• {dadosFiltrados.eficiencia.leitosTotal - dadosFiltrados.eficiencia.leitosOcupados} leitos disponíveis</p>
                     </div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Tempo Médio de Espera</p>
-                    <p className="text-3xl font-bold text-foreground">12min</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.eficiencia.espera}min</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• 1.450 atendimentos/mês</p>
+                      <p>• {dadosFiltrados.eficiencia.atendimentos.toLocaleString('pt-BR')} atendimentos no período</p>
                       <p>• Meta: &lt; 15 minutos</p>
-                      <p>• Redução de 18% vs mês anterior</p>
+                      <p>• {dadosFiltrados.eficiencia.espera < 15 ? "Dentro da meta" : "Acima da meta"}</p>
                     </div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Produtividade Médica</p>
-                    <p className="text-3xl font-bold text-foreground">8.5</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.eficiencia.produtividade}</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <p>• Atendimentos/médico/dia</p>
-                      <p>• 45 médicos ativos</p>
+                      <p>• {dadosFiltrados.eficiencia.medicos} médicos ativos</p>
                       <p>• Meta: 8.0 atendimentos</p>
                     </div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Custo por Internação</p>
-                    <p className="text-3xl font-bold text-foreground">R$ 2.8k</p>
+                    <p className="text-3xl font-bold text-foreground">R$ {dadosFiltrados.eficiencia.custoInternacao}k</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• Total gasto: R$ 1.092.000</p>
-                      <p>• 390 internações no mês</p>
-                      <p>• Redução de 5% vs mês anterior</p>
+                      <p>• Total gasto: R$ {dadosFiltrados.eficiencia.custoTotalInternacao}</p>
+                      <p>• {dadosFiltrados.eficiencia.internacoesCalc} internações no período</p>
+                      <p>• Controle de custos ativo</p>
                     </div>
                   </div>
                 </div>
@@ -602,33 +775,40 @@ const Administrador = () => {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Custo Médio por Paciente</p>
-                    <p className="text-3xl font-bold text-foreground">R$ 3.2k</p>
+                    <p className="text-3xl font-bold text-foreground">R$ {dadosFiltrados.financeiro.custoPorPaciente}k</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• Custo total: R$ 4.928.000</p>
-                      <p>• 1.540 pacientes atendidos</p>
-                      <p>• Mês anterior: R$ 3.4k (-5.9%)</p>
+                      <p>• Custo total: R$ {dadosFiltrados.financeiro.custoTotal}</p>
+                      <p>• {dadosFiltrados.financeiro.pacientesAtendidos.toLocaleString('pt-BR')} pacientes atendidos</p>
+                      <p>• Período anterior: R$ 3.4k</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">Dentro da meta</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {parseFloat(dadosFiltrados.financeiro.custoPorPaciente) < 3.4 ? "↓ Redução de custos" : "Dentro da meta"}
+                    </Badge>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Índice de Glosa</p>
-                    <p className="text-3xl font-bold text-foreground">4.5%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.financeiro.glosa}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• Valor glosado: R$ 221.760</p>
-                      <p>• Faturamento total: R$ 4.928.000</p>
-                      <p>• Mês anterior: 5.7% (R$ 289.500)</p>
+                      <p>• Valor glosado: R$ {dadosFiltrados.financeiro.valorGlosado}</p>
+                      <p>• Faturamento total: R$ {dadosFiltrados.financeiro.faturamento}</p>
+                      <p>• Período anterior: 5.7%</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">↓ 1.2% vs anterior</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {parseFloat(dadosFiltrados.financeiro.glosa) < 5.7 ? "↓" : "↑"}
+                      {Math.abs(parseFloat(dadosFiltrados.financeiro.glosa) - 5.7).toFixed(1)}% vs anterior
+                    </Badge>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                     <p className="text-sm text-muted-foreground">Margem Operacional</p>
-                    <p className="text-3xl font-bold text-foreground">12.8%</p>
+                    <p className="text-3xl font-bold text-foreground">{dadosFiltrados.financeiro.margemOperacional}%</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>• Receita: R$ 5.600.000</p>
-                      <p>• Custos: R$ 4.883.200</p>
-                      <p>• Lucro: R$ 716.800</p>
+                      <p>• Receita: R$ {dadosFiltrados.financeiro.receita}</p>
+                      <p>• Custos: R$ {dadosFiltrados.financeiro.custos}</p>
+                      <p>• Lucro: R$ {dadosFiltrados.financeiro.lucro}</p>
                     </div>
-                    <Badge variant="outline" className="mt-2">↑ 0.5% vs anterior</Badge>
+                    <Badge variant="outline" className="mt-2">
+                      {parseFloat(dadosFiltrados.financeiro.margemOperacional) > 12 ? "↑ Acima da meta" : "Positivo"}
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
@@ -648,21 +828,23 @@ const Administrador = () => {
                   <div className="space-y-4">
                     <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                       <p className="text-sm text-muted-foreground">NPS (Net Promoter Score)</p>
-                      <p className="text-3xl font-bold text-foreground">72</p>
+                      <p className="text-3xl font-bold text-foreground">{dadosFiltrados.satisfacao.nps}</p>
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <p>• Promotores: 840 (68%)</p>
-                        <p>• Neutros: 345 (28%)</p>
-                        <p>• Detratores: 50 (4%)</p>
-                        <p>• Total de respostas: 1.235</p>
+                        <p>• Promotores: {dadosFiltrados.satisfacao.promotores} ({Math.round((dadosFiltrados.satisfacao.promotores/dadosFiltrados.satisfacao.respostasNPS)*100)}%)</p>
+                        <p>• Neutros: {dadosFiltrados.satisfacao.neutros} ({Math.round((dadosFiltrados.satisfacao.neutros/dadosFiltrados.satisfacao.respostasNPS)*100)}%)</p>
+                        <p>• Detratores: {dadosFiltrados.satisfacao.detratores} ({Math.round((dadosFiltrados.satisfacao.detratores/dadosFiltrados.satisfacao.respostasNPS)*100)}%)</p>
+                        <p>• Total de respostas: {dadosFiltrados.satisfacao.respostasNPS.toLocaleString('pt-BR')}</p>
                       </div>
-                      <Badge variant="outline" className="mt-2">Excelente</Badge>
+                      <Badge variant="outline" className="mt-2">
+                        {dadosFiltrados.satisfacao.nps >= 70 ? "Excelente" : dadosFiltrados.satisfacao.nps >= 50 ? "Bom" : "Regular"}
+                      </Badge>
                     </div>
                     <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                       <p className="text-sm text-muted-foreground">Reclamações por 1000 pacientes</p>
-                      <p className="text-3xl font-bold text-foreground">3.2</p>
+                      <p className="text-3xl font-bold text-foreground">{(dadosFiltrados.satisfacao.reclamacoes / (dadosFiltrados.satisfacao.pacientesAtendidos / 1000)).toFixed(1)}</p>
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <p>• Total de reclamações: 5</p>
-                        <p>• Pacientes atendidos: 1.540</p>
+                        <p>• Total de reclamações: {dadosFiltrados.satisfacao.reclamacoes}</p>
+                        <p>• Pacientes atendidos: {dadosFiltrados.satisfacao.pacientesAtendidos.toLocaleString('pt-BR')}</p>
                         <p>• Todas resolvidas em até 48h</p>
                         <p>• Meta: &lt; 5 reclamações/1000</p>
                       </div>
@@ -681,25 +863,29 @@ const Administrador = () => {
                   <div className="space-y-4">
                     <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                       <p className="text-sm text-muted-foreground">Taxa de Absenteísmo</p>
-                      <p className="text-3xl font-bold text-foreground">2.8%</p>
+                      <p className="text-3xl font-bold text-foreground">{dadosFiltrados.rh.absenteismo}%</p>
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <p>• 156 ausências no mês</p>
-                        <p>• 278 colaboradores ativos</p>
-                        <p>• Mês anterior: 3.1%</p>
+                        <p>• {dadosFiltrados.rh.ausencias} ausências no período</p>
+                        <p>• {dadosFiltrados.rh.colaboradores} colaboradores ativos</p>
+                        <p>• Período: {periodoFiltro === "semanal" ? "Última semana" : periodoFiltro === "mensal" ? "Último mês" : periodoFiltro === "trimestral" ? "Últimos 3 meses" : "Último ano"}</p>
                         <p>• Meta institucional: &lt; 3.5%</p>
                       </div>
-                      <Badge variant="outline" className="mt-2">↓ 0.3% vs anterior</Badge>
+                      <Badge variant="outline" className="mt-2">
+                        {parseFloat(dadosFiltrados.rh.absenteismo) < 3.5 ? "↓ Abaixo da meta" : "Atenção"}
+                      </Badge>
                     </div>
                     <div className="p-4 bg-muted/50 rounded-lg space-y-3">
                       <p className="text-sm text-muted-foreground">Satisfação Profissional</p>
-                      <p className="text-3xl font-bold text-foreground">8.4/10</p>
+                      <p className="text-3xl font-bold text-foreground">{dadosFiltrados.rh.satisfacaoProfissional}/10</p>
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <p>• 234 respostas na pesquisa</p>
-                        <p>• Taxa de resposta: 84%</p>
-                        <p>• Mês anterior: 8.1/10</p>
+                        <p>• {dadosFiltrados.rh.respostasPesquisa} respostas na pesquisa</p>
+                        <p>• Taxa de resposta: {Math.round((dadosFiltrados.rh.respostasPesquisa/dadosFiltrados.rh.colaboradores)*100)}%</p>
+                        <p>• Período anterior: 8.1/10</p>
                         <p>• Benchmarking setor: 7.8/10</p>
                       </div>
-                      <Badge variant="outline" className="mt-2">↑ Acima da média</Badge>
+                      <Badge variant="outline" className="mt-2">
+                        {parseFloat(dadosFiltrados.rh.satisfacaoProfissional) > 7.8 ? "↑ Acima da média" : "Dentro da média"}
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
