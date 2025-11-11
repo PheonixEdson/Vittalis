@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
 
 const Administrador = () => {
   const navigate = useNavigate();
@@ -25,6 +26,10 @@ const Administrador = () => {
   // Estados dos filtros
   const [periodoFiltro, setPeriodoFiltro] = useState("mensal");
   const [departamentoFiltro, setDepartamentoFiltro] = useState("todos");
+  
+  // Estados para o diálogo de pedido
+  const [pedidoDialogOpen, setPedidoDialogOpen] = useState(false);
+  const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<{nome: string, atual: number, minimo: number} | null>(null);
 
   // Função para calcular dados baseado nos filtros
   const dadosFiltrados = useMemo(() => {
@@ -1102,7 +1107,15 @@ const Administrador = () => {
                         </div>
                         <div className="text-right">
                           <p className="font-medium text-sm">{med.custo}</p>
-                          <Button variant="outline" size="sm" className="mt-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-1"
+                            onClick={() => {
+                              setMedicamentoSelecionado(med);
+                              setPedidoDialogOpen(true);
+                            }}
+                          >
                             Solicitar Pedido
                           </Button>
                         </div>
@@ -1487,6 +1500,13 @@ const Administrador = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Dialog para Solicitar Pedido de Medicamento */}
+      <PedidoMedicamentoDialog
+        open={pedidoDialogOpen}
+        onOpenChange={setPedidoDialogOpen}
+        medicamento={medicamentoSelecionado}
+      />
     </div>
   );
 };
