@@ -355,22 +355,38 @@ const Administrador = () => {
                   <TrendingUp className="h-5 w-5 text-success" />
                   Qualidade do Cuidado
                 </CardTitle>
+                <CardDescription>Indicadores de qualidade clínica e segurança do paciente</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Taxa de Mortalidade</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Taxa de Mortalidade</p>
                     <p className="text-3xl font-bold text-foreground">2.1%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• 8 óbitos de 380 pacientes</p>
+                      <p>• Mês anterior: 2.4% (9/375)</p>
+                      <p>• Média nacional: 2.8%</p>
+                    </div>
                     <Badge variant="outline" className="mt-2">↓ 0.3% vs mês anterior</Badge>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Taxa de Infecção</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Taxa de Infecção Hospitalar</p>
                     <p className="text-3xl font-bold text-foreground">1.8%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• 7 casos de 390 internações</p>
+                      <p>• Mês anterior: 2.3% (9/391)</p>
+                      <p>• Meta institucional: &lt; 2.0%</p>
+                    </div>
                     <Badge variant="outline" className="mt-2">↓ 0.5% vs mês anterior</Badge>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Adesão a Protocolos</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Adesão a Protocolos Clínicos</p>
                     <p className="text-3xl font-bold text-foreground">94%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• 357 procedimentos em conformidade</p>
+                      <p>• Total de 380 procedimentos</p>
+                      <p>• Mês anterior: 92% (345/375)</p>
+                    </div>
                     <Badge variant="outline" className="mt-2">↑ 2% vs mês anterior</Badge>
                   </div>
                 </div>
@@ -384,24 +400,45 @@ const Administrador = () => {
                   <BarChart3 className="h-5 w-5 text-primary" />
                   Eficiência Operacional
                 </CardTitle>
+                <CardDescription>Métricas de produtividade e gestão de recursos</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Ocupação de Leitos</p>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Ocupação de Leitos</p>
                     <p className="text-3xl font-bold text-foreground">87%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• 174 leitos ocupados</p>
+                      <p>• Total de 200 leitos</p>
+                      <p>• 26 leitos disponíveis</p>
+                    </div>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Tempo de Espera</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Tempo Médio de Espera</p>
                     <p className="text-3xl font-bold text-foreground">12min</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• 1.450 atendimentos/mês</p>
+                      <p>• Meta: &lt; 15 minutos</p>
+                      <p>• Redução de 18% vs mês anterior</p>
+                    </div>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Produtividade</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Produtividade Médica</p>
                     <p className="text-3xl font-bold text-foreground">8.5</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• Atendimentos/médico/dia</p>
+                      <p>• 45 médicos ativos</p>
+                      <p>• Meta: 8.0 atendimentos</p>
+                    </div>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Custo/Internação</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Custo por Internação</p>
                     <p className="text-3xl font-bold text-foreground">R$ 2.8k</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• Total gasto: R$ 1.092.000</p>
+                      <p>• 390 internações no mês</p>
+                      <p>• Redução de 5% vs mês anterior</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -414,22 +451,38 @@ const Administrador = () => {
                   <DollarSign className="h-5 w-5 text-secondary" />
                   Indicadores Financeiros
                 </CardTitle>
+                <CardDescription>Análise de custos, glosas e rentabilidade</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Custo/Paciente</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Custo Médio por Paciente</p>
                     <p className="text-3xl font-bold text-foreground">R$ 3.2k</p>
-                    <Badge variant="outline" className="mt-2">Mês atual</Badge>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• Custo total: R$ 4.928.000</p>
+                      <p>• 1.540 pacientes atendidos</p>
+                      <p>• Mês anterior: R$ 3.4k (-5.9%)</p>
+                    </div>
+                    <Badge variant="outline" className="mt-2">Dentro da meta</Badge>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Índice de Glosa</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Índice de Glosa</p>
                     <p className="text-3xl font-bold text-foreground">4.5%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• Valor glosado: R$ 221.760</p>
+                      <p>• Faturamento total: R$ 4.928.000</p>
+                      <p>• Mês anterior: 5.7% (R$ 289.500)</p>
+                    </div>
                     <Badge variant="outline" className="mt-2">↓ 1.2% vs anterior</Badge>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Margem Operacional</p>
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">Margem Operacional</p>
                     <p className="text-3xl font-bold text-foreground">12.8%</p>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p>• Receita: R$ 5.600.000</p>
+                      <p>• Custos: R$ 4.883.200</p>
+                      <p>• Lucro: R$ 716.800</p>
+                    </div>
                     <Badge variant="outline" className="mt-2">↑ 0.5% vs anterior</Badge>
                   </div>
                 </div>
@@ -444,16 +497,31 @@ const Administrador = () => {
                     <Users className="h-5 w-5 text-accent" />
                     Satisfação do Paciente
                   </CardTitle>
+                  <CardDescription>Métricas de experiência e feedback dos pacientes</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">NPS (Net Promoter Score)</p>
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                      <p className="text-sm text-muted-foreground">NPS (Net Promoter Score)</p>
                       <p className="text-3xl font-bold text-foreground">72</p>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <p>• Promotores: 840 (68%)</p>
+                        <p>• Neutros: 345 (28%)</p>
+                        <p>• Detratores: 50 (4%)</p>
+                        <p>• Total de respostas: 1.235</p>
+                      </div>
+                      <Badge variant="outline" className="mt-2">Excelente</Badge>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Reclamações/1000 pacientes</p>
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                      <p className="text-sm text-muted-foreground">Reclamações por 1000 pacientes</p>
                       <p className="text-3xl font-bold text-foreground">3.2</p>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <p>• Total de reclamações: 5</p>
+                        <p>• Pacientes atendidos: 1.540</p>
+                        <p>• Todas resolvidas em até 48h</p>
+                        <p>• Meta: &lt; 5 reclamações/1000</p>
+                      </div>
+                      <Badge variant="outline" className="mt-2">Abaixo da meta</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -462,16 +530,31 @@ const Administrador = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Recursos Humanos</CardTitle>
+                  <CardDescription>Indicadores de gestão de pessoas e clima organizacional</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Taxa de Absenteísmo</p>
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                      <p className="text-sm text-muted-foreground">Taxa de Absenteísmo</p>
                       <p className="text-3xl font-bold text-foreground">2.8%</p>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <p>• 156 ausências no mês</p>
+                        <p>• 278 colaboradores ativos</p>
+                        <p>• Mês anterior: 3.1%</p>
+                        <p>• Meta institucional: &lt; 3.5%</p>
+                      </div>
+                      <Badge variant="outline" className="mt-2">↓ 0.3% vs anterior</Badge>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Satisfação Profissional</p>
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+                      <p className="text-sm text-muted-foreground">Satisfação Profissional</p>
                       <p className="text-3xl font-bold text-foreground">8.4/10</p>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <p>• 234 respostas na pesquisa</p>
+                        <p>• Taxa de resposta: 84%</p>
+                        <p>• Mês anterior: 8.1/10</p>
+                        <p>• Benchmarking setor: 7.8/10</p>
+                      </div>
+                      <Badge variant="outline" className="mt-2">↑ Acima da média</Badge>
                     </div>
                   </div>
                 </CardContent>
