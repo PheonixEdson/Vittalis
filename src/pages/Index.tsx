@@ -19,24 +19,12 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
-              Cadastro Paciente
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => navigate("/paciente")}>
+              Acesso Paciente
             </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
-              Cadastro Médico
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
-              Cadastro Enfermeiro
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
-              Cadastro Farmacêutico
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
-              Cadastro Admin
-            </Button>
-            <Button onClick={() => navigate("/paciente")}>
-              Prosseguir sem Login
+            <Button onClick={() => navigate("/medico")}>
+              Acesso Profissional
             </Button>
           </div>
         </div>
@@ -117,9 +105,14 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Visualização completa de pacientes, calendário dinâmico e liberação para quimioterapia
                 </p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/medico")}>
-                  Acessar Área Médica
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/cadastro-medico")}>
+                    Cadastrar como Médico
+                  </Button>
+                  <Button className="w-full" onClick={() => navigate("/medico")}>
+                    Acessar Área Médica
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -130,9 +123,14 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Gerenciamento de prescrições, infusões e visualização em tempo real de ocupação
                 </p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/enfermeiro")}>
-                  Acessar Área de Enfermagem
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/cadastro-enfermeiro")}>
+                    Cadastrar como Enfermeiro
+                  </Button>
+                  <Button className="w-full" onClick={() => navigate("/enfermeiro")}>
+                    Acessar Área de Enfermagem
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -143,9 +141,14 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Catalogação completa, rastreabilidade de medicamentos e gestão de estoque
                 </p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/farmaceutico")}>
-                  Acessar Área Farmacêutica
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/cadastro-farmaceutico")}>
+                    Cadastrar como Farmacêutico
+                  </Button>
+                  <Button className="w-full" onClick={() => navigate("/farmaceutico")}>
+                    Acessar Área Farmacêutica
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -158,9 +161,14 @@ const Index = () => {
                 <p className="text-sm text-muted-foreground mb-4 text-center">
                   Dashboards analíticos, faturamento APAC e gestão econômica completa
                 </p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/administrador")}>
-                  Acessar Área Administrativa
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full" onClick={() => navigate("/cadastro-administrador")}>
+                    Cadastrar como Admin
+                  </Button>
+                  <Button className="w-full" onClick={() => navigate("/administrador")}>
+                    Acessar Área Administrativa
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
