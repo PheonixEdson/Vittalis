@@ -19,12 +19,24 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate("/paciente")}>
-              Acesso Paciente
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
+              Cadastro Paciente
             </Button>
-            <Button onClick={() => navigate("/medico")}>
-              Acesso Profissional
+            <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
+              Cadastro Médico
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
+              Cadastro Enfermeiro
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
+              Cadastro Farmacêutico
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
+              Cadastro Admin
+            </Button>
+            <Button onClick={() => navigate("/paciente")}>
+              Prosseguir sem Login
             </Button>
           </div>
         </div>

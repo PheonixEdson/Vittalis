@@ -14,6 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UploadAPACDialog } from "@/components/dialogs/UploadAPACDialog";
+import { CancelConfirmDialog } from "@/components/dialogs/CancelConfirmDialog";
 
 const Paciente = () => {
   const navigate = useNavigate();
@@ -33,6 +34,13 @@ const Paciente = () => {
   const [showExameDialog, setShowExameDialog] = useState(false);
   const [apacAlertDismissed, setApacAlertDismissed] = useState(false);
   const [showUploadAPACDialog, setShowUploadAPACDialog] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [itemToCancel, setItemToCancel] = useState<{ type: string; id: number } | null>(null);
+  const [hiddenItems, setHiddenItems] = useState<{ [key: string]: number[] }>({
+    exames: [],
+    consultas: [],
+    infusoes: [],
+  });
   
   // Dados da notificação APAC - viria da área administrativa
   const apacNotificacao = {
@@ -280,6 +288,23 @@ const Paciente = () => {
   const handleVerResultado = (exame: any) => {
     setSelectedExame(exame);
     setShowExameDialog(true);
+  };
+
+  const handleCancelClick = (type: string, id: number) => {
+    setItemToCancel({ type, id });
+    setCancelDialogOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (itemToCancel) {
+      setHiddenItems((prev) => ({
+        ...prev,
+        [itemToCancel.type]: [...prev[itemToCancel.type], itemToCancel.id],
+      }));
+      toast.success("Item cancelado com sucesso");
+    }
+    setCancelDialogOpen(false);
+    setItemToCancel(null);
   };
 
   return (
@@ -593,25 +618,33 @@ const Paciente = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {examesData.map((exame) => (
-                  <div key={exame.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
-                    <div className="space-y-1">
-                      <p className="font-medium">{exame.tipo}</p>
-                      <p className="text-sm text-muted-foreground">{exame.data} - {exame.hora}</p>
-                      <Badge variant={exame.status === "Agendado" ? "default" : "secondary"}>
-                        {exame.status}
-                      </Badge>
+                {examesData
+                  .filter((exame) => !hiddenItems.exames.includes(exame.id))
+                  .map((exame) => (
+                    <div key={exame.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                      <div className="space-y-1">
+                        <p className="font-medium">{exame.tipo}</p>
+                        <p className="text-sm text-muted-foreground">{exame.data} - {exame.hora}</p>
+                        <Badge variant={exame.status === "Agendado" ? "default" : "secondary"}>
+                          {exame.status}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        {exame.status === "Realizado" && (
+                          <Button variant="outline" size="sm" onClick={() => handleVerResultado(exame)}>Ver Resultado</Button>
+                        )}
+                        {exame.status === "Agendado" && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => handleCancelClick("exames", exame.id)}
+                          >
+                            Cancelar
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      {exame.status === "Realizado" && (
-                        <Button variant="outline" size="sm" onClick={() => handleVerResultado(exame)}>Ver Resultado</Button>
-                      )}
-                      {exame.status === "Agendado" && (
-                        <Button variant="destructive" size="sm">Cancelar</Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </CardContent>
             </Card>
           </TabsContent>
@@ -629,22 +662,30 @@ const Paciente = () => {
                   { id: 1, medico: "Dra. Mariana Alves", data: "28/10/2025", hora: "15:45", status: "Próxima" },
                   { id: 2, medico: "Dr. Fernando Santos", data: "14/10/2025", hora: "11:00", status: "Realizada" },
                   { id: 3, medico: "Dr. Lucas Rodrigues", data: "30/09/2025", hora: "16:30", status: "Realizada" }
-                ].map((consulta) => (
-                  <div key={consulta.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <p className="font-medium">Consulta Oncológica</p>
-                      <p className="text-sm text-muted-foreground">
-                        {consulta.medico} - {consulta.data} às {consulta.hora}
-                      </p>
-                      <Badge variant={consulta.status === "Próxima" ? "default" : "secondary"}>
-                        {consulta.status}
-                      </Badge>
+                ]
+                  .filter((consulta) => !hiddenItems.consultas.includes(consulta.id))
+                  .map((consulta) => (
+                    <div key={consulta.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">Consulta Oncológica</p>
+                        <p className="text-sm text-muted-foreground">
+                          {consulta.medico} - {consulta.data} às {consulta.hora}
+                        </p>
+                        <Badge variant={consulta.status === "Próxima" ? "default" : "secondary"}>
+                          {consulta.status}
+                        </Badge>
+                      </div>
+                      {consulta.status === "Próxima" && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleCancelClick("consultas", consulta.id)}
+                        >
+                          Cancelar
+                        </Button>
+                      )}
                     </div>
-                    {consulta.status === "Próxima" && (
-                      <Button variant="destructive" size="sm">Cancelar</Button>
-                    )}
-                  </div>
-                ))}
+                  ))}
               </CardContent>
             </Card>
           </TabsContent>
@@ -663,22 +704,30 @@ const Paciente = () => {
                   { id: 2, sessao: 3, total: 6, protocolo: "AC-T", data: "08/10/2025", hora: "14:00", status: "Concluída" },
                   { id: 3, sessao: 2, total: 6, protocolo: "AC-T", data: "24/09/2025", hora: "13:30", status: "Concluída" },
                   { id: 4, sessao: 1, total: 6, protocolo: "AC-T", data: "10/09/2025", hora: "14:00", status: "Concluída" }
-                ].map((infusao) => (
-                  <div key={infusao.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="space-y-1">
-                      <p className="font-medium">Sessão {infusao.sessao}/{infusao.total} - Protocolo {infusao.protocolo}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {infusao.data} às {infusao.hora}
-                      </p>
-                      <Badge variant={infusao.status === "Confirmada" ? "default" : "secondary"}>
-                        {infusao.status}
-                      </Badge>
+                ]
+                  .filter((infusao) => !hiddenItems.infusoes.includes(infusao.id))
+                  .map((infusao) => (
+                    <div key={infusao.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">Sessão {infusao.sessao}/{infusao.total} - Protocolo {infusao.protocolo}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {infusao.data} às {infusao.hora}
+                        </p>
+                        <Badge variant={infusao.status === "Confirmada" ? "default" : "secondary"}>
+                          {infusao.status}
+                        </Badge>
+                      </div>
+                      {infusao.status === "Confirmada" && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleCancelClick("infusoes", infusao.id)}
+                        >
+                          Cancelar
+                        </Button>
+                      )}
                     </div>
-                    {infusao.status === "Confirmada" && (
-                      <Button variant="destructive" size="sm">Cancelar</Button>
-                    )}
-                  </div>
-                ))}
+                  ))}
               </CardContent>
             </Card>
           </TabsContent>
@@ -851,6 +900,15 @@ const Paciente = () => {
           open={showUploadAPACDialog}
           onOpenChange={setShowUploadAPACDialog}
           onUploadSuccess={handleUploadSuccess}
+        />
+
+        {/* Dialog de Confirmação de Cancelamento */}
+        <CancelConfirmDialog
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          onConfirm={handleConfirmCancel}
+          title="Confirmar Cancelamento"
+          description="Tem certeza que deseja cancelar este agendamento? Esta ação removerá o item da sua lista."
         />
       </div>
     </div>

@@ -9,6 +9,11 @@ import Medico from "./pages/Medico";
 import Enfermeiro from "./pages/Enfermeiro";
 import Farmaceutico from "./pages/Farmaceutico";
 import Administrador from "./pages/Administrador";
+import CadastroPaciente from "./pages/CadastroPaciente";
+import CadastroMedico from "./pages/CadastroMedico";
+import CadastroEnfermeiro from "./pages/CadastroEnfermeiro";
+import CadastroFarmaceutico from "./pages/CadastroFarmaceutico";
+import CadastroAdministrador from "./pages/CadastroAdministrador";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +31,11 @@ const App = () => (
           <Route path="/enfermeiro" element={<Enfermeiro />} />
           <Route path="/farmaceutico" element={<Farmaceutico />} />
           <Route path="/administrador" element={<Administrador />} />
+          <Route path="/cadastro-paciente" element={<CadastroPaciente />} />
+          <Route path="/cadastro-medico" element={<CadastroMedico />} />
+          <Route path="/cadastro-enfermeiro" element={<CadastroEnfermeiro />} />
+          <Route path="/cadastro-farmaceutico" element={<CadastroFarmaceutico />} />
+          <Route path="/cadastro-administrador" element={<CadastroAdministrador />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
