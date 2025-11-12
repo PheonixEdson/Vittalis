@@ -370,10 +370,15 @@ const Administrador = () => {
       <header className="border-b bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-primary">Vittalis - Área Administrativa</h1>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
-            <Home className="h-4 w-4 mr-2" />
-            Início
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-administrador")}>
+              Cadastro Admin
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
+              <Home className="h-4 w-4 mr-2" />
+              Início
+            </Button>
+          </div>
         </div>
       </header>
 
