@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Pill, Package, TrendingUp, CheckCircle, Home, QrCode, User, Clock, MapPin, AlertCircle } from "lucide-react";
+import { Pill, Package, TrendingUp, CheckCircle, Home, QrCode, User, Clock, MapPin, AlertCircle, Upload, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,10 @@ const Farmaceutico = () => {
   const [estoqueDialogOpen, setEstoqueDialogOpen] = useState(false);
   const [detalhesDialogOpen, setDetalhesDialogOpen] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<any>(null);
+
+  // Estados para fracionamento
+  const [xmlFile, setXmlFile] = useState<File | null>(null);
+  const [dadosFracionamento, setDadosFracionamento] = useState<any[]>([]);
 
   // Notificações de APAC de pacientes - dados vêm da área administrativa
   const notificacoesAPAC = [
@@ -749,7 +753,7 @@ const Farmaceutico = () => {
         }
 
         <Tabs defaultValue="catalogo" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="catalogo">
               <Pill className="h-4 w-4 mr-2" />
               Catalogação
@@ -765,6 +769,10 @@ const Farmaceutico = () => {
             <TabsTrigger value="rastreio-infusoes">
               <TrendingUp className="h-4 w-4 mr-2" />
               Rastreio Infusões
+            </TabsTrigger>
+            <TabsTrigger value="fracionamento">
+              <Upload className="h-4 w-4 mr-2" />
+              Fracionamento
             </TabsTrigger>
           </TabsList>
 
@@ -1691,6 +1699,224 @@ const Farmaceutico = () => {
                     );
                   })}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="fracionamento" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Fracionamento de Medicamentos</CardTitle>
+                <CardDescription>
+                  Importe arquivo XML para registrar fracionamentos
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Área de Upload */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = '.xml';
+                        input.onchange = (e: any) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setXmlFile(file);
+                            toast({
+                              title: "Arquivo anexado",
+                              description: `${file.name} foi carregado com sucesso.`,
+                            });
+                            
+                            // Mock: Simular extração de dados do XML
+                            const mockData = {
+                              nomeMedicamento: "Paclitaxel 100mg",
+                              lote: "L2025001-FRAC",
+                              quantidadeFracionada: "50mg",
+                              quantidadeOriginal: "100mg",
+                              dataFracionamento: new Date().toLocaleDateString('pt-BR'),
+                              codigoBarrasOriginal: "7891234567890",
+                              codigoBarrasFracionado: "7891234567890-F01",
+                              numeroSerie: "SN-2025-001",
+                              informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
+                            };
+                            
+                            setDadosFracionamento([mockData]);
+                          }
+                        };
+                        input.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Anexar XML
+                    </Button>
+                    
+                    {xmlFile && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText className="h-4 w-4" />
+                        <span>{xmlFile.name}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Área de Drag and Drop */}
+                  <div
+                    className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.add('border-primary');
+                    }}
+                    onDragLeave={(e) => {
+                      e.currentTarget.classList.remove('border-primary');
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove('border-primary');
+                      
+                      const file = e.dataTransfer.files[0];
+                      if (file && file.name.endsWith('.xml')) {
+                        setXmlFile(file);
+                        toast({
+                          title: "Arquivo anexado",
+                          description: `${file.name} foi carregado com sucesso.`,
+                        });
+                        
+                        // Mock: Simular extração de dados do XML
+                        const mockData = {
+                          nomeMedicamento: "Paclitaxel 100mg",
+                          lote: "L2025001-FRAC",
+                          quantidadeFracionada: "50mg",
+                          quantidadeOriginal: "100mg",
+                          dataFracionamento: new Date().toLocaleDateString('pt-BR'),
+                          codigoBarrasOriginal: "7891234567890",
+                          codigoBarrasFracionado: "7891234567890-F01",
+                          numeroSerie: "SN-2025-001",
+                          informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
+                        };
+                        
+                        setDadosFracionamento([mockData]);
+                      } else {
+                        toast({
+                          title: "Erro",
+                          description: "Por favor, selecione um arquivo XML válido.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.xml';
+                      input.onchange = (e: any) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setXmlFile(file);
+                          toast({
+                            title: "Arquivo anexado",
+                            description: `${file.name} foi carregado com sucesso.`,
+                          });
+                          
+                          // Mock: Simular extração de dados do XML
+                          const mockData = {
+                            nomeMedicamento: "Paclitaxel 100mg",
+                            lote: "L2025001-FRAC",
+                            quantidadeFracionada: "50mg",
+                            quantidadeOriginal: "100mg",
+                            dataFracionamento: new Date().toLocaleDateString('pt-BR'),
+                            codigoBarrasOriginal: "7891234567890",
+                            codigoBarrasFracionado: "7891234567890-F01",
+                            numeroSerie: "SN-2025-001",
+                            informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
+                          };
+                          
+                          setDadosFracionamento([mockData]);
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-lg font-medium mb-2">Arraste e solte o arquivo XML aqui</p>
+                    <p className="text-sm text-muted-foreground">ou clique para selecionar o arquivo</p>
+                  </div>
+                </div>
+
+                {/* Lista de Dados Extraídos */}
+                {dadosFracionamento.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Dados Extraídos do XML</h3>
+                    
+                    {dadosFracionamento.map((dados, index) => (
+                      <Card key={index} className="border-primary/20">
+                        <CardContent className="pt-6 space-y-4">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-muted-foreground">Nome do Medicamento</Label>
+                              <p className="font-medium">{dados.nomeMedicamento}</p>
+                            </div>
+                            <div>
+                              <Label className="text-muted-foreground">Lote</Label>
+                              <p className="font-medium">{dados.lote}</p>
+                            </div>
+                          </div>
+
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-muted-foreground">Quantidade Fracionada</Label>
+                              <p className="font-medium">{dados.quantidadeFracionada}</p>
+                            </div>
+                            <div>
+                              <Label className="text-muted-foreground">Quantidade Original</Label>
+                              <p className="font-medium">{dados.quantidadeOriginal}</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-muted-foreground">Data do Fracionamento</Label>
+                            <p className="font-medium">{dados.dataFracionamento}</p>
+                          </div>
+
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-muted-foreground">Código de Barras Original</Label>
+                              <p className="font-mono text-sm">{dados.codigoBarrasOriginal}</p>
+                            </div>
+                            <div>
+                              <Label className="text-muted-foreground">Código de Barras Fracionado</Label>
+                              <p className="font-mono text-sm">{dados.codigoBarrasFracionado}</p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-muted-foreground">Número de Série</Label>
+                            <p className="font-medium">{dados.numeroSerie}</p>
+                          </div>
+
+                          <div>
+                            <Label className="text-muted-foreground">Informações Adicionais da Máquina</Label>
+                            <p className="text-sm">{dados.informacoesMaquina}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    <Button 
+                      className="w-full"
+                      onClick={() => {
+                        toast({
+                          title: "Fracionamento salvo",
+                          description: "Os dados do fracionamento foram salvos com sucesso.",
+                        });
+                        setXmlFile(null);
+                        setDadosFracionamento([]);
+                      }}
+                    >
+                      Salvar Fracionamento
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
