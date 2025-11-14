@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fracionamento_medicamentos: {
+        Row: {
+          codigo_barras_fracionado: string | null
+          codigo_barras_original: string | null
+          codigo_produto: string | null
+          created_at: string | null
+          data_importacao: string | null
+          data_processo: string
+          fabricacao: string | null
+          id: string
+          id_maquina: string | null
+          informacoes_maquina: string | null
+          lote: string
+          nome_medicamento: string
+          numero_serie: string | null
+          quantidade_fracionada: number
+          quantidade_total: number
+          registro_anvisa: string | null
+          responsavel_tecnico: string | null
+          unidade: string | null
+          updated_at: string | null
+          validade: string | null
+          xml_original: string | null
+        }
+        Insert: {
+          codigo_barras_fracionado?: string | null
+          codigo_barras_original?: string | null
+          codigo_produto?: string | null
+          created_at?: string | null
+          data_importacao?: string | null
+          data_processo: string
+          fabricacao?: string | null
+          id?: string
+          id_maquina?: string | null
+          informacoes_maquina?: string | null
+          lote: string
+          nome_medicamento: string
+          numero_serie?: string | null
+          quantidade_fracionada: number
+          quantidade_total: number
+          registro_anvisa?: string | null
+          responsavel_tecnico?: string | null
+          unidade?: string | null
+          updated_at?: string | null
+          validade?: string | null
+          xml_original?: string | null
+        }
+        Update: {
+          codigo_barras_fracionado?: string | null
+          codigo_barras_original?: string | null
+          codigo_produto?: string | null
+          created_at?: string | null
+          data_importacao?: string | null
+          data_processo?: string
+          fabricacao?: string | null
+          id?: string
+          id_maquina?: string | null
+          informacoes_maquina?: string | null
+          lote?: string
+          nome_medicamento?: string
+          numero_serie?: string | null
+          quantidade_fracionada?: number
+          quantidade_total?: number
+          registro_anvisa?: string | null
+          responsavel_tecnico?: string | null
+          unidade?: string | null
+          updated_at?: string | null
+          validade?: string | null
+          xml_original?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
