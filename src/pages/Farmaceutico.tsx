@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Pill, Package, TrendingUp, CheckCircle, Home, QrCode, User, Clock, MapPin, AlertCircle, Upload, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
+import { parseXMLFracionamento, validateXMLFile, DadosFracionamento } from "@/lib/xmlParser";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -56,7 +57,42 @@ const Farmaceutico = () => {
 
   // Estados para fracionamento
   const [xmlFile, setXmlFile] = useState<File | null>(null);
-  const [dadosFracionamento, setDadosFracionamento] = useState<any[]>([]);
+  const [dadosFracionamento, setDadosFracionamento] = useState<DadosFracionamento[]>([]);
+  const [isProcessingXML, setIsProcessingXML] = useState(false);
+  const [xmlError, setXmlError] = useState<string | null>(null);
+
+  const handleFileUpload = async (file: File) => {
+    setIsProcessingXML(true);
+    setXmlError(null);
+    
+    try {
+      // Validar e ler o arquivo
+      const xmlContent = await validateXMLFile(file);
+      
+      // Parse do XML
+      const dados = parseXMLFracionamento(xmlContent);
+      
+      setXmlFile(file);
+      setDadosFracionamento([dados]);
+      
+      toast({
+        title: "Arquivo processado com sucesso",
+        description: `${file.name} foi carregado e os dados foram extraídos.`,
+      });
+    } catch (error: any) {
+      setXmlError(error.message || "Erro ao processar o arquivo XML");
+      setXmlFile(null);
+      setDadosFracionamento([]);
+      
+      toast({
+        title: "Erro ao processar arquivo",
+        description: error.message || "Não foi possível processar o arquivo XML.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingXML(false);
+    }
+  };
 
   // Notificações de APAC de pacientes - dados vêm da área administrativa
   const notificacoesAPAC = [
@@ -1724,33 +1760,15 @@ const Farmaceutico = () => {
                         input.onchange = (e: any) => {
                           const file = e.target.files[0];
                           if (file) {
-                            setXmlFile(file);
-                            toast({
-                              title: "Arquivo anexado",
-                              description: `${file.name} foi carregado com sucesso.`,
-                            });
-                            
-                            // Mock: Simular extração de dados do XML
-                            const mockData = {
-                              nomeMedicamento: "Paclitaxel 100mg",
-                              lote: "L2025001-FRAC",
-                              quantidadeFracionada: "50mg",
-                              quantidadeOriginal: "100mg",
-                              dataFracionamento: new Date().toLocaleDateString('pt-BR'),
-                              codigoBarrasOriginal: "7891234567890",
-                              codigoBarrasFracionado: "7891234567890-F01",
-                              numeroSerie: "SN-2025-001",
-                              informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
-                            };
-                            
-                            setDadosFracionamento([mockData]);
+                            handleFileUpload(file);
                           }
                         };
                         input.click();
                       }}
+                      disabled={isProcessingXML}
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      Anexar XML
+                      {isProcessingXML ? "Processando..." : "Anexar XML"}
                     </Button>
                     
                     {xmlFile && (
@@ -1776,33 +1794,8 @@ const Farmaceutico = () => {
                       e.currentTarget.classList.remove('border-primary');
                       
                       const file = e.dataTransfer.files[0];
-                      if (file && file.name.endsWith('.xml')) {
-                        setXmlFile(file);
-                        toast({
-                          title: "Arquivo anexado",
-                          description: `${file.name} foi carregado com sucesso.`,
-                        });
-                        
-                        // Mock: Simular extração de dados do XML
-                        const mockData = {
-                          nomeMedicamento: "Paclitaxel 100mg",
-                          lote: "L2025001-FRAC",
-                          quantidadeFracionada: "50mg",
-                          quantidadeOriginal: "100mg",
-                          dataFracionamento: new Date().toLocaleDateString('pt-BR'),
-                          codigoBarrasOriginal: "7891234567890",
-                          codigoBarrasFracionado: "7891234567890-F01",
-                          numeroSerie: "SN-2025-001",
-                          informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
-                        };
-                        
-                        setDadosFracionamento([mockData]);
-                      } else {
-                        toast({
-                          title: "Erro",
-                          description: "Por favor, selecione um arquivo XML válido.",
-                          variant: "destructive",
-                        });
+                      if (file) {
+                        handleFileUpload(file);
                       }
                     }}
                     onClick={() => {
@@ -1812,26 +1805,7 @@ const Farmaceutico = () => {
                       input.onchange = (e: any) => {
                         const file = e.target.files[0];
                         if (file) {
-                          setXmlFile(file);
-                          toast({
-                            title: "Arquivo anexado",
-                            description: `${file.name} foi carregado com sucesso.`,
-                          });
-                          
-                          // Mock: Simular extração de dados do XML
-                          const mockData = {
-                            nomeMedicamento: "Paclitaxel 100mg",
-                            lote: "L2025001-FRAC",
-                            quantidadeFracionada: "50mg",
-                            quantidadeOriginal: "100mg",
-                            dataFracionamento: new Date().toLocaleDateString('pt-BR'),
-                            codigoBarrasOriginal: "7891234567890",
-                            codigoBarrasFracionado: "7891234567890-F01",
-                            numeroSerie: "SN-2025-001",
-                            informacoesMaquina: "Fracionadora Automática FX-200 - ID: FRA-001"
-                          };
-                          
-                          setDadosFracionamento([mockData]);
+                          handleFileUpload(file);
                         }
                       };
                       input.click();
@@ -1841,6 +1815,15 @@ const Farmaceutico = () => {
                     <p className="text-lg font-medium mb-2">Arraste e solte o arquivo XML aqui</p>
                     <p className="text-sm text-muted-foreground">ou clique para selecionar o arquivo</p>
                   </div>
+
+                  {/* Exibir erro de validação */}
+                  {xmlError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Erro ao processar XML</AlertTitle>
+                      <AlertDescription>{xmlError}</AlertDescription>
+                    </Alert>
+                  )}
                 </div>
 
                 {/* Lista de Dados Extraídos */}
@@ -1889,21 +1872,26 @@ const Farmaceutico = () => {
                             </div>
                           </div>
 
-                          <div>
-                            <Label className="text-muted-foreground">Número de Série</Label>
-                            <p className="font-medium">{dados.numeroSerie}</p>
-                          </div>
+                          {dados.numeroSerie && (
+                            <div>
+                              <Label className="text-muted-foreground">Número de Série</Label>
+                              <p className="font-medium">{dados.numeroSerie}</p>
+                            </div>
+                          )}
 
-                          <div>
-                            <Label className="text-muted-foreground">Informações Adicionais da Máquina</Label>
-                            <p className="text-sm">{dados.informacoesMaquina}</p>
-                          </div>
+                          {dados.informacoesMaquina && (
+                            <div>
+                              <Label className="text-muted-foreground">Informações Adicionais da Máquina</Label>
+                              <p className="text-sm">{dados.informacoesMaquina}</p>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
 
                     <Button 
                       className="w-full"
+                      disabled={dadosFracionamento.length === 0}
                       onClick={() => {
                         toast({
                           title: "Fracionamento salvo",
@@ -1911,6 +1899,7 @@ const Farmaceutico = () => {
                         });
                         setXmlFile(null);
                         setDadosFracionamento([]);
+                        setXmlError(null);
                       }}
                     >
                       Salvar Fracionamento
