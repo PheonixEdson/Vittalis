@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      estoque_produtos: {
+        Row: {
+          codigo_barras: string | null
+          created_at: string | null
+          id: string
+          lote: string
+          nome: string
+          quantidade: number
+          registro_anvisa: string | null
+          unidade: string | null
+          updated_at: string | null
+          validade: string | null
+        }
+        Insert: {
+          codigo_barras?: string | null
+          created_at?: string | null
+          id?: string
+          lote: string
+          nome: string
+          quantidade: number
+          registro_anvisa?: string | null
+          unidade?: string | null
+          updated_at?: string | null
+          validade?: string | null
+        }
+        Update: {
+          codigo_barras?: string | null
+          created_at?: string | null
+          id?: string
+          lote?: string
+          nome?: string
+          quantidade?: number
+          registro_anvisa?: string | null
+          unidade?: string | null
+          updated_at?: string | null
+          validade?: string | null
+        }
+        Relationships: []
+      }
       fracionamento_medicamentos: {
         Row: {
           codigo_barras_fracionado: string | null

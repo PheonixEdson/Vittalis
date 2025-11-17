@@ -12,6 +12,43 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
+import { z } from "zod";
+
+// Schema de validação com zod
+const produtoSchema = z.object({
+  nome: z.string()
+    .trim()
+    .min(1, { message: "Nome é obrigatório" })
+    .max(200, { message: "Nome deve ter no máximo 200 caracteres" }),
+  codigo_barras: z.string()
+    .trim()
+    .max(50, { message: "Código de barras deve ter no máximo 50 caracteres" })
+    .optional(),
+  lote: z.string()
+    .trim()
+    .min(1, { message: "Lote é obrigatório" })
+    .max(50, { message: "Lote deve ter no máximo 50 caracteres" }),
+  validade: z.string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const data = new Date(val);
+      return !isNaN(data.getTime());
+    }, { message: "Data de validade inválida" }),
+  quantidade: z.string()
+    .min(1, { message: "Quantidade é obrigatória" })
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Quantidade deve ser um número positivo"
+    }),
+  unidade: z.string()
+    .trim()
+    .min(1, { message: "Unidade é obrigatória" })
+    .max(20, { message: "Unidade deve ter no máximo 20 caracteres" }),
+  registro_anvisa: z.string()
+    .trim()
+    .max(50, { message: "Registro ANVISA deve ter no máximo 50 caracteres" })
+    .optional(),
+});
 
 const Estoquista = () => {
   const navigate = useNavigate();
@@ -29,17 +66,15 @@ const Estoquista = () => {
   
   // Estados para cadastro
   const [formData, setFormData] = useState({
-    nome_medicamento: "",
+    nome: "",
+    codigo_barras: "",
     lote: "",
-    codigo_barras_original: "",
     validade: "",
-    quantidade_total: "",
+    quantidade: "",
     unidade: "mg",
-    fabricacao: "",
-    codigo_produto: "",
     registro_anvisa: "",
-    responsavel_tecnico: "",
   });
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
   // Carregar produtos do banco
   useEffect(() => {
@@ -50,9 +85,9 @@ const Estoquista = () => {
     setIsLoadingProdutos(true);
     try {
       const { data, error } = await (supabase as any)
-        .from('fracionamento_medicamentos')
+        .from('estoque_produtos')
         .select('*')
-        .order('data_processo', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setProdutos(data || []);
@@ -69,7 +104,7 @@ const Estoquista = () => {
   };
 
   // Calcular situação do produto
-  const calcularSituacao = (validade: string | null, quantidadeTotal: number): string => {
+  const calcularSituacao = (validade: string | null, quantidade: number): string => {
     if (!validade) return 'normal';
     
     const dataValidade = new Date(validade);
@@ -77,7 +112,7 @@ const Estoquista = () => {
     const diasAteVencer = Math.floor((dataValidade.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
     
     // Estoque baixo (menos de 10 unidades)
-    if (quantidadeTotal < 10) return 'baixo';
+    if (quantidade < 10) return 'baixo';
     
     // Vencido
     if (diasAteVencer < 0) return 'vencido';
@@ -95,16 +130,16 @@ const Estoquista = () => {
     // Aplicar busca
     if (searchTerm) {
       resultado = resultado.filter(p => 
-        p.nome_medicamento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.lote?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.codigo_barras_original?.toLowerCase().includes(searchTerm.toLowerCase())
+        p.codigo_barras?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Aplicar filtro de situação
     if (filtroSituacao !== 'todos') {
       resultado = resultado.filter(p => {
-        const situacao = calcularSituacao(p.validade, p.quantidade_total);
+        const situacao = calcularSituacao(p.validade, p.quantidade);
         return situacao === filtroSituacao;
       });
     }
@@ -114,33 +149,41 @@ const Estoquista = () => {
 
   const handleCadastrarProduto = async () => {
     try {
-      // Validar campos obrigatórios
-      if (!formData.nome_medicamento || !formData.lote || !formData.quantidade_total) {
+      // Limpar erros anteriores
+      setFormErrors({});
+
+      // Validar com zod
+      const validacao = produtoSchema.safeParse(formData);
+      
+      if (!validacao.success) {
+        const erros: { [key: string]: string } = {};
+        validacao.error.errors.forEach((erro) => {
+          if (erro.path[0]) {
+            erros[erro.path[0].toString()] = erro.message;
+          }
+        });
+        setFormErrors(erros);
+        
         toast({
           title: "Erro de validação",
-          description: "Preencha todos os campos obrigatórios: Nome, Lote e Quantidade.",
+          description: "Por favor, corrija os erros no formulário.",
           variant: "destructive",
         });
         return;
       }
 
       const dadosParaSalvar = {
-        nome_medicamento: formData.nome_medicamento,
-        lote: formData.lote,
-        codigo_barras_original: formData.codigo_barras_original || null,
-        validade: formData.validade || null,
-        quantidade_total: parseFloat(formData.quantidade_total),
-        quantidade_fracionada: 0,
-        unidade: formData.unidade || null,
-        fabricacao: formData.fabricacao || null,
-        codigo_produto: formData.codigo_produto || null,
-        registro_anvisa: formData.registro_anvisa || null,
-        responsavel_tecnico: formData.responsavel_tecnico || null,
-        data_processo: new Date().toISOString(),
+        nome: validacao.data.nome,
+        codigo_barras: validacao.data.codigo_barras || null,
+        lote: validacao.data.lote,
+        validade: validacao.data.validade || null,
+        quantidade: parseFloat(validacao.data.quantidade),
+        unidade: validacao.data.unidade,
+        registro_anvisa: validacao.data.registro_anvisa || null,
       };
 
       const { error } = await (supabase as any)
-        .from('fracionamento_medicamentos')
+        .from('estoque_produtos')
         .insert([dadosParaSalvar]);
 
       if (error) throw error;
@@ -152,17 +195,15 @@ const Estoquista = () => {
 
       // Limpar formulário e fechar diálogo
       setFormData({
-        nome_medicamento: "",
+        nome: "",
+        codigo_barras: "",
         lote: "",
-        codigo_barras_original: "",
         validade: "",
-        quantidade_total: "",
+        quantidade: "",
         unidade: "mg",
-        fabricacao: "",
-        codigo_produto: "",
         registro_anvisa: "",
-        responsavel_tecnico: "",
       });
+      setFormErrors({});
       setCadastroDialogOpen(false);
 
       // Recarregar produtos
@@ -245,19 +286,19 @@ const Estoquista = () => {
                 <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
                   <p className="text-2xl font-bold text-destructive">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'baixo').length}
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'baixo').length}
                   </p>
                 </div>
                 <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
                   <p className="text-2xl font-bold text-amber-600">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'prestes_vencer').length}
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'prestes_vencer').length}
                   </p>
                 </div>
                 <div className="p-4 bg-muted/50 border border-muted rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Vencidos</p>
                   <p className="text-2xl font-bold text-muted-foreground">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'vencido').length}
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'vencido').length}
                   </p>
                 </div>
               </div>
@@ -289,7 +330,7 @@ const Estoquista = () => {
                     </TableHeader>
                     <TableBody>
                       {produtosFiltrados.map((produto) => {
-                        const situacao = calcularSituacao(produto.validade, produto.quantidade_total);
+                        const situacao = calcularSituacao(produto.validade, produto.quantidade);
                         const badgeVariant = 
                           situacao === 'vencido' ? 'destructive' :
                           situacao === 'prestes_vencer' ? 'default' :
@@ -301,16 +342,16 @@ const Estoquista = () => {
 
                         return (
                           <TableRow key={produto.id}>
-                            <TableCell className="font-medium">{produto.nome_medicamento}</TableCell>
+                            <TableCell className="font-medium">{produto.nome}</TableCell>
                             <TableCell>{produto.lote}</TableCell>
                             <TableCell className="font-mono text-sm">
-                              {produto.codigo_barras_original || '-'}
+                              {produto.codigo_barras || '-'}
                             </TableCell>
                             <TableCell>
                               {produto.validade ? new Date(produto.validade).toLocaleDateString('pt-BR') : '-'}
                             </TableCell>
                             <TableCell className="text-right font-medium">
-                              {produto.quantidade_total}
+                              {produto.quantidade}
                             </TableCell>
                             <TableCell>{produto.unidade || '-'}</TableCell>
                             <TableCell>
@@ -339,13 +380,17 @@ const Estoquista = () => {
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="nome_medicamento">Nome do Medicamento *</Label>
+              <Label htmlFor="nome">Nome do Medicamento *</Label>
               <Input
-                id="nome_medicamento"
-                value={formData.nome_medicamento}
-                onChange={(e) => setFormData({...formData, nome_medicamento: e.target.value})}
+                id="nome"
+                value={formData.nome}
+                onChange={(e) => setFormData({...formData, nome: e.target.value})}
                 placeholder="Digite o nome do medicamento"
+                className={formErrors.nome ? "border-destructive" : ""}
               />
+              {formErrors.nome && (
+                <p className="text-sm text-destructive">{formErrors.nome}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lote">Lote *</Label>
@@ -354,34 +399,24 @@ const Estoquista = () => {
                 value={formData.lote}
                 onChange={(e) => setFormData({...formData, lote: e.target.value})}
                 placeholder="Digite o número do lote"
+                className={formErrors.lote ? "border-destructive" : ""}
               />
+              {formErrors.lote && (
+                <p className="text-sm text-destructive">{formErrors.lote}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="codigo_barras_original">Código de Barras</Label>
+              <Label htmlFor="codigo_barras">Código de Barras</Label>
               <Input
-                id="codigo_barras_original"
-                value={formData.codigo_barras_original}
-                onChange={(e) => setFormData({...formData, codigo_barras_original: e.target.value})}
+                id="codigo_barras"
+                value={formData.codigo_barras}
+                onChange={(e) => setFormData({...formData, codigo_barras: e.target.value})}
                 placeholder="Digite o código de barras"
+                className={formErrors.codigo_barras ? "border-destructive" : ""}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="codigo_produto">Código do Produto</Label>
-              <Input
-                id="codigo_produto"
-                value={formData.codigo_produto}
-                onChange={(e) => setFormData({...formData, codigo_produto: e.target.value})}
-                placeholder="Digite o código do produto"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fabricacao">Data de Fabricação</Label>
-              <Input
-                id="fabricacao"
-                type="date"
-                value={formData.fabricacao}
-                onChange={(e) => setFormData({...formData, fabricacao: e.target.value})}
-              />
+              {formErrors.codigo_barras && (
+                <p className="text-sm text-destructive">{formErrors.codigo_barras}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="validade">Data de Validade</Label>
@@ -390,22 +425,30 @@ const Estoquista = () => {
                 type="date"
                 value={formData.validade}
                 onChange={(e) => setFormData({...formData, validade: e.target.value})}
+                className={formErrors.validade ? "border-destructive" : ""}
               />
+              {formErrors.validade && (
+                <p className="text-sm text-destructive">{formErrors.validade}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quantidade_total">Quantidade Total *</Label>
+              <Label htmlFor="quantidade">Quantidade Inicial *</Label>
               <Input
-                id="quantidade_total"
+                id="quantidade"
                 type="number"
-                value={formData.quantidade_total}
-                onChange={(e) => setFormData({...formData, quantidade_total: e.target.value})}
+                value={formData.quantidade}
+                onChange={(e) => setFormData({...formData, quantidade: e.target.value})}
                 placeholder="Digite a quantidade"
+                className={formErrors.quantidade ? "border-destructive" : ""}
               />
+              {formErrors.quantidade && (
+                <p className="text-sm text-destructive">{formErrors.quantidade}</p>
+              )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unidade">Unidade</Label>
+              <Label htmlFor="unidade">Unidade *</Label>
               <Select value={formData.unidade} onValueChange={(value) => setFormData({...formData, unidade: value})}>
-                <SelectTrigger>
+                <SelectTrigger className={formErrors.unidade ? "border-destructive" : ""}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -417,32 +460,33 @@ const Estoquista = () => {
                   <SelectItem value="cápsula">cápsula</SelectItem>
                 </SelectContent>
               </Select>
+              {formErrors.unidade && (
+                <p className="text-sm text-destructive">{formErrors.unidade}</p>
+              )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="registro_anvisa">Registro ANVISA</Label>
               <Input
                 id="registro_anvisa"
                 value={formData.registro_anvisa}
                 onChange={(e) => setFormData({...formData, registro_anvisa: e.target.value})}
                 placeholder="Digite o registro ANVISA"
+                className={formErrors.registro_anvisa ? "border-destructive" : ""}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="responsavel_tecnico">Responsável Técnico</Label>
-              <Input
-                id="responsavel_tecnico"
-                value={formData.responsavel_tecnico}
-                onChange={(e) => setFormData({...formData, responsavel_tecnico: e.target.value})}
-                placeholder="Nome do responsável"
-              />
+              {formErrors.registro_anvisa && (
+                <p className="text-sm text-destructive">{formErrors.registro_anvisa}</p>
+              )}
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setCadastroDialogOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setCadastroDialogOpen(false);
+              setFormErrors({});
+            }}>
               Cancelar
             </Button>
             <Button onClick={handleCadastrarProduto}>
-              Cadastrar Produto
+              Salvar Produto
             </Button>
           </div>
         </DialogContent>

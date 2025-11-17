@@ -49,9 +49,9 @@ const Administrador = () => {
     setIsLoadingProdutos(true);
     try {
       const { data, error } = await (supabase as any)
-        .from('fracionamento_medicamentos')
+        .from('estoque_produtos')
         .select('*')
-        .order('data_processo', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setProdutos(data || []);
@@ -68,15 +68,15 @@ const Administrador = () => {
   };
 
   // Calcular situação do produto
-  const calcularSituacao = (validade: string | null, quantidadeTotal: number): string => {
+  const calcularSituacao = (validade: string | null, quantidade: number): string => {
     if (!validade) return 'normal';
     
     const dataValidade = new Date(validade);
     const hoje = new Date();
     const diasAteVencer = Math.floor((dataValidade.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
     
-    // Estoque baixo (menos de 20% da quantidade inicial estimada)
-    if (quantidadeTotal < 10) return 'baixo';
+    // Estoque baixo (menos de 10 unidades)
+    if (quantidade < 10) return 'baixo';
     
     // Vencido
     if (diasAteVencer < 0) return 'vencido';
@@ -94,16 +94,16 @@ const Administrador = () => {
     // Aplicar busca
     if (searchTerm) {
       resultado = resultado.filter(p => 
-        p.nome_medicamento?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.lote?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.codigo_barras_original?.toLowerCase().includes(searchTerm.toLowerCase())
+        p.codigo_barras?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Aplicar filtro de situação
     if (filtroSituacao !== 'todos') {
       resultado = resultado.filter(p => {
-        const situacao = calcularSituacao(p.validade, p.quantidade_total);
+        const situacao = calcularSituacao(p.validade, p.quantidade);
         return situacao === filtroSituacao;
       });
     }
@@ -1193,24 +1193,24 @@ const Administrador = () => {
                     <p className="text-sm text-muted-foreground mb-1">Total de Produtos</p>
                     <p className="text-2xl font-bold text-primary">{produtos.length}</p>
                   </div>
-                  <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
-                    <p className="text-2xl font-bold text-destructive">
-                      {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'baixo').length}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
-                    <p className="text-2xl font-bold text-amber-600">
-                      {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'prestes_vencer').length}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-muted/50 border border-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Vencidos</p>
-                    <p className="text-2xl font-bold text-muted-foreground">
-                      {produtos.filter(p => calcularSituacao(p.validade, p.quantidade_total) === 'vencido').length}
-                    </p>
-                  </div>
+                <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
+                  <p className="text-2xl font-bold text-destructive">
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'baixo').length}
+                  </p>
+                </div>
+                <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
+                  <p className="text-2xl font-bold text-amber-600">
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'prestes_vencer').length}
+                  </p>
+                </div>
+                <div className="p-4 bg-muted/50 border border-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Vencidos</p>
+                  <p className="text-2xl font-bold text-muted-foreground">
+                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'vencido').length}
+                  </p>
+                </div>
                 </div>
 
                 {/* Tabela de Produtos */}
@@ -1237,37 +1237,37 @@ const Administrador = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {produtosFiltrados.map((produto) => {
-                          const situacao = calcularSituacao(produto.validade, produto.quantidade_total);
-                          const badgeVariant = 
-                            situacao === 'vencido' ? 'destructive' :
-                            situacao === 'prestes_vencer' ? 'default' :
-                            situacao === 'baixo' ? 'secondary' : 'outline';
-                          const situacaoTexto = 
-                            situacao === 'vencido' ? 'Vencido' :
-                            situacao === 'prestes_vencer' ? 'Prestes a Vencer' :
-                            situacao === 'baixo' ? 'Estoque Baixo' : 'Normal';
+                      {produtosFiltrados.map((produto) => {
+                        const situacao = calcularSituacao(produto.validade, produto.quantidade);
+                        const badgeVariant = 
+                          situacao === 'vencido' ? 'destructive' :
+                          situacao === 'prestes_vencer' ? 'default' :
+                          situacao === 'baixo' ? 'secondary' : 'outline';
+                        const situacaoTexto = 
+                          situacao === 'vencido' ? 'Vencido' :
+                          situacao === 'prestes_vencer' ? 'Prestes a Vencer' :
+                          situacao === 'baixo' ? 'Estoque Baixo' : 'Normal';
 
-                          return (
-                            <TableRow key={produto.id}>
-                              <TableCell className="font-medium">{produto.nome_medicamento}</TableCell>
-                              <TableCell>{produto.lote}</TableCell>
-                              <TableCell className="font-mono text-sm">
-                                {produto.codigo_barras_original || '-'}
-                              </TableCell>
-                              <TableCell>
-                                {produto.validade ? new Date(produto.validade).toLocaleDateString('pt-BR') : '-'}
-                              </TableCell>
-                              <TableCell className="text-right font-medium">
-                                {produto.quantidade_total}
-                              </TableCell>
-                              <TableCell>{produto.unidade || '-'}</TableCell>
-                              <TableCell>
-                                <Badge variant={badgeVariant}>{situacaoTexto}</Badge>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
+                        return (
+                          <TableRow key={produto.id}>
+                            <TableCell className="font-medium">{produto.nome}</TableCell>
+                            <TableCell>{produto.lote}</TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {produto.codigo_barras || '-'}
+                            </TableCell>
+                            <TableCell>
+                              {produto.validade ? new Date(produto.validade).toLocaleDateString('pt-BR') : '-'}
+                            </TableCell>
+                            <TableCell className="text-right font-medium">
+                              {produto.quantidade}
+                            </TableCell>
+                            <TableCell>{produto.unidade || '-'}</TableCell>
+                            <TableCell>
+                              <Badge variant={badgeVariant}>{situacaoTexto}</Badge>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                       </TableBody>
                     </Table>
                   </div>
