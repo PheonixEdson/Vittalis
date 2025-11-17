@@ -247,9 +247,45 @@ const Farmaceutico = () => {
 
       if (error) throw error;
 
+      // Buscar produto no estoque para registrar movimentação
+      const { data: produtoEstoque, error: produtoError } = await (supabase as any)
+        .from('estoque_produtos')
+        .select('id, nome, quantidade')
+        .or(`codigo_barras.eq.${dadosEditaveis.codigoBarrasOriginal},lote.eq.${dadosEditaveis.lote}`)
+        .limit(1)
+        .maybeSingle();
+
+      let mensagemSucesso = "O fracionamento foi registrado no sistema.";
+
+      if (produtoEstoque && !produtoError) {
+        // Produto encontrado - registrar movimentação
+        try {
+          const { error: movimentacaoError } = await (supabase as any)
+            .rpc('registrar_movimentacao', {
+              p_produto_id: produtoEstoque.id,
+              p_tipo: 'fracionamento',
+              p_quantidade: parseFloat(dadosEditaveis.quantidadeFracionada),
+              p_descricao: 'Saída automática por fracionamento via XML'
+            });
+
+          if (movimentacaoError) {
+            console.error('Erro ao registrar movimentação:', movimentacaoError);
+            mensagemSucesso += ` ⚠️ Porém, não foi possível atualizar o estoque: ${movimentacaoError.message}`;
+          } else {
+            mensagemSucesso += ` ✅ Estoque atualizado automaticamente (${produtoEstoque.nome}).`;
+          }
+        } catch (movError: any) {
+          console.error('Erro ao registrar movimentação:', movError);
+          mensagemSucesso += ` ⚠️ Porém, não foi possível atualizar o estoque: ${movError.message}`;
+        }
+      } else {
+        // Produto não encontrado no estoque
+        mensagemSucesso += ` ⚠️ Produto não encontrado no estoque. Cadastre o produto para controle automático de estoque.`;
+      }
+
       toast({
         title: "Dados importados com sucesso!",
-        description: "O fracionamento foi registrado no sistema.",
+        description: mensagemSucesso,
       });
 
       // Limpar formulário
