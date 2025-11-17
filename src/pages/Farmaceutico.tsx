@@ -258,29 +258,45 @@ const Farmaceutico = () => {
       let mensagemSucesso = "O fracionamento foi registrado no sistema.";
 
       if (produtoEstoque && !produtoError) {
-        // Produto encontrado - registrar movimentação
-        try {
-          const { error: movimentacaoError } = await (supabase as any)
-            .rpc('registrar_movimentacao', {
-              p_produto_id: produtoEstoque.id,
-              p_tipo: 'fracionamento',
-              p_quantidade: parseFloat(dadosEditaveis.quantidadeFracionada),
-              p_descricao: 'Saída automática por fracionamento via XML'
-            });
+        // Produto encontrado - verificar estoque e registrar movimentação
+        const quantidadeFracionada = parseFloat(dadosEditaveis.quantidadeFracionada);
+        
+        if (produtoEstoque.quantidade < quantidadeFracionada) {
+          mensagemSucesso += ` ⚠️ ATENÇÃO: Estoque insuficiente para fracionamento. Disponível: ${produtoEstoque.quantidade}, Necessário: ${quantidadeFracionada}. Cadastre mais produtos no estoque.`;
+        } else {
+          try {
+            const { error: movimentacaoError } = await (supabase as any)
+              .rpc('registrar_movimentacao', {
+                p_produto_id: produtoEstoque.id,
+                p_tipo: 'fracionamento',
+                p_quantidade: quantidadeFracionada,
+                p_descricao: 'Saída automática por fracionamento via XML'
+              });
 
-          if (movimentacaoError) {
-            console.error('Erro ao registrar movimentação:', movimentacaoError);
-            mensagemSucesso += ` ⚠️ Porém, não foi possível atualizar o estoque: ${movimentacaoError.message}`;
-          } else {
-            mensagemSucesso += ` ✅ Estoque atualizado automaticamente (${produtoEstoque.nome}).`;
+            if (movimentacaoError) {
+              console.error('Erro ao registrar movimentação:', movimentacaoError);
+              
+              // Verificar se é erro de estoque insuficiente
+              if (movimentacaoError.message?.includes('Estoque insuficiente')) {
+                mensagemSucesso += ` ⚠️ ${movimentacaoError.message}. Por favor, realize entrada no estoque antes de fracionar.`;
+              } else {
+                mensagemSucesso += ` ⚠️ Não foi possível atualizar o estoque: ${movimentacaoError.message}`;
+              }
+            } else {
+              mensagemSucesso += ` ✅ Estoque atualizado automaticamente (${produtoEstoque.nome}).`;
+            }
+          } catch (movError: any) {
+            console.error('Erro ao registrar movimentação:', movError);
+            if (movError.message?.includes('Estoque insuficiente')) {
+              mensagemSucesso += ` ⚠️ ${movError.message}. Por favor, realize entrada no estoque antes de fracionar.`;
+            } else {
+              mensagemSucesso += ` ⚠️ Não foi possível atualizar o estoque: ${movError.message}`;
+            }
           }
-        } catch (movError: any) {
-          console.error('Erro ao registrar movimentação:', movError);
-          mensagemSucesso += ` ⚠️ Porém, não foi possível atualizar o estoque: ${movError.message}`;
         }
       } else {
         // Produto não encontrado no estoque
-        mensagemSucesso += ` ⚠️ Produto não encontrado no estoque. Cadastre o produto para controle automático de estoque.`;
+        mensagemSucesso += ` ⚠️ Produto não encontrado no estoque. Cadastre o produto (código: ${dadosEditaveis.codigoBarrasOriginal}, lote: ${dadosEditaveis.lote}) para controle automático de estoque.`;
       }
 
       toast({

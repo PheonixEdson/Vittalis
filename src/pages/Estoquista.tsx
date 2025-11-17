@@ -74,6 +74,9 @@ const Estoquista = () => {
   const [filtroProdutoMov, setFiltroProdutoMov] = useState("");
   const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
   const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
+
+  // Estados para estatísticas
+  const [itensFracionadosMes, setItensFracionadosMes] = useState(0);
   
   // Estados para cadastro
   const [formData, setFormData] = useState({
@@ -128,6 +131,18 @@ const Estoquista = () => {
 
       if (error) throw error;
       setMovimentacoes(data || []);
+
+      // Calcular itens fracionados no mês atual
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+      
+      const fracionadosMes = (data || []).filter((mov: any) => 
+        mov.tipo === 'fracionamento' && 
+        new Date(mov.data_movimentacao) >= inicioMes
+      ).length;
+      
+      setItensFracionadosMes(fracionadosMes);
     } catch (error: any) {
       console.error('Erro ao carregar movimentações:', error);
       toast({
@@ -234,7 +249,7 @@ const Estoquista = () => {
         
         toast({
           title: "Erro de validação",
-          description: "Por favor, corrija os erros no formulário.",
+          description: "Por favor, corrija os campos destacados em vermelho.",
           variant: "destructive",
         });
         return;
@@ -254,11 +269,14 @@ const Estoquista = () => {
         .from('estoque_produtos')
         .insert([dadosParaSalvar]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao cadastrar:', error);
+        throw new Error(error.message || 'Erro ao cadastrar produto no banco de dados');
+      }
 
       toast({
-        title: "Produto cadastrado com sucesso!",
-        description: "O produto foi adicionado ao estoque.",
+        title: "✅ Produto cadastrado com sucesso!",
+        description: `${dadosParaSalvar.nome} foi adicionado ao estoque com ${dadosParaSalvar.quantidade} unidades.`,
       });
 
       // Limpar formulário e fechar diálogo
@@ -275,12 +293,12 @@ const Estoquista = () => {
       setCadastroDialogOpen(false);
 
       // Recarregar produtos
-      carregarProdutos();
+      await carregarProdutos();
     } catch (error: any) {
       console.error('Erro ao cadastrar produto:', error);
       toast({
-        title: "Erro ao cadastrar produto",
-        description: error.message || "Não foi possível cadastrar o produto.",
+        title: "❌ Erro ao cadastrar produto",
+        description: error.message || "Não foi possível cadastrar o produto. Tente novamente.",
         variant: "destructive",
       });
     }
@@ -331,7 +349,68 @@ const Estoquista = () => {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-              {/* Busca e Filtros */}
+                {/* Painel de Resumo */}
+                <div className="grid md:grid-cols-4 gap-4 mb-6">
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Total de Itens</p>
+                          <p className="text-3xl font-bold text-primary">{produtos.length}</p>
+                        </div>
+                        <Package className="h-10 w-10 text-primary opacity-50" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-red-500/20 bg-red-50 dark:bg-red-900/10">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Itens Vencidos</p>
+                          <p className="text-3xl font-bold text-red-600 dark:text-red-400">
+                            {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'vencido').length}
+                          </p>
+                        </div>
+                        <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                          <span className="text-red-600 dark:text-red-400 text-xl font-bold">!</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-yellow-500/20 bg-yellow-50 dark:bg-yellow-900/10">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
+                          <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                            {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'baixo').length}
+                          </p>
+                        </div>
+                        <div className="h-10 w-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                          <span className="text-yellow-600 dark:text-yellow-400 text-xl font-bold">⚠</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-blue-500/20 bg-blue-50 dark:bg-blue-900/10">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Fracionados no Mês</p>
+                          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                            {itensFracionadosMes}
+                          </p>
+                        </div>
+                        <History className="h-10 w-10 text-blue-600 dark:text-blue-400 opacity-50" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Busca e Filtros */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -357,31 +436,33 @@ const Estoquista = () => {
                 </Select>
               </div>
 
-              {/* Estatísticas */}
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Total de Produtos</p>
-                  <p className="text-2xl font-bold text-primary">{produtos.length}</p>
+                {/* Estatísticas de Situação */}
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div className="p-4 bg-muted/30 border rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                      {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'prestes_vencer').length}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/30 border rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Normal</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'normal').length}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/30 border rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Sem Validade</p>
+                    <p className="text-2xl font-bold text-muted-foreground">
+                      {produtos.filter(p => !p.validade).length}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/30 border rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Quantidade Total</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {produtos.reduce((acc, p) => acc + (p.quantidade || 0), 0).toLocaleString('pt-BR')}
+                    </p>
+                  </div>
                 </div>
-                <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
-                  <p className="text-2xl font-bold text-destructive">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'baixo').length}
-                  </p>
-                </div>
-                <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
-                  <p className="text-2xl font-bold text-amber-600">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'prestes_vencer').length}
-                  </p>
-                </div>
-                <div className="p-4 bg-muted/50 border border-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Vencidos</p>
-                  <p className="text-2xl font-bold text-muted-foreground">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'vencido').length}
-                  </p>
-                </div>
-              </div>
 
               {/* Tabela de Produtos */}
               {isLoadingProdutos ? (
