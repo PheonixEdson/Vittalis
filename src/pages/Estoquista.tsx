@@ -39,21 +39,11 @@ const Estoquista = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Custo Total Estoque</p>
-              <p className="text-3xl font-bold text-primary">R$ 85k</p>
-              <p className="text-xs text-muted-foreground mt-2">Valor atual</p>
-            </div>
+          <div className="max-w-md">
             <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Itens Abaixo do Mínimo</p>
               <p className="text-3xl font-bold text-destructive">{medicamentosEstoqueBaixo.length}</p>
               <p className="text-xs text-muted-foreground mt-2">Requer atenção</p>
-            </div>
-            <div className="p-4 bg-accent/5 border border-accent/20 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Economia Prevista</p>
-              <p className="text-3xl font-bold text-accent">R$ 12k</p>
-              <p className="text-xs text-muted-foreground mt-2">Com otimizações</p>
             </div>
           </div>
 
