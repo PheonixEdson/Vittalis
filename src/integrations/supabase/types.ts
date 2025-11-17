@@ -163,11 +163,49 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_any_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       registrar_movimentacao: {
         Args: {
           p_descricao?: string
@@ -179,6 +217,13 @@ export type Database = {
       }
     }
     Enums: {
+      app_role:
+        | "admin"
+        | "farmaceutico"
+        | "estoquista"
+        | "medico"
+        | "enfermeiro"
+        | "paciente"
       tipo_movimentacao:
         | "entrada"
         | "saida"
@@ -312,6 +357,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "admin",
+        "farmaceutico",
+        "estoquista",
+        "medico",
+        "enfermeiro",
+        "paciente",
+      ],
       tipo_movimentacao: [
         "entrada",
         "saida",
