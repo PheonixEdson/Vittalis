@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
+import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoVittalis from "@/assets/logo-vittalis.png";
 
