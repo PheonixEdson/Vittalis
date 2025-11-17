@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      estoque_movimentacoes: {
+        Row: {
+          criado_em: string
+          data_movimentacao: string
+          descricao: string | null
+          id: string
+          produto_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Insert: {
+          criado_em?: string
+          data_movimentacao?: string
+          descricao?: string | null
+          id?: string
+          produto_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Update: {
+          criado_em?: string
+          data_movimentacao?: string
+          descricao?: string | null
+          id?: string
+          produto_id?: string
+          quantidade?: number
+          tipo?: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_movimentacoes_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "estoque_produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estoque_produtos: {
         Row: {
           codigo_barras: string | null
@@ -130,10 +168,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      registrar_movimentacao: {
+        Args: {
+          p_descricao?: string
+          p_produto_id: string
+          p_quantidade: number
+          p_tipo: Database["public"]["Enums"]["tipo_movimentacao"]
+        }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      tipo_movimentacao:
+        | "entrada"
+        | "saida"
+        | "fracionamento"
+        | "ajuste"
+        | "descarte"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -260,6 +311,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      tipo_movimentacao: [
+        "entrada",
+        "saida",
+        "fracionamento",
+        "ajuste",
+        "descarte",
+      ],
+    },
   },
 } as const
