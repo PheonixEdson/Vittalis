@@ -33,36 +33,24 @@ const Index = () => {
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </Button>
-                {userRoles.includes('admin') && (
-                  <Button onClick={() => navigate("/administrador")}>
-                    Área Admin
-                  </Button>
-                )}
-                {userRoles.includes('farmaceutico') && (
-                  <Button onClick={() => navigate("/farmaceutico")}>
-                    Área Farmacêutico
-                  </Button>
-                )}
-                {userRoles.includes('estoquista') && (
-                  <Button onClick={() => navigate("/estoquista")}>
-                    Área Estoquista
-                  </Button>
-                )}
-                {userRoles.includes('medico') && (
-                  <Button onClick={() => navigate("/medico")}>
-                    Área Médico
-                  </Button>
-                )}
-                {userRoles.includes('enfermeiro') && (
-                  <Button onClick={() => navigate("/enfermeiro")}>
-                    Área Enfermeiro
-                  </Button>
-                )}
-                {userRoles.includes('paciente') && (
-                  <Button onClick={() => navigate("/paciente")}>
-                    Área Paciente
-                  </Button>
-                )}
+                <Button onClick={() => navigate("/administrador")}>
+                  Área Admin
+                </Button>
+                <Button onClick={() => navigate("/farmaceutico")}>
+                  Área Farmacêutico
+                </Button>
+                <Button onClick={() => navigate("/estoquista")}>
+                  Área Estoquista
+                </Button>
+                <Button onClick={() => navigate("/medico")}>
+                  Área Médico
+                </Button>
+                <Button onClick={() => navigate("/enfermeiro")}>
+                  Área Enfermeiro
+                </Button>
+                <Button onClick={() => navigate("/paciente")}>
+                  Área Paciente
+                </Button>
               </>
             ) : (
               <>
