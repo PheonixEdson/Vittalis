@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, BarChart3, Package, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar, Search, Filter, TrendingUp, DollarSign } from "lucide-react";
+import { FileText, BarChart3, Package, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar, Search, Filter, TrendingUp, DollarSign, History as HistoryIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -39,10 +39,19 @@ const Administrador = () => {
   const [isLoadingProdutos, setIsLoadingProdutos] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filtroSituacao, setFiltroSituacao] = useState("todos");
+  
+  // Estados para movimentações
+  const [movimentacoes, setMovimentacoes] = useState<any[]>([]);
+  const [isLoadingMovimentacoes, setIsLoadingMovimentacoes] = useState(false);
+  const [filtroTipoMov, setFiltroTipoMov] = useState("todos");
+  const [filtroProdutoMov, setFiltroProdutoMov] = useState("");
+  const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
+  const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
 
   // Carregar produtos do banco
   useEffect(() => {
     carregarProdutos();
+    carregarMovimentacoes();
   }, []);
 
   const carregarProdutos = async () => {
@@ -67,6 +76,32 @@ const Administrador = () => {
     }
   };
 
+  const carregarMovimentacoes = async () => {
+    setIsLoadingMovimentacoes(true);
+    try {
+      const { data, error } = await (supabase as any)
+        .from('estoque_movimentacoes')
+        .select(`
+          *,
+          produto:estoque_produtos(nome, lote)
+        `)
+        .order('data_movimentacao', { ascending: false })
+        .limit(100);
+
+      if (error) throw error;
+      setMovimentacoes(data || []);
+    } catch (error: any) {
+      console.error('Erro ao carregar movimentações:', error);
+      toast({
+        title: "Erro ao carregar movimentações",
+        description: error.message || "Não foi possível carregar as movimentações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMovimentacoes(false);
+    }
+  };
+
   // Calcular situação do produto
   const calcularSituacao = (validade: string | null, quantidade: number): string => {
     if (!validade) return 'normal';
@@ -85,6 +120,16 @@ const Administrador = () => {
     if (diasAteVencer <= 30) return 'prestes_vencer';
     
     return 'normal';
+  };
+
+  // Função para solicitar pedido
+  const handleSolicitarPedido = (produto: any) => {
+    setMedicamentoSelecionado({
+      nome: produto.nome,
+      atual: parseFloat(produto.quantidade),
+      minimo: 10 // valor de exemplo
+    });
+    setPedidoDialogOpen(true);
   };
 
   // Filtrar e buscar produtos
@@ -110,6 +155,37 @@ const Administrador = () => {
 
     return resultado;
   }, [produtos, searchTerm, filtroSituacao]);
+
+  // Filtrar movimentações
+  const movimentacoesFiltradas = useMemo(() => {
+    let resultado = movimentacoes;
+
+    // Filtro por tipo
+    if (filtroTipoMov !== "todos") {
+      resultado = resultado.filter(m => m.tipo === filtroTipoMov);
+    }
+
+    // Filtro por produto (busca no nome)
+    if (filtroProdutoMov) {
+      resultado = resultado.filter(m => 
+        m.produto?.nome?.toLowerCase().includes(filtroProdutoMov.toLowerCase())
+      );
+    }
+
+    // Filtro por período
+    if (filtroPeriodoInicio) {
+      resultado = resultado.filter(m => 
+        new Date(m.data_movimentacao) >= new Date(filtroPeriodoInicio)
+      );
+    }
+    if (filtroPeriodoFim) {
+      resultado = resultado.filter(m => 
+        new Date(m.data_movimentacao) <= new Date(filtroPeriodoFim + 'T23:59:59')
+      );
+    }
+
+    return resultado;
+  }, [movimentacoes, filtroTipoMov, filtroProdutoMov, filtroPeriodoInicio, filtroPeriodoFim]);
 
   // Função para calcular dados baseado nos filtros
   const dadosFiltrados = useMemo(() => {
@@ -464,7 +540,7 @@ const Administrador = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="faturamento" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="faturamento">
               <FileText className="h-4 w-4 mr-2" />
               Faturamento APAC
@@ -476,6 +552,10 @@ const Administrador = () => {
             <TabsTrigger value="estoque">
               <Package className="h-4 w-4 mr-2" />
               Estoque
+            </TabsTrigger>
+            <TabsTrigger value="movimentacoes">
+              <HistoryIcon className="h-4 w-4 mr-2" />
+              Movimentações
             </TabsTrigger>
           </TabsList>
 
@@ -1234,6 +1314,7 @@ const Administrador = () => {
                           <TableHead className="text-right">Quantidade Total</TableHead>
                           <TableHead>Unidade</TableHead>
                           <TableHead>Situação</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1265,9 +1346,140 @@ const Administrador = () => {
                             <TableCell>
                               <Badge variant={badgeVariant}>{situacaoTexto}</Badge>
                             </TableCell>
+                            <TableCell className="text-right">
+                              {situacao === 'baixo' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleSolicitarPedido(produto)}
+                                >
+                                  Solicitar Pedido
+                                </Button>
+                              )}
+                            </TableCell>
                           </TableRow>
                         );
                       })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="movimentacoes" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Histórico de Movimentações</CardTitle>
+                <CardDescription>
+                  Registro completo de entradas e saídas de estoque
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Filtros */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="filtro-tipo">Tipo de Movimentação</Label>
+                    <Select value={filtroTipoMov} onValueChange={setFiltroTipoMov}>
+                      <SelectTrigger id="filtro-tipo">
+                        <SelectValue placeholder="Todos os tipos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">Todos</SelectItem>
+                        <SelectItem value="entrada">Entrada</SelectItem>
+                        <SelectItem value="saida">Saída</SelectItem>
+                        <SelectItem value="fracionamento">Fracionamento</SelectItem>
+                        <SelectItem value="ajuste">Ajuste</SelectItem>
+                        <SelectItem value="descarte">Descarte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="filtro-produto">Produto</Label>
+                    <Input
+                      id="filtro-produto"
+                      placeholder="Buscar produto..."
+                      value={filtroProdutoMov}
+                      onChange={(e) => setFiltroProdutoMov(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="filtro-inicio">Data Início</Label>
+                    <Input
+                      id="filtro-inicio"
+                      type="date"
+                      value={filtroPeriodoInicio}
+                      onChange={(e) => setFiltroPeriodoInicio(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="filtro-fim">Data Fim</Label>
+                    <Input
+                      id="filtro-fim"
+                      type="date"
+                      value={filtroPeriodoFim}
+                      onChange={(e) => setFiltroPeriodoFim(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Tabela de Movimentações */}
+                {isLoadingMovimentacoes ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando movimentações...
+                  </div>
+                ) : movimentacoesFiltradas.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhuma movimentação encontrada
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Data/Hora</TableHead>
+                          <TableHead>Produto</TableHead>
+                          <TableHead>Lote</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead className="text-right">Quantidade</TableHead>
+                          <TableHead>Descrição</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {movimentacoesFiltradas.map((mov) => {
+                          const tipoVariant = 
+                            mov.tipo === 'entrada' ? 'default' :
+                            mov.tipo === 'saida' ? 'secondary' :
+                            mov.tipo === 'fracionamento' ? 'outline' :
+                            mov.tipo === 'descarte' ? 'destructive' : 'outline';
+                          
+                          const tipoLabel = mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1);
+
+                          return (
+                            <TableRow key={mov.id}>
+                              <TableCell className="font-mono text-sm">
+                                {new Date(mov.data_movimentacao).toLocaleString('pt-BR')}
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {mov.produto?.nome || '-'}
+                              </TableCell>
+                              <TableCell>{mov.produto?.lote || '-'}</TableCell>
+                              <TableCell>
+                                <Badge variant={tipoVariant}>{tipoLabel}</Badge>
+                              </TableCell>
+                              <TableCell className="text-right font-medium">
+                                {mov.quantidade}
+                              </TableCell>
+                              <TableCell className="max-w-xs truncate">
+                                {mov.descricao || '-'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </div>
