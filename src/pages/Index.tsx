@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield, Package } from "lucide-react";
+import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield, Package, LogOut, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import logoVittalis from "@/assets/logo-vittalis.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, userRoles, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -20,12 +27,54 @@ const Index = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate("/paciente")}>
-              Acesso Paciente
-            </Button>
-            <Button onClick={() => navigate("/medico")}>
-              Acesso Profissional
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </Button>
+                {userRoles.includes('admin') && (
+                  <Button onClick={() => navigate("/administrador")}>
+                    Área Admin
+                  </Button>
+                )}
+                {userRoles.includes('farmaceutico') && (
+                  <Button onClick={() => navigate("/farmaceutico")}>
+                    Área Farmacêutico
+                  </Button>
+                )}
+                {userRoles.includes('estoquista') && (
+                  <Button onClick={() => navigate("/estoquista")}>
+                    Área Estoquista
+                  </Button>
+                )}
+                {userRoles.includes('medico') && (
+                  <Button onClick={() => navigate("/medico")}>
+                    Área Médico
+                  </Button>
+                )}
+                {userRoles.includes('enfermeiro') && (
+                  <Button onClick={() => navigate("/enfermeiro")}>
+                    Área Enfermeiro
+                  </Button>
+                )}
+                {userRoles.includes('paciente') && (
+                  <Button onClick={() => navigate("/paciente")}>
+                    Área Paciente
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => navigate("/auth")}>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Entrar
+                </Button>
+                <Button onClick={() => navigate("/auth")}>
+                  Criar Conta
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

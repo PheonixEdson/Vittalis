@@ -8,11 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Home, Search, Filter, Plus, History, Calendar } from "lucide-react";
+import { Package, Home, Search, Filter, Plus, History, Calendar, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
+import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -55,6 +56,12 @@ const produtoSchema = z.object({
 
 const Estoquista = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
   
   // Estados para gestão de estoque
   const [pedidoDialogOpen, setPedidoDialogOpen] = useState(false);
@@ -310,12 +317,13 @@ const Estoquista = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold text-primary">Vittalis - Área do Estoquista</h1>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-estoquista")}>
-              Cadastro Estoquista
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
               <Home className="h-4 w-4 mr-2" />
               Início
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
             </Button>
           </div>
         </div>
