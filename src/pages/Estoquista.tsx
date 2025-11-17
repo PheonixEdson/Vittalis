@@ -7,12 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Package, Home, Search, Filter, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Package, Home, Search, Filter, Plus, History, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
 import { z } from "zod";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 // Schema de validação com zod
 const produtoSchema = z.object({
@@ -64,6 +67,14 @@ const Estoquista = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filtroSituacao, setFiltroSituacao] = useState("todos");
   
+  // Estados para movimentações
+  const [movimentacoes, setMovimentacoes] = useState<any[]>([]);
+  const [isLoadingMovimentacoes, setIsLoadingMovimentacoes] = useState(false);
+  const [filtroTipoMov, setFiltroTipoMov] = useState("todos");
+  const [filtroProdutoMov, setFiltroProdutoMov] = useState("");
+  const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
+  const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
+  
   // Estados para cadastro
   const [formData, setFormData] = useState({
     nome: "",
@@ -76,9 +87,10 @@ const Estoquista = () => {
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  // Carregar produtos do banco
+  // Carregar produtos e movimentações do banco
   useEffect(() => {
     carregarProdutos();
+    carregarMovimentacoes();
   }, []);
 
   const carregarProdutos = async () => {
@@ -100,6 +112,31 @@ const Estoquista = () => {
       });
     } finally {
       setIsLoadingProdutos(false);
+    }
+  };
+
+  const carregarMovimentacoes = async () => {
+    setIsLoadingMovimentacoes(true);
+    try {
+      const { data, error } = await (supabase as any)
+        .from('estoque_movimentacoes')
+        .select(`
+          *,
+          produto:estoque_produtos(nome)
+        `)
+        .order('data_movimentacao', { ascending: false });
+
+      if (error) throw error;
+      setMovimentacoes(data || []);
+    } catch (error: any) {
+      console.error('Erro ao carregar movimentações:', error);
+      toast({
+        title: "Erro ao carregar movimentações",
+        description: error.message || "Não foi possível carregar as movimentações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMovimentacoes(false);
     }
   };
 
@@ -146,6 +183,37 @@ const Estoquista = () => {
 
     return resultado;
   }, [produtos, searchTerm, filtroSituacao]);
+
+  // Filtrar movimentações
+  const movimentacoesFiltradas = useMemo(() => {
+    let resultado = movimentacoes;
+
+    // Filtro por tipo
+    if (filtroTipoMov !== 'todos') {
+      resultado = resultado.filter(m => m.tipo === filtroTipoMov);
+    }
+
+    // Filtro por produto
+    if (filtroProdutoMov) {
+      resultado = resultado.filter(m => 
+        m.produto?.nome?.toLowerCase().includes(filtroProdutoMov.toLowerCase())
+      );
+    }
+
+    // Filtro por período
+    if (filtroPeriodoInicio) {
+      resultado = resultado.filter(m => 
+        new Date(m.data_movimentacao) >= new Date(filtroPeriodoInicio)
+      );
+    }
+    if (filtroPeriodoFim) {
+      resultado = resultado.filter(m => 
+        new Date(m.data_movimentacao) <= new Date(filtroPeriodoFim)
+      );
+    }
+
+    return resultado;
+  }, [movimentacoes, filtroTipoMov, filtroProdutoMov, filtroPeriodoInicio, filtroPeriodoFim]);
 
   const handleCadastrarProduto = async () => {
     try {
@@ -236,21 +304,33 @@ const Estoquista = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Gestão de Estoque</CardTitle>
-                <CardDescription>
-                  Controle de produtos, lotes e validades
-                </CardDescription>
-              </div>
-              <Button onClick={() => setCadastroDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Cadastrar Produto
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <Tabs defaultValue="estoque" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="estoque">
+              <Package className="h-4 w-4 mr-2" />
+              Estoque
+            </TabsTrigger>
+            <TabsTrigger value="movimentacoes">
+              <History className="h-4 w-4 mr-2" />
+              Movimentações
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="estoque">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Gestão de Estoque</CardTitle>
+                  <CardDescription>
+                    Controle de produtos, lotes e validades
+                  </CardDescription>
+                </div>
+                <Button onClick={() => setCadastroDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Cadastrar Produto
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
               {/* Busca e Filtros */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
@@ -331,14 +411,36 @@ const Estoquista = () => {
                     <TableBody>
                       {produtosFiltrados.map((produto) => {
                         const situacao = calcularSituacao(produto.validade, produto.quantidade);
-                        const badgeVariant = 
-                          situacao === 'vencido' ? 'destructive' :
-                          situacao === 'prestes_vencer' ? 'default' :
-                          situacao === 'baixo' ? 'secondary' : 'outline';
-                        const situacaoTexto = 
-                          situacao === 'vencido' ? 'Vencido' :
-                          situacao === 'prestes_vencer' ? 'Prestes a Vencer' :
-                          situacao === 'baixo' ? 'Estoque Baixo' : 'Normal';
+                        
+                        // Cores específicas para cada situação
+                        const situacaoConfig = {
+                          vencido: { 
+                            bg: 'bg-red-100 dark:bg-red-900/20', 
+                            text: 'text-red-700 dark:text-red-400',
+                            border: 'border-red-300 dark:border-red-700',
+                            label: 'Vencido'
+                          },
+                          prestes_vencer: { 
+                            bg: 'bg-orange-100 dark:bg-orange-900/20', 
+                            text: 'text-orange-700 dark:text-orange-400',
+                            border: 'border-orange-300 dark:border-orange-700',
+                            label: 'Prestes a Vencer'
+                          },
+                          baixo: { 
+                            bg: 'bg-yellow-100 dark:bg-yellow-900/20', 
+                            text: 'text-yellow-700 dark:text-yellow-400',
+                            border: 'border-yellow-300 dark:border-yellow-700',
+                            label: 'Estoque Baixo'
+                          },
+                          normal: { 
+                            bg: 'bg-green-100 dark:bg-green-900/20', 
+                            text: 'text-green-700 dark:text-green-400',
+                            border: 'border-green-300 dark:border-green-700',
+                            label: 'Normal'
+                          }
+                        };
+                        
+                        const config = situacaoConfig[situacao as keyof typeof situacaoConfig];
 
                         return (
                           <TableRow key={produto.id}>
@@ -355,7 +457,9 @@ const Estoquista = () => {
                             </TableCell>
                             <TableCell>{produto.unidade || '-'}</TableCell>
                             <TableCell>
-                              <Badge variant={badgeVariant}>{situacaoTexto}</Badge>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.bg} ${config.text} ${config.border}`}>
+                                {config.label}
+                              </span>
                             </TableCell>
                           </TableRow>
                         );
@@ -364,9 +468,135 @@ const Estoquista = () => {
                   </Table>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="movimentacoes">
+            <Card>
+              <CardHeader>
+                <CardTitle>Histórico de Movimentações</CardTitle>
+                <CardDescription>
+                  Acompanhe todas as entradas e saídas do estoque
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Filtros de Movimentações */}
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="filtro-tipo">Tipo</Label>
+                    <Select value={filtroTipoMov} onValueChange={setFiltroTipoMov}>
+                      <SelectTrigger id="filtro-tipo">
+                        <SelectValue placeholder="Todos os tipos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">Todos</SelectItem>
+                        <SelectItem value="entrada">Entrada</SelectItem>
+                        <SelectItem value="saida">Saída</SelectItem>
+                        <SelectItem value="fracionamento">Fracionamento</SelectItem>
+                        <SelectItem value="ajuste">Ajuste</SelectItem>
+                        <SelectItem value="descarte">Descarte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="filtro-produto-mov">Produto</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="filtro-produto-mov"
+                        placeholder="Buscar produto..."
+                        value={filtroProdutoMov}
+                        onChange={(e) => setFiltroProdutoMov(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="periodo-inicio">Período Início</Label>
+                    <Input
+                      id="periodo-inicio"
+                      type="date"
+                      value={filtroPeriodoInicio}
+                      onChange={(e) => setFiltroPeriodoInicio(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="periodo-fim">Período Fim</Label>
+                    <Input
+                      id="periodo-fim"
+                      type="date"
+                      value={filtroPeriodoFim}
+                      onChange={(e) => setFiltroPeriodoFim(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Tabela de Movimentações */}
+                {isLoadingMovimentacoes ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando movimentações...
+                  </div>
+                ) : movimentacoesFiltradas.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <History className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-medium mb-2">Nenhuma movimentação encontrada</p>
+                    <p className="text-sm">As movimentações de estoque aparecerão aqui</p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Produto</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead className="text-right">Quantidade</TableHead>
+                          <TableHead>Descrição</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {movimentacoesFiltradas.map((mov) => {
+                          const tipoConfig = {
+                            entrada: { label: 'Entrada', color: 'text-green-600 dark:text-green-400' },
+                            saida: { label: 'Saída', color: 'text-red-600 dark:text-red-400' },
+                            fracionamento: { label: 'Fracionamento', color: 'text-blue-600 dark:text-blue-400' },
+                            ajuste: { label: 'Ajuste', color: 'text-purple-600 dark:text-purple-400' },
+                            descarte: { label: 'Descarte', color: 'text-gray-600 dark:text-gray-400' }
+                          };
+                          
+                          const config = tipoConfig[mov.tipo as keyof typeof tipoConfig] || { label: mov.tipo, color: '' };
+                          
+                          return (
+                            <TableRow key={mov.id}>
+                              <TableCell className="font-mono text-sm">
+                                {format(new Date(mov.data_movimentacao), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {mov.produto?.nome || 'Produto removido'}
+                              </TableCell>
+                              <TableCell>
+                                <span className={`font-medium ${config.color}`}>
+                                  {config.label}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {mov.quantidade}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground max-w-md truncate">
+                                {mov.descricao || '-'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Diálogo de Cadastro de Produto */}
