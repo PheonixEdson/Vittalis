@@ -39,73 +39,18 @@ const Estoquista = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-4">
-          <div className="max-w-md">
-            <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Itens Abaixo do Mínimo</p>
-              <p className="text-3xl font-bold text-destructive">{medicamentosEstoqueBaixo.length}</p>
-              <p className="text-xs text-muted-foreground mt-2">Requer atenção</p>
-            </div>
-          </div>
-
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Medicamentos com Estoque Baixo</CardTitle>
+              <CardTitle className="text-lg">Gestão de Estoque</CardTitle>
               <CardDescription>
-                Produtos que necessitam reposição
+                Área para gerenciamento de produtos e medicamentos
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {medicamentosEstoqueBaixo.map((med, i) => (
-                <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium text-sm">{med.nome}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Estoque: {med.atual} / Mínimo: {med.minimo}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-sm">{med.custo}</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-1"
-                      onClick={() => {
-                        setMedicamentoSelecionado(med);
-                        setPedidoDialogOpen(true);
-                      }}
-                    >
-                      Solicitar Pedido
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-lg">Parâmetros para Novos Pedidos</CardTitle>
-            </CardHeader>
             <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="font-medium mb-2">📊 Considere o consumo médio mensal</p>
-                  <p className="text-muted-foreground">
-                    Analise o histórico dos últimos 3-6 meses para determinar a quantidade ideal
-                  </p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="font-medium mb-2">⏰ Atenção ao prazo de validade</p>
-                  <p className="text-muted-foreground">
-                    Evite pedidos em excesso que podem resultar em medicamentos vencidos
-                  </p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="font-medium mb-2">💰 Otimize custos de armazenamento</p>
-                  <p className="text-muted-foreground">
-                    Considere o custo de manutenção do estoque versus economia em compras maiores
-                  </p>
-                </div>
+              <div className="text-center py-12 text-muted-foreground">
+                <Package className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">Área em desenvolvimento</p>
+                <p className="text-sm">Funcionalidades de estoque serão adicionadas em breve</p>
               </div>
             </CardContent>
           </Card>
