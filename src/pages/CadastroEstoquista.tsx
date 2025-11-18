@@ -169,6 +169,34 @@ const CadastroEstoquista = () => {
                   </p>
                 </div>
 
+                {/* Aviso LGPD */}
+                <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
+                  <p className="text-foreground font-semibold">Proteção de Dados Profissionais (LGPD):</p>
+                  <p className="text-muted-foreground">
+                    Ao cadastrar-se como estoquista, seus dados e registros profissionais serão tratados 
+                    para gestão do sistema e cumprimento de obrigações legais.
+                  </p>
+                  <p className="text-muted-foreground">
+                    Declaro ter lido e concordado com a{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/politica-privacidade')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Política de Privacidade
+                    </button>
+                    {' '}e{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/termos-uso')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Termos de Uso
+                    </button>
+                    , comprometendo-me a respeitar as normas de proteção de dados e segurança da informação.
+                  </p>
+                </div>
+
                 <Button type="submit" className="w-full" size="lg">
                   Cadastrar e Acessar Área de Estoque
                 </Button>

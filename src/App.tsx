@@ -21,6 +21,11 @@ import CadastroAdministrador from "./pages/CadastroAdministrador";
 import CadastroPaciente from "./pages/CadastroPaciente";
 import CadastroEstoquista from "./pages/CadastroEstoquista";
 import NotFound from "./pages/NotFound";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
+import TermosUso from "./pages/TermosUso";
+import DireitosTitular from "./pages/DireitosTitular";
+import EncarregadoDados from "./pages/EncarregadoDados";
+import TratamentoDadosSaude from "./pages/TratamentoDadosSaude";
 
 const queryClient = new QueryClient();
 
@@ -46,9 +51,15 @@ const App = () => (
             <Route path="/cadastro-farmaceutico" element={<CadastroFarmaceutico />} />
             <Route path="/cadastro-administrador" element={<CadastroAdministrador />} />
             <Route path="/cadastro-estoquista" element={<CadastroEstoquista />} />
+            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+            <Route path="/termos-uso" element={<TermosUso />} />
+            <Route path="/direitos-titular" element={<DireitosTitular />} />
+            <Route path="/encarregado-dados" element={<EncarregadoDados />} />
+            <Route path="/tratamento-dados-saude" element={<TratamentoDadosSaude />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CookieBanner />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

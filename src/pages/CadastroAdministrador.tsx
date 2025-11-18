@@ -95,6 +95,34 @@ const CadastroAdministrador = () => {
                 />
               </div>
 
+              {/* Aviso LGPD */}
+              <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
+                <p className="text-foreground font-semibold">Proteção de Dados (LGPD):</p>
+                <p className="text-muted-foreground">
+                  Ao cadastrar-se como administrador, seus dados serão tratados para gestão do sistema 
+                  e cumprimento de obrigações legais. Como administrador, você terá acesso a dados sensíveis 
+                  de saúde e se compromete a respeitar o sigilo e as normas de proteção de dados.
+                </p>
+                <p className="text-muted-foreground">
+                  Declaro ter lido e concordado com a{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/politica-privacidade')}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Política de Privacidade
+                  </button>
+                  {' '}e{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/termos-uso')}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Termos de Uso
+                  </button>.
+                </p>
+              </div>
+
               <Button type="submit" className="w-full">
                 Cadastrar
               </Button>

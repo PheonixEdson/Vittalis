@@ -229,6 +229,43 @@ const Auth = () => {
                   )}
                 </div>
 
+                {/* Aviso LGPD */}
+                <div className="bg-muted/50 p-4 rounded-md border border-border text-sm">
+                  <p className="text-muted-foreground mb-2">
+                    <strong className="text-foreground">Proteção de Dados (LGPD):</strong>
+                  </p>
+                  <p className="text-muted-foreground mb-2">
+                    Ao criar sua conta, você declara ter lido e concordado com nossa{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/politica-privacidade')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Política de Privacidade
+                    </button>
+                    {' '}e{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/termos-uso')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Termos de Uso
+                    </button>.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Seus dados serão tratados conforme a Lei Geral de Proteção de Dados (LGPD) para fins de 
+                    assistência à saúde, cumprimento de obrigações legais e gestão do sistema. Você pode exercer 
+                    seus direitos a qualquer momento através do nosso{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/encarregado-dados')}
+                      className="text-primary hover:underline"
+                    >
+                      DPO
+                    </button>.
+                  </p>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
@@ -344,11 +381,40 @@ const Auth = () => {
                   )}
                 </div>
 
-                <Alert>
-                  <AlertDescription className="text-sm">
-                    Ao criar uma conta, você concorda com os termos de uso e políticas de privacidade do sistema Vittalis.
-                  </AlertDescription>
-                </Alert>
+                {/* Aviso LGPD */}
+                <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
+                  <p className="text-foreground font-semibold">Proteção de Dados (LGPD):</p>
+                  <p className="text-muted-foreground">
+                    Ao criar sua conta, você declara ter lido e concordado com nossa{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/politica-privacidade')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Política de Privacidade
+                    </button>
+                    {' '}e{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/termos-uso')}
+                      className="text-primary hover:underline font-semibold"
+                    >
+                      Termos de Uso
+                    </button>.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Seus dados serão tratados conforme a Lei Geral de Proteção de Dados (LGPD) para fins de 
+                    assistência à saúde, cumprimento de obrigações legais e gestão do sistema. Você pode exercer 
+                    seus direitos a qualquer momento através do nosso{' '}
+                    <button 
+                      type="button"
+                      onClick={() => navigate('/encarregado-dados')}
+                      className="text-primary hover:underline"
+                    >
+                      DPO
+                    </button>.
+                  </p>
+                </div>
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
