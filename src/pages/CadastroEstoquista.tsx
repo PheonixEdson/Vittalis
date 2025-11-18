@@ -7,23 +7,27 @@ import { ArrowLeft, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import logoVittalis from "@/assets/logo-vittalis.png";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cadastroEstoquisaSchema } from "@/lib/validations";
+import { z } from "zod";
+
+type CadastroEstoquistaForm = z.infer<typeof cadastroEstoquisaSchema>;
 
 const CadastroEstoquista = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    nome: "",
-    cpf: "",
-    email: "",
-    telefone: "",
-    endereco: "",
-    dataNascimento: "",
-    crf: "",
-    certificado: null as File | null,
+  const [certificado, setCertificado] = useState<File | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CadastroEstoquistaForm>({
+    resolver: zodResolver(cadastroEstoquisaSchema),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmit = (data: CadastroEstoquistaForm) => {
+    console.log("Dados validados:", data);
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Você será redirecionado para a área do estoquista.",
@@ -37,7 +41,7 @@ const CadastroEstoquista = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData({ ...formData, certificado: file });
+      setCertificado(file);
     }
   };
 
@@ -76,17 +80,19 @@ const CadastroEstoquista = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome">Nome Completo *</Label>
                     <Input
                       id="nome"
                       placeholder="Digite seu nome completo"
-                      value={formData.nome}
-                      onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                      required
+                      {...register("nome")}
+                      className={errors.nome ? "border-destructive" : ""}
                     />
+                    {errors.nome && (
+                      <p className="text-sm text-destructive">{errors.nome.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -94,10 +100,12 @@ const CadastroEstoquista = () => {
                     <Input
                       id="cpf"
                       placeholder="000.000.000-00"
-                      value={formData.cpf}
-                      onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                      required
+                      {...register("cpf")}
+                      className={errors.cpf ? "border-destructive" : ""}
                     />
+                    {errors.cpf && (
+                      <p className="text-sm text-destructive">{errors.cpf.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -106,10 +114,12 @@ const CadastroEstoquista = () => {
                       id="email"
                       type="email"
                       placeholder="seu@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
+                      {...register("email")}
+                      className={errors.email ? "border-destructive" : ""}
                     />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{errors.email.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -117,10 +127,12 @@ const CadastroEstoquista = () => {
                     <Input
                       id="telefone"
                       placeholder="(00) 00000-0000"
-                      value={formData.telefone}
-                      onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
-                      required
+                      {...register("telefone")}
+                      className={errors.telefone ? "border-destructive" : ""}
                     />
+                    {errors.telefone && (
+                      <p className="text-sm text-destructive">{errors.telefone.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -128,10 +140,12 @@ const CadastroEstoquista = () => {
                     <Input
                       id="dataNascimento"
                       type="date"
-                      value={formData.dataNascimento}
-                      onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
-                      required
+                      {...register("dataNascimento")}
+                      className={errors.dataNascimento ? "border-destructive" : ""}
                     />
+                    {errors.dataNascimento && (
+                      <p className="text-sm text-destructive">{errors.dataNascimento.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -139,9 +153,12 @@ const CadastroEstoquista = () => {
                     <Input
                       id="crf"
                       placeholder="Digite seu número de registro"
-                      value={formData.crf}
-                      onChange={(e) => setFormData({ ...formData, crf: e.target.value })}
+                      {...register("crf")}
+                      className={errors.crf ? "border-destructive" : ""}
                     />
+                    {errors.crf && (
+                      <p className="text-sm text-destructive">{errors.crf.message}</p>
+                    )}
                   </div>
                 </div>
 
@@ -150,10 +167,12 @@ const CadastroEstoquista = () => {
                   <Input
                     id="endereco"
                     placeholder="Rua, número, bairro, cidade - UF"
-                    value={formData.endereco}
-                    onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                    required
+                    {...register("endereco")}
+                    className={errors.endereco ? "border-destructive" : ""}
                   />
+                  {errors.endereco && (
+                    <p className="text-sm text-destructive">{errors.endereco.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
