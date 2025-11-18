@@ -69,35 +69,39 @@ const CadastroEnfermeiro = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="numeroCOREN">Número do COREN</Label>
                 <Input
                   id="numeroCOREN"
-                  required
-                  value={formData.numeroCOREN}
-                  onChange={(e) => setFormData({ ...formData, numeroCOREN: e.target.value })}
+                  {...register("numeroCOREN")}
                 />
+                {errors.numeroCOREN && (
+                  <p className="text-sm text-destructive">{errors.numeroCOREN.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
                 <Input
                   id="cpf"
-                  required
-                  value={formData.cpf}
-                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                  placeholder="000.000.000-00"
+                  {...register("cpf")}
                 />
+                {errors.cpf && (
+                  <p className="text-sm text-destructive">{errors.cpf.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="nomeCompleto">Nome Completo</Label>
                 <Input
                   id="nomeCompleto"
-                  required
-                  value={formData.nomeCompleto}
-                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
+                  {...register("nomeCompleto")}
                 />
+                {errors.nomeCompleto && (
+                  <p className="text-sm text-destructive">{errors.nomeCompleto.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -105,30 +109,34 @@ const CadastroEnfermeiro = () => {
                 <Input
                   id="email"
                   type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  {...register("email")}
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="telefone">Número de Telefone</Label>
                 <Input
                   id="telefone"
-                  required
-                  value={formData.telefone}
-                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                  placeholder="(11) 98888-8888"
+                  {...register("telefone")}
                 />
+                {errors.telefone && (
+                  <p className="text-sm text-destructive">{errors.telefone.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="endereco">Endereço</Label>
                 <Input
                   id="endereco"
-                  required
-                  value={formData.endereco}
-                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                  {...register("endereco")}
                 />
+                {errors.endereco && (
+                  <p className="text-sm text-destructive">{errors.endereco.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -136,10 +144,11 @@ const CadastroEnfermeiro = () => {
                 <Input
                   id="dataNascimento"
                   type="date"
-                  required
-                  value={formData.dataNascimento}
-                  onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
+                  {...register("dataNascimento")}
                 />
+                {errors.dataNascimento && (
+                  <p className="text-sm text-destructive">{errors.dataNascimento.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
