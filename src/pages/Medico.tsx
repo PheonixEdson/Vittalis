@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, isSameDay } from "date-fns";
+import { LaudoAPACForm } from "@/components/forms/LaudoAPACForm";
+import { LaudoComplementarAPACForm } from "@/components/forms/LaudoComplementarAPACForm";
 
 // Mock data de pacientes distribuídos em vários dias
 const pacientesData = [
@@ -869,7 +871,7 @@ const Medico = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="calendario" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="calendario">
               <CalendarIcon className="h-4 w-4 mr-2" />
               Calendário
@@ -881,6 +883,10 @@ const Medico = () => {
             <TabsTrigger value="liberacao">
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Liberação Quimio
+            </TabsTrigger>
+            <TabsTrigger value="apac">
+              <FileText className="h-4 w-4 mr-2" />
+              APAC LIBERAÇÃO
             </TabsTrigger>
           </TabsList>
 
@@ -1977,6 +1983,24 @@ const Medico = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Nova aba APAC LIBERAÇÃO */}
+      <TabsContent value="apac" className="space-y-6">
+        <Tabs defaultValue="laudo" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="laudo">Laudo para Procedimentos APAC</TabsTrigger>
+            <TabsTrigger value="complementar">Laudo Complementar APAC</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="laudo" className="mt-6">
+            <LaudoAPACForm />
+          </TabsContent>
+          
+          <TabsContent value="complementar" className="mt-6">
+            <LaudoComplementarAPACForm />
+          </TabsContent>
+        </Tabs>
+      </TabsContent>
     </div>
   );
 };
