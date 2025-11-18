@@ -1162,6 +1162,24 @@ const Medico = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Nova aba APAC LIBERAÇÃO */}
+          <TabsContent value="apac" className="space-y-6">
+            <Tabs defaultValue="laudo" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="laudo">Laudo para Procedimentos APAC</TabsTrigger>
+                <TabsTrigger value="complementar">Laudo Complementar APAC</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="laudo" className="mt-6">
+                <LaudoAPACForm />
+              </TabsContent>
+              
+              <TabsContent value="complementar" className="mt-6">
+                <LaudoComplementarAPACForm />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -1984,23 +2002,6 @@ const Medico = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Nova aba APAC LIBERAÇÃO */}
-      <TabsContent value="apac" className="space-y-6">
-        <Tabs defaultValue="laudo" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="laudo">Laudo para Procedimentos APAC</TabsTrigger>
-            <TabsTrigger value="complementar">Laudo Complementar APAC</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="laudo" className="mt-6">
-            <LaudoAPACForm />
-          </TabsContent>
-          
-          <TabsContent value="complementar" className="mt-6">
-            <LaudoComplementarAPACForm />
-          </TabsContent>
-        </Tabs>
-      </TabsContent>
     </div>
   );
 };
