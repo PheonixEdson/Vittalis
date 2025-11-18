@@ -7,23 +7,28 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload } from "lucide-react";
 import logoVittalis from "@/assets/logo-vittalis.png";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cadastroMedicoSchema } from "@/lib/validations";
+import { z } from "zod";
+
+type CadastroMedicoForm = z.infer<typeof cadastroMedicoSchema>;
 
 const CadastroMedico = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    numeroCRM: "",
-    cpf: "",
-    nomeCompleto: "",
-    email: "",
-    telefone: "",
-    endereco: "",
-    dataNascimento: "",
-  });
   const [certidaoFile, setCertidaoFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CadastroMedicoForm>({
+    resolver: zodResolver(cadastroMedicoSchema),
+  });
+
+  const onSubmit = (data: CadastroMedicoForm) => {
+    console.log("Dados validados:", data);
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Seu cadastro está sendo processado.",

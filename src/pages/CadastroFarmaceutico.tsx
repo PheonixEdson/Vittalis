@@ -7,23 +7,28 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload } from "lucide-react";
 import logoVittalis from "@/assets/logo-vittalis.png";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { cadastroFarmaceuticoSchema } from "@/lib/validations";
+import { z } from "zod";
+
+type CadastroFarmaceuticoForm = z.infer<typeof cadastroFarmaceuticoSchema>;
 
 const CadastroFarmaceutico = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    numeroCRF: "",
-    cpf: "",
-    nomeCompleto: "",
-    email: "",
-    telefone: "",
-    endereco: "",
-    dataNascimento: "",
-  });
   const [certidaoFile, setCertidaoFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CadastroFarmaceuticoForm>({
+    resolver: zodResolver(cadastroFarmaceuticoSchema),
+  });
+
+  const onSubmit = (data: CadastroFarmaceuticoForm) => {
+    console.log("Dados validados:", data);
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Seu cadastro está sendo processado.",
@@ -64,35 +69,43 @@ const CadastroFarmaceutico = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="numeroCRF">Número do CRF</Label>
                 <Input
                   id="numeroCRF"
-                  required
-                  value={formData.numeroCRF}
-                  onChange={(e) => setFormData({ ...formData, numeroCRF: e.target.value })}
+                  placeholder="12345"
+                  {...register("numeroCRF")}
+                  className={errors.numeroCRF ? "border-destructive" : ""}
                 />
+                {errors.numeroCRF && (
+                  <p className="text-sm text-destructive">{errors.numeroCRF.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
                 <Input
                   id="cpf"
-                  required
-                  value={formData.cpf}
-                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                  placeholder="000.000.000-00"
+                  {...register("cpf")}
+                  className={errors.cpf ? "border-destructive" : ""}
                 />
+                {errors.cpf && (
+                  <p className="text-sm text-destructive">{errors.cpf.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="nomeCompleto">Nome Completo</Label>
                 <Input
                   id="nomeCompleto"
-                  required
-                  value={formData.nomeCompleto}
-                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
+                  {...register("nomeCompleto")}
+                  className={errors.nomeCompleto ? "border-destructive" : ""}
                 />
+                {errors.nomeCompleto && (
+                  <p className="text-sm text-destructive">{errors.nomeCompleto.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -100,30 +113,37 @@ const CadastroFarmaceutico = () => {
                 <Input
                   id="email"
                   type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  {...register("email")}
+                  className={errors.email ? "border-destructive" : ""}
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="telefone">Número de Telefone</Label>
                 <Input
                   id="telefone"
-                  required
-                  value={formData.telefone}
-                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                  placeholder="(00) 00000-0000"
+                  {...register("telefone")}
+                  className={errors.telefone ? "border-destructive" : ""}
                 />
+                {errors.telefone && (
+                  <p className="text-sm text-destructive">{errors.telefone.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="endereco">Endereço</Label>
                 <Input
                   id="endereco"
-                  required
-                  value={formData.endereco}
-                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                  {...register("endereco")}
+                  className={errors.endereco ? "border-destructive" : ""}
                 />
+                {errors.endereco && (
+                  <p className="text-sm text-destructive">{errors.endereco.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -131,10 +151,12 @@ const CadastroFarmaceutico = () => {
                 <Input
                   id="dataNascimento"
                   type="date"
-                  required
-                  value={formData.dataNascimento}
-                  onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
+                  {...register("dataNascimento")}
+                  className={errors.dataNascimento ? "border-destructive" : ""}
                 />
+                {errors.dataNascimento && (
+                  <p className="text-sm text-destructive">{errors.dataNascimento.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
