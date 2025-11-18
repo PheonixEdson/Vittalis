@@ -154,6 +154,51 @@ const CadastroPaciente = () => {
                 )}
               </div>
 
+              {/* Aviso LGPD */}
+              <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
+                <p className="text-foreground font-semibold">Proteção de Dados de Saúde (LGPD):</p>
+                <p className="text-muted-foreground">
+                  Ao cadastrar-se, seus dados de saúde serão tratados com base na <strong>tutela da saúde</strong> (Art. 11, II, 'f' da LGPD) 
+                  para fins de assistência médica e cumprimento de obrigações legais.
+                </p>
+                <p className="text-muted-foreground">
+                  Declaro ter lido e concordado com a{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/politica-privacidade')}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Política de Privacidade
+                  </button>
+                  {' '}e{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/termos-uso')}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    Termos de Uso
+                  </button>
+                  , incluindo como meus{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/tratamento-dados-saude')}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    dados de saúde são tratados
+                  </button>.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Você pode exercer seus direitos (acesso, correção, portabilidade) a qualquer momento através do{' '}
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/encarregado-dados')}
+                    className="text-primary hover:underline"
+                  >
+                    nosso DPO
+                  </button>.
+                </p>
+              </div>
+
               <Button type="submit" className="w-full">
                 Cadastrar
               </Button>

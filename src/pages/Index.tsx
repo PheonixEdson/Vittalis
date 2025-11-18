@@ -276,14 +276,34 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t bg-card/50">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <img src={logoVittalis} alt="Vittalis Logo" className="h-10 w-10 object-contain" />
-            <span className="text-xl font-bold text-primary">Vittalis</span>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <img src={logoVittalis} alt="Vittalis Logo" className="h-10 w-10 object-contain" />
+              <span className="text-xl font-bold text-primary">Vittalis</span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <button onClick={() => navigate('/politica-privacidade')} className="text-muted-foreground hover:text-primary transition-colors">
+                Política de Privacidade
+              </button>
+              <button onClick={() => navigate('/termos-uso')} className="text-muted-foreground hover:text-primary transition-colors">
+                Termos de Uso
+              </button>
+              <button onClick={() => navigate('/direitos-titular')} className="text-muted-foreground hover:text-primary transition-colors">
+                Meus Direitos (LGPD)
+              </button>
+              <button onClick={() => navigate('/tratamento-dados-saude')} className="text-muted-foreground hover:text-primary transition-colors">
+                Dados de Saúde
+              </button>
+              <button onClick={() => navigate('/encarregado-dados')} className="text-muted-foreground hover:text-primary transition-colors">
+                Contato DPO
+              </button>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Sistema Público de Oncologia - Gestão Integrada de Tratamento
-          </p>
+          <div className="text-center text-muted-foreground text-sm">
+            <p>Sistema Público de Oncologia - Gestão Integrada de Tratamento</p>
+            <p className="mt-1">&copy; 2024 Vittalis. Sistema em conformidade com a LGPD (Lei nº 13.709/2018).</p>
+          </div>
         </div>
       </footer>
     </div>
