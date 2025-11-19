@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      apac_historico: {
+        Row: {
+          created_at: string
+          dados_formulario: Json
+          data_impressao: string | null
+          data_preenchimento: string
+          id: string
+          medico_id: string | null
+          observacoes: string | null
+          paciente_id: string
+          status: string
+          tipo_apac: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dados_formulario?: Json
+          data_impressao?: string | null
+          data_preenchimento?: string
+          id?: string
+          medico_id?: string | null
+          observacoes?: string | null
+          paciente_id: string
+          status?: string
+          tipo_apac: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dados_formulario?: Json
+          data_impressao?: string | null
+          data_preenchimento?: string
+          id?: string
+          medico_id?: string | null
+          observacoes?: string | null
+          paciente_id?: string
+          status?: string
+          tipo_apac?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       estoque_movimentacoes: {
         Row: {
           criado_em: string
