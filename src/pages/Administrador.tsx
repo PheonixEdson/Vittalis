@@ -13,6 +13,7 @@ import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
+import { APACPendentesLista } from "@/components/apac/APACPendentesLista";
 
 const Administrador = () => {
   const navigate = useNavigate();
@@ -384,10 +385,14 @@ const Administrador = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="faturamento" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="faturamento">
               <FileText className="h-4 w-4 mr-2" />
               Faturamento APAC
+            </TabsTrigger>
+            <TabsTrigger value="apacs-recebidas">
+              <FileCheck className="h-4 w-4 mr-2" />
+              APACs Recebidas
             </TabsTrigger>
             <TabsTrigger value="dashboards">
               <BarChart3 className="h-4 w-4 mr-2" />
@@ -1064,6 +1069,10 @@ const Administrador = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="apacs-recebidas" className="space-y-4">
+            <APACPendentesLista />
           </TabsContent>
 
           <TabsContent value="economico" className="space-y-4">
