@@ -10,8 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, isSameDay } from "date-fns";
-import { LaudoAPACForm } from "@/components/apac/LaudoAPACForm";
-import { DadosComplementaresForm } from "@/components/apac/DadosComplementaresForm";
+import { APACFormWrapper } from "@/components/apac/APACFormWrapper";
 
 // Mock data de pacientes distribuídos em vários dias
 const pacientesData = [
@@ -1124,20 +1123,7 @@ const Medico = () => {
           </TabsContent>
 
           <TabsContent value="apac" className="space-y-4">
-            <Tabs defaultValue="laudo" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="laudo">Laudo Médico APAC</TabsTrigger>
-                <TabsTrigger value="complementares">Dados Complementares</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="laudo" className="mt-6">
-                <LaudoAPACForm />
-              </TabsContent>
-
-              <TabsContent value="complementares" className="mt-6">
-                <DadosComplementaresForm />
-              </TabsContent>
-            </Tabs>
+            <APACFormWrapper />
           </TabsContent>
 
         </Tabs>
