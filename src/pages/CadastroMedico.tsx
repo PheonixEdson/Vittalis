@@ -7,28 +7,23 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload } from "lucide-react";
 import logoVittalis from "@/assets/logo-vittalis.png";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastroMedicoSchema } from "@/lib/validations";
-import { z } from "zod";
-
-type CadastroMedicoForm = z.infer<typeof cadastroMedicoSchema>;
 
 const CadastroMedico = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    numeroCRM: "",
+    cpf: "",
+    nomeCompleto: "",
+    email: "",
+    telefone: "",
+    endereco: "",
+    dataNascimento: "",
+  });
   const [certidaoFile, setCertidaoFile] = useState<File | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CadastroMedicoForm>({
-    resolver: zodResolver(cadastroMedicoSchema),
-  });
-
-  const onSubmit = (data: CadastroMedicoForm) => {
-    console.log("Dados validados:", data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Seu cadastro está sendo processado.",
@@ -69,39 +64,35 @@ const CadastroMedico = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="numeroCRM">Número do CRM</Label>
                 <Input
                   id="numeroCRM"
-                  {...register("numeroCRM")}
+                  required
+                  value={formData.numeroCRM}
+                  onChange={(e) => setFormData({ ...formData, numeroCRM: e.target.value })}
                 />
-                {errors.numeroCRM && (
-                  <p className="text-sm text-destructive">{errors.numeroCRM.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
                 <Input
                   id="cpf"
-                  placeholder="000.000.000-00"
-                  {...register("cpf")}
+                  required
+                  value={formData.cpf}
+                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                 />
-                {errors.cpf && (
-                  <p className="text-sm text-destructive">{errors.cpf.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="nomeCompleto">Nome Completo</Label>
                 <Input
                   id="nomeCompleto"
-                  {...register("nomeCompleto")}
+                  required
+                  value={formData.nomeCompleto}
+                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
                 />
-                {errors.nomeCompleto && (
-                  <p className="text-sm text-destructive">{errors.nomeCompleto.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -109,34 +100,30 @@ const CadastroMedico = () => {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email")}
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="telefone">Número de Telefone</Label>
                 <Input
                   id="telefone"
-                  placeholder="(11) 98888-8888"
-                  {...register("telefone")}
+                  required
+                  value={formData.telefone}
+                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
                 />
-                {errors.telefone && (
-                  <p className="text-sm text-destructive">{errors.telefone.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="endereco">Endereço</Label>
                 <Input
                   id="endereco"
-                  {...register("endereco")}
+                  required
+                  value={formData.endereco}
+                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                 />
-                {errors.endereco && (
-                  <p className="text-sm text-destructive">{errors.endereco.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -144,11 +131,10 @@ const CadastroMedico = () => {
                 <Input
                   id="dataNascimento"
                   type="date"
-                  {...register("dataNascimento")}
+                  required
+                  value={formData.dataNascimento}
+                  onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
                 />
-                {errors.dataNascimento && (
-                  <p className="text-sm text-destructive">{errors.dataNascimento.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -167,34 +153,6 @@ const CadastroMedico = () => {
                 {certidaoFile && (
                   <p className="text-sm text-muted-foreground">Arquivo selecionado: {certidaoFile.name}</p>
                 )}
-              </div>
-
-              {/* Aviso LGPD */}
-              <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
-                <p className="text-foreground font-semibold">Proteção de Dados Profissionais (LGPD):</p>
-                <p className="text-muted-foreground">
-                  Ao cadastrar-se como profissional de saúde, seus dados e registros profissionais serão tratados 
-                  para gestão do sistema e cumprimento de obrigações legais.
-                </p>
-                <p className="text-muted-foreground">
-                  Declaro ter lido e concordado com a{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/politica-privacidade')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Política de Privacidade
-                  </button>
-                  {' '}e{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/termos-uso')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Termos de Uso
-                  </button>
-                  , comprometendo-me a respeitar o sigilo médico e as normas de proteção de dados de saúde dos pacientes.
-                </p>
               </div>
 
               <Button type="submit" className="w-full">

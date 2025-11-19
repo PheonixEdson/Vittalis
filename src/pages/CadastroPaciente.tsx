@@ -7,28 +7,23 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload } from "lucide-react";
 import logoVittalis from "@/assets/logo-vittalis.png";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastroPacienteSchema } from "@/lib/validations";
-import { z } from "zod";
-
-type CadastroPacienteForm = z.infer<typeof cadastroPacienteSchema>;
 
 const CadastroPaciente = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    numeroSUS: "",
+    cpf: "",
+    nomeCompleto: "",
+    email: "",
+    telefone: "",
+    endereco: "",
+    dataNascimento: "",
+  });
   const [laudoFile, setLaudoFile] = useState<File | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CadastroPacienteForm>({
-    resolver: zodResolver(cadastroPacienteSchema),
-  });
-
-  const onSubmit = (data: CadastroPacienteForm) => {
-    console.log("Dados validados:", data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Seu cadastro está sendo processado.",
@@ -69,42 +64,35 @@ const CadastroPaciente = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="numeroSUS">Número do SUS</Label>
                 <Input
                   id="numeroSUS"
-                  {...register("numeroSUS")}
-                  className={errors.numeroSUS ? "border-destructive" : ""}
+                  required
+                  value={formData.numeroSUS}
+                  onChange={(e) => setFormData({ ...formData, numeroSUS: e.target.value })}
                 />
-                {errors.numeroSUS && (
-                  <p className="text-sm text-destructive">{errors.numeroSUS.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
                 <Input
                   id="cpf"
-                  placeholder="000.000.000-00"
-                  {...register("cpf")}
-                  className={errors.cpf ? "border-destructive" : ""}
+                  required
+                  value={formData.cpf}
+                  onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                 />
-                {errors.cpf && (
-                  <p className="text-sm text-destructive">{errors.cpf.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="nomeCompleto">Nome Completo</Label>
                 <Input
                   id="nomeCompleto"
-                  {...register("nomeCompleto")}
-                  className={errors.nomeCompleto ? "border-destructive" : ""}
+                  required
+                  value={formData.nomeCompleto}
+                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
                 />
-                {errors.nomeCompleto && (
-                  <p className="text-sm text-destructive">{errors.nomeCompleto.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -112,37 +100,30 @@ const CadastroPaciente = () => {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email")}
-                  className={errors.email ? "border-destructive" : ""}
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="telefone">Número de Telefone</Label>
                 <Input
                   id="telefone"
-                  placeholder="(00) 00000-0000"
-                  {...register("telefone")}
-                  className={errors.telefone ? "border-destructive" : ""}
+                  required
+                  value={formData.telefone}
+                  onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
                 />
-                {errors.telefone && (
-                  <p className="text-sm text-destructive">{errors.telefone.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="endereco">Endereço</Label>
                 <Input
                   id="endereco"
-                  {...register("endereco")}
-                  className={errors.endereco ? "border-destructive" : ""}
+                  required
+                  value={formData.endereco}
+                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
                 />
-                {errors.endereco && (
-                  <p className="text-sm text-destructive">{errors.endereco.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -150,12 +131,10 @@ const CadastroPaciente = () => {
                 <Input
                   id="dataNascimento"
                   type="date"
-                  {...register("dataNascimento")}
-                  className={errors.dataNascimento ? "border-destructive" : ""}
+                  required
+                  value={formData.dataNascimento}
+                  onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
                 />
-                {errors.dataNascimento && (
-                  <p className="text-sm text-destructive">{errors.dataNascimento.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -173,51 +152,6 @@ const CadastroPaciente = () => {
                 {laudoFile && (
                   <p className="text-sm text-muted-foreground">Arquivo selecionado: {laudoFile.name}</p>
                 )}
-              </div>
-
-              {/* Aviso LGPD */}
-              <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
-                <p className="text-foreground font-semibold">Proteção de Dados de Saúde (LGPD):</p>
-                <p className="text-muted-foreground">
-                  Ao cadastrar-se, seus dados de saúde serão tratados com base na <strong>tutela da saúde</strong> (Art. 11, II, 'f' da LGPD) 
-                  para fins de assistência médica e cumprimento de obrigações legais.
-                </p>
-                <p className="text-muted-foreground">
-                  Declaro ter lido e concordado com a{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/politica-privacidade')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Política de Privacidade
-                  </button>
-                  {' '}e{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/termos-uso')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Termos de Uso
-                  </button>
-                  , incluindo como meus{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/tratamento-dados-saude')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    dados de saúde são tratados
-                  </button>.
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Você pode exercer seus direitos (acesso, correção, portabilidade) a qualquer momento através do{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/encarregado-dados')}
-                    className="text-primary hover:underline"
-                  >
-                    nosso DPO
-                  </button>.
-                </p>
               </div>
 
               <Button type="submit" className="w-full">

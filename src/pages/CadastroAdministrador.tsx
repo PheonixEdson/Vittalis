@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,27 +7,26 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import logoVittalis from "@/assets/logo-vittalis.png";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastroAdministradorSchema } from "@/lib/validations";
-import { z } from "zod";
-
-type CadastroAdministradorForm = z.infer<typeof cadastroAdministradorSchema>;
 
 const CadastroAdministrador = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CadastroAdministradorForm>({
-    resolver: zodResolver(cadastroAdministradorSchema),
+  const [formData, setFormData] = useState({
+    email: "",
+    senha: "",
+    confirmarSenha: "",
   });
 
-  const onSubmit = (data: CadastroAdministradorForm) => {
-    console.log("Dados validados:", data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.senha !== formData.confirmarSenha) {
+      toast({
+        title: "Erro",
+        description: "As senhas não coincidem.",
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Seu cadastro está sendo processado.",
@@ -61,18 +61,16 @@ const CadastroAdministrador = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
-                  {...register("email")}
-                  className={errors.email ? "border-destructive" : ""}
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -80,15 +78,10 @@ const CadastroAdministrador = () => {
                 <Input
                   id="senha"
                   type="password"
-                  {...register("senha")}
-                  className={errors.senha ? "border-destructive" : ""}
+                  required
+                  value={formData.senha}
+                  onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
                 />
-                {errors.senha && (
-                  <p className="text-sm text-destructive">{errors.senha.message}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Deve conter maiúsculas, minúsculas, números e caracteres especiais
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -96,40 +89,10 @@ const CadastroAdministrador = () => {
                 <Input
                   id="confirmarSenha"
                   type="password"
-                  {...register("confirmarSenha")}
-                  className={errors.confirmarSenha ? "border-destructive" : ""}
+                  required
+                  value={formData.confirmarSenha}
+                  onChange={(e) => setFormData({ ...formData, confirmarSenha: e.target.value })}
                 />
-                {errors.confirmarSenha && (
-                  <p className="text-sm text-destructive">{errors.confirmarSenha.message}</p>
-                )}
-              </div>
-
-              {/* Aviso LGPD */}
-              <div className="bg-muted/50 p-4 rounded-md border border-border text-sm space-y-2">
-                <p className="text-foreground font-semibold">Proteção de Dados (LGPD):</p>
-                <p className="text-muted-foreground">
-                  Ao cadastrar-se como administrador, seus dados serão tratados para gestão do sistema 
-                  e cumprimento de obrigações legais. Como administrador, você terá acesso a dados sensíveis 
-                  de saúde e se compromete a respeitar o sigilo e as normas de proteção de dados.
-                </p>
-                <p className="text-muted-foreground">
-                  Declaro ter lido e concordado com a{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/politica-privacidade')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Política de Privacidade
-                  </button>
-                  {' '}e{' '}
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/termos-uso')}
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    Termos de Uso
-                  </button>.
-                </p>
               </div>
 
               <Button type="submit" className="w-full">

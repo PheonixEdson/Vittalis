@@ -7,15 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileText, BarChart3, Package, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar, Search, Filter, TrendingUp, DollarSign, History as HistoryIcon } from "lucide-react";
+import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
-import { supabase } from "@/integrations/supabase/client";
 
 const Administrador = () => {
   const navigate = useNavigate();
@@ -33,159 +30,6 @@ const Administrador = () => {
   // Estados para o diálogo de pedido
   const [pedidoDialogOpen, setPedidoDialogOpen] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<{nome: string, atual: number, minimo: number} | null>(null);
-
-  // Estados para gestão de estoque
-  const [produtos, setProdutos] = useState<any[]>([]);
-  const [isLoadingProdutos, setIsLoadingProdutos] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filtroSituacao, setFiltroSituacao] = useState("todos");
-  
-  // Estados para movimentações
-  const [movimentacoes, setMovimentacoes] = useState<any[]>([]);
-  const [isLoadingMovimentacoes, setIsLoadingMovimentacoes] = useState(false);
-  const [filtroTipoMov, setFiltroTipoMov] = useState("todos");
-  const [filtroProdutoMov, setFiltroProdutoMov] = useState("");
-  const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
-  const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
-
-  // Carregar produtos do banco
-  useEffect(() => {
-    carregarProdutos();
-    carregarMovimentacoes();
-  }, []);
-
-  const carregarProdutos = async () => {
-    setIsLoadingProdutos(true);
-    try {
-      const { data, error } = await (supabase as any)
-        .from('estoque_produtos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProdutos(data || []);
-    } catch (error: any) {
-      console.error('Erro ao carregar produtos:', error);
-      toast({
-        title: "Erro ao carregar produtos",
-        description: error.message || "Não foi possível carregar os produtos do estoque.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingProdutos(false);
-    }
-  };
-
-  const carregarMovimentacoes = async () => {
-    setIsLoadingMovimentacoes(true);
-    try {
-      const { data, error } = await (supabase as any)
-        .from('estoque_movimentacoes')
-        .select(`
-          *,
-          produto:estoque_produtos(nome, lote)
-        `)
-        .order('data_movimentacao', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      setMovimentacoes(data || []);
-    } catch (error: any) {
-      console.error('Erro ao carregar movimentações:', error);
-      toast({
-        title: "Erro ao carregar movimentações",
-        description: error.message || "Não foi possível carregar as movimentações.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingMovimentacoes(false);
-    }
-  };
-
-  // Calcular situação do produto
-  const calcularSituacao = (validade: string | null, quantidade: number): string => {
-    if (!validade) return 'normal';
-    
-    const dataValidade = new Date(validade);
-    const hoje = new Date();
-    const diasAteVencer = Math.floor((dataValidade.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // Estoque baixo (menos de 10 unidades)
-    if (quantidade < 10) return 'baixo';
-    
-    // Vencido
-    if (diasAteVencer < 0) return 'vencido';
-    
-    // Prestes a vencer (menos de 30 dias)
-    if (diasAteVencer <= 30) return 'prestes_vencer';
-    
-    return 'normal';
-  };
-
-  // Função para solicitar pedido
-  const handleSolicitarPedido = (produto: any) => {
-    setMedicamentoSelecionado({
-      nome: produto.nome,
-      atual: parseFloat(produto.quantidade),
-      minimo: 10 // valor de exemplo
-    });
-    setPedidoDialogOpen(true);
-  };
-
-  // Filtrar e buscar produtos
-  const produtosFiltrados = useMemo(() => {
-    let resultado = produtos;
-
-    // Aplicar busca
-    if (searchTerm) {
-      resultado = resultado.filter(p => 
-        p.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.lote?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.codigo_barras?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Aplicar filtro de situação
-    if (filtroSituacao !== 'todos') {
-      resultado = resultado.filter(p => {
-        const situacao = calcularSituacao(p.validade, p.quantidade);
-        return situacao === filtroSituacao;
-      });
-    }
-
-    return resultado;
-  }, [produtos, searchTerm, filtroSituacao]);
-
-  // Filtrar movimentações
-  const movimentacoesFiltradas = useMemo(() => {
-    let resultado = movimentacoes;
-
-    // Filtro por tipo
-    if (filtroTipoMov !== "todos") {
-      resultado = resultado.filter(m => m.tipo === filtroTipoMov);
-    }
-
-    // Filtro por produto (busca no nome)
-    if (filtroProdutoMov) {
-      resultado = resultado.filter(m => 
-        m.produto?.nome?.toLowerCase().includes(filtroProdutoMov.toLowerCase())
-      );
-    }
-
-    // Filtro por período
-    if (filtroPeriodoInicio) {
-      resultado = resultado.filter(m => 
-        new Date(m.data_movimentacao) >= new Date(filtroPeriodoInicio)
-      );
-    }
-    if (filtroPeriodoFim) {
-      resultado = resultado.filter(m => 
-        new Date(m.data_movimentacao) <= new Date(filtroPeriodoFim + 'T23:59:59')
-      );
-    }
-
-    return resultado;
-  }, [movimentacoes, filtroTipoMov, filtroProdutoMov, filtroPeriodoInicio, filtroPeriodoFim]);
 
   // Função para calcular dados baseado nos filtros
   const dadosFiltrados = useMemo(() => {
@@ -540,7 +384,7 @@ const Administrador = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="faturamento" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="faturamento">
               <FileText className="h-4 w-4 mr-2" />
               Faturamento APAC
@@ -549,13 +393,9 @@ const Administrador = () => {
               <BarChart3 className="h-4 w-4 mr-2" />
               Dashboards
             </TabsTrigger>
-            <TabsTrigger value="estoque">
-              <Package className="h-4 w-4 mr-2" />
-              Estoque
-            </TabsTrigger>
-            <TabsTrigger value="movimentacoes">
-              <HistoryIcon className="h-4 w-4 mr-2" />
-              Movimentações
+            <TabsTrigger value="economico">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Controle Econômico
             </TabsTrigger>
           </TabsList>
 
@@ -1226,264 +1066,102 @@ const Administrador = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="estoque" className="space-y-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Gestão de Estoque</CardTitle>
-                  <CardDescription>
-                    Controle de produtos, lotes e validades
-                  </CardDescription>
-                </div>
-                <Button onClick={() => navigate("/estoquista")}>
-                  <Package className="h-4 w-4 mr-2" />
-                  Cadastrar Produto
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Busca e Filtros */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Buscar por nome, lote ou código de barras..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Select value={filtroSituacao} onValueChange={setFiltroSituacao}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
-                      <Filter className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Filtrar situação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="baixo">Estoque Baixo</SelectItem>
-                      <SelectItem value="prestes_vencer">Prestes a Vencer</SelectItem>
-                      <SelectItem value="vencido">Vencido</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Estatísticas */}
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Total de Produtos</p>
-                    <p className="text-2xl font-bold text-primary">{produtos.length}</p>
-                  </div>
-                <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Estoque Baixo</p>
-                  <p className="text-2xl font-bold text-destructive">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'baixo').length}
-                  </p>
-                </div>
-                <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Prestes a Vencer</p>
-                  <p className="text-2xl font-bold text-amber-600">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'prestes_vencer').length}
-                  </p>
-                </div>
-                <div className="p-4 bg-muted/50 border border-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Vencidos</p>
-                  <p className="text-2xl font-bold text-muted-foreground">
-                    {produtos.filter(p => calcularSituacao(p.validade, p.quantidade) === 'vencido').length}
-                  </p>
-                </div>
-                </div>
-
-                {/* Tabela de Produtos */}
-                {isLoadingProdutos ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Carregando produtos...
-                  </div>
-                ) : produtosFiltrados.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Nenhum produto encontrado
-                  </div>
-                ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Nome</TableHead>
-                          <TableHead>Lote</TableHead>
-                          <TableHead>Código de Barras</TableHead>
-                          <TableHead>Validade</TableHead>
-                          <TableHead className="text-right">Quantidade Total</TableHead>
-                          <TableHead>Unidade</TableHead>
-                          <TableHead>Situação</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                      {produtosFiltrados.map((produto) => {
-                        const situacao = calcularSituacao(produto.validade, produto.quantidade);
-                        const badgeVariant = 
-                          situacao === 'vencido' ? 'destructive' :
-                          situacao === 'prestes_vencer' ? 'default' :
-                          situacao === 'baixo' ? 'secondary' : 'outline';
-                        const situacaoTexto = 
-                          situacao === 'vencido' ? 'Vencido' :
-                          situacao === 'prestes_vencer' ? 'Prestes a Vencer' :
-                          situacao === 'baixo' ? 'Estoque Baixo' : 'Normal';
-
-                        return (
-                          <TableRow key={produto.id}>
-                            <TableCell className="font-medium">{produto.nome}</TableCell>
-                            <TableCell>{produto.lote}</TableCell>
-                            <TableCell className="font-mono text-sm">
-                              {produto.codigo_barras || '-'}
-                            </TableCell>
-                            <TableCell>
-                              {produto.validade ? new Date(produto.validade).toLocaleDateString('pt-BR') : '-'}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                              {produto.quantidade}
-                            </TableCell>
-                            <TableCell>{produto.unidade || '-'}</TableCell>
-                            <TableCell>
-                              <Badge variant={badgeVariant}>{situacaoTexto}</Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {situacao === 'baixo' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleSolicitarPedido(produto)}
-                                >
-                                  Solicitar Pedido
-                                </Button>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="movimentacoes" className="space-y-4">
+          <TabsContent value="economico" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Histórico de Movimentações</CardTitle>
+                <CardTitle>Controle Econômico de Medicamentos</CardTitle>
                 <CardDescription>
-                  Registro completo de entradas e saídas de estoque
+                  Gestão de gastos e pedidos
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Filtros */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <Label htmlFor="filtro-tipo">Tipo de Movimentação</Label>
-                    <Select value={filtroTipoMov} onValueChange={setFiltroTipoMov}>
-                      <SelectTrigger id="filtro-tipo">
-                        <SelectValue placeholder="Todos os tipos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="todos">Todos</SelectItem>
-                        <SelectItem value="entrada">Entrada</SelectItem>
-                        <SelectItem value="saida">Saída</SelectItem>
-                        <SelectItem value="fracionamento">Fracionamento</SelectItem>
-                        <SelectItem value="ajuste">Ajuste</SelectItem>
-                        <SelectItem value="descarte">Descarte</SelectItem>
-                      </SelectContent>
-                    </Select>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Gasto Mensal</p>
+                    <p className="text-3xl font-bold text-primary">R$ 187k</p>
+                    <p className="text-xs text-muted-foreground mt-2">↑ 5% vs mês anterior</p>
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="filtro-produto">Produto</Label>
-                    <Input
-                      id="filtro-produto"
-                      placeholder="Buscar produto..."
-                      value={filtroProdutoMov}
-                      onChange={(e) => setFiltroProdutoMov(e.target.value)}
-                    />
+                  <div className="p-4 bg-secondary/5 border border-secondary/20 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Custo por Paciente</p>
+                    <p className="text-3xl font-bold text-secondary">R$ 3.2k</p>
+                    <p className="text-xs text-muted-foreground mt-2">Média mensal</p>
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="filtro-inicio">Data Início</Label>
-                    <Input
-                      id="filtro-inicio"
-                      type="date"
-                      value={filtroPeriodoInicio}
-                      onChange={(e) => setFiltroPeriodoInicio(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="filtro-fim">Data Fim</Label>
-                    <Input
-                      id="filtro-fim"
-                      type="date"
-                      value={filtroPeriodoFim}
-                      onChange={(e) => setFiltroPeriodoFim(e.target.value)}
-                    />
+                  <div className="p-4 bg-accent/5 border border-accent/20 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Economia Prevista</p>
+                    <p className="text-3xl font-bold text-accent">R$ 12k</p>
+                    <p className="text-xs text-muted-foreground mt-2">Com otimizações</p>
                   </div>
                 </div>
 
-                {/* Tabela de Movimentações */}
-                {isLoadingMovimentacoes ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Carregando movimentações...
-                  </div>
-                ) : movimentacoesFiltradas.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Nenhuma movimentação encontrada
-                  </div>
-                ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Data/Hora</TableHead>
-                          <TableHead>Produto</TableHead>
-                          <TableHead>Lote</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead className="text-right">Quantidade</TableHead>
-                          <TableHead>Descrição</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {movimentacoesFiltradas.map((mov) => {
-                          const tipoVariant = 
-                            mov.tipo === 'entrada' ? 'default' :
-                            mov.tipo === 'saida' ? 'secondary' :
-                            mov.tipo === 'fracionamento' ? 'outline' :
-                            mov.tipo === 'descarte' ? 'destructive' : 'outline';
-                          
-                          const tipoLabel = mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1);
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Medicamentos com Estoque Baixo</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { nome: "Paclitaxel 100mg", atual: 8, minimo: 10, custo: "R$ 450" },
+                      { nome: "Cisplatina 50mg", atual: 12, minimo: 15, custo: "R$ 120" },
+                      { nome: "Ondansetrona 8mg", atual: 25, minimo: 30, custo: "R$ 35" },
+                    ].map((med, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium text-sm">{med.nome}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Estoque: {med.atual} / Mínimo: {med.minimo}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-sm">{med.custo}</p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-1"
+                            onClick={() => {
+                              setMedicamentoSelecionado(med);
+                              setPedidoDialogOpen(true);
+                            }}
+                          >
+                            Solicitar Pedido
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
 
-                          return (
-                            <TableRow key={mov.id}>
-                              <TableCell className="font-mono text-sm">
-                                {new Date(mov.data_movimentacao).toLocaleString('pt-BR')}
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                {mov.produto?.nome || '-'}
-                              </TableCell>
-                              <TableCell>{mov.produto?.lote || '-'}</TableCell>
-                              <TableCell>
-                                <Badge variant={tipoVariant}>{tipoLabel}</Badge>
-                              </TableCell>
-                              <TableCell className="text-right font-medium">
-                                {mov.quantidade}
-                              </TableCell>
-                              <TableCell className="max-w-xs truncate">
-                                {mov.descricao || '-'}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
+                <Card className="border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Parâmetros para Novos Pedidos</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 text-sm">
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <p className="font-medium mb-2">📊 Considere o consumo médio mensal</p>
+                        <p className="text-muted-foreground">
+                          Analise os últimos 3 meses para estimar necessidades futuras
+                        </p>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <p className="font-medium mb-2">⏰ Tempo de entrega dos fornecedores</p>
+                        <p className="text-muted-foreground">
+                          Média de 15-20 dias úteis. Antecipe pedidos para evitar rupturas
+                        </p>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <p className="font-medium mb-2">💰 Custo-benefício</p>
+                        <p className="text-muted-foreground">
+                          Compare preços entre fornecedores e considere descontos por volume
+                        </p>
+                      </div>
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <p className="font-medium mb-2">📅 Validade dos medicamentos</p>
+                        <p className="text-muted-foreground">
+                          Solicite produtos com validade mínima de 12 meses
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </TabsContent>

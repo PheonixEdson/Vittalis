@@ -1,18 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield, Package, LogOut, LogIn } from "lucide-react";
+import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import logoVittalis from "@/assets/logo-vittalis.png";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, userRoles, signOut } = useAuth();
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -26,43 +19,25 @@ const Index = () => {
               <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            {user ? (
-              <>
-                <Button variant="outline" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
-                </Button>
-                <Button onClick={() => navigate("/administrador")}>
-                  Área Admin
-                </Button>
-                <Button onClick={() => navigate("/farmaceutico")}>
-                  Área Farmacêutico
-                </Button>
-                <Button onClick={() => navigate("/estoquista")}>
-                  Área Estoquista
-                </Button>
-                <Button onClick={() => navigate("/medico")}>
-                  Área Médico
-                </Button>
-                <Button onClick={() => navigate("/enfermeiro")}>
-                  Área Enfermeiro
-                </Button>
-                <Button onClick={() => navigate("/paciente")}>
-                  Área Paciente
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" onClick={() => navigate("/auth")}>
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Entrar
-                </Button>
-                <Button onClick={() => navigate("/auth")}>
-                  Criar Conta
-                </Button>
-              </>
-            )}
+          <div className="flex flex-wrap gap-3">
+            <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
+              Cadastro Paciente
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
+              Cadastro Médico
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
+              Cadastro Enfermeiro
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
+              Cadastro Farmacêutico
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
+              Cadastro Admin
+            </Button>
+            <Button onClick={() => navigate("/paciente")}>
+              Prosseguir sem Login
+            </Button>
           </div>
         </div>
       </header>
@@ -123,105 +98,54 @@ const Index = () => {
               <Shield className="h-12 w-12 text-success mb-4" />
               <h4 className="font-semibold text-lg mb-2">Seguro e Confiável</h4>
               <p className="text-sm text-muted-foreground">
-                Dados protegidos com segurança de nível hospitalar e conformidade LGPD
+                Plataforma oficial da rede pública com segurança de dados garantida
               </p>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Professional Access */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold mb-4">Acesso para Profissionais</h3>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Ferramentas especializadas para cada área da equipe oncológica
-          </p>
-        </div>
-
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-primary/20 hover:border-primary/40 transition-all hover:shadow-lg cursor-pointer" onClick={() => navigate("/medico")}>
+      {/* Professional Section */}
+      <section className="bg-muted/50 py-16">
+        <div className="container mx-auto px-4">
+          <h3 className="text-3xl font-bold text-center mb-12">Para Profissionais de Saúde</h3>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card>
               <CardContent className="pt-6">
-                <Users className="h-12 w-12 text-primary mb-4 mx-auto" />
-                <h4 className="font-semibold text-lg mb-2 text-center">Médicos</h4>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Acesse prescrições, histórico de pacientes e protocolos terapêuticos
+                <Users className="h-12 w-12 text-primary mb-4" />
+                <h4 className="font-semibold text-lg mb-2">Médicos</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Visualização completa de pacientes, calendário dinâmico e liberação para quimioterapia
                 </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/cadastro-medico");
-                  }}>
-                    Cadastro de Médico
-                  </Button>
-                  <Button variant="default" size="sm" className="w-full">
-                    Acessar Área Médica
-                  </Button>
-                </div>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/medico")}>
+                  Acessar Área Médica
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-secondary/20 hover:border-secondary/40 transition-all hover:shadow-lg cursor-pointer" onClick={() => navigate("/enfermeiro")}>
+            <Card>
               <CardContent className="pt-6">
-                <Users className="h-12 w-12 text-secondary mb-4 mx-auto" />
-                <h4 className="font-semibold text-lg mb-2 text-center">Enfermeiros</h4>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Gestão de protocolos, monitoramento de pacientes e administração de infusões
+                <ClipboardList className="h-12 w-12 text-secondary mb-4" />
+                <h4 className="font-semibold text-lg mb-2">Enfermeiros</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Gerenciamento de prescrições, infusões e visualização em tempo real de ocupação
                 </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/cadastro-enfermeiro");
-                  }}>
-                    Cadastro de Enfermeiro
-                  </Button>
-                  <Button variant="default" size="sm" className="w-full">
-                    Acessar Área de Enfermagem
-                  </Button>
-                </div>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/enfermeiro")}>
+                  Acessar Área de Enfermagem
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-accent/20 hover:border-accent/40 transition-all hover:shadow-lg cursor-pointer" onClick={() => navigate("/farmaceutico")}>
+            <Card>
               <CardContent className="pt-6">
-                <Pill className="h-12 w-12 text-accent mb-4 mx-auto" />
-                <h4 className="font-semibold text-lg mb-2 text-center">Farmacêuticos</h4>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Catalogação completa e rastreabilidade de medicamentos
+                <Pill className="h-12 w-12 text-accent mb-4" />
+                <h4 className="font-semibold text-lg mb-2">Farmacêuticos</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Catalogação completa, rastreabilidade de medicamentos e gestão de estoque
                 </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/cadastro-farmaceutico");
-                  }}>
-                    Cadastro de Farmacêutico
-                  </Button>
-                  <Button variant="default" size="sm" className="w-full">
-                    Acessar Área Farmacêutica
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="border-success/20 hover:border-success/40 transition-all hover:shadow-lg cursor-pointer" onClick={() => navigate("/estoquista")}>
-              <CardContent className="pt-6">
-                <Package className="h-12 w-12 text-success mb-4 mx-auto" />
-                <h4 className="font-semibold text-lg mb-2 text-center">Estoquista</h4>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Fracionamento e controle de estoque de medicamentos
-                </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/cadastro-estoquista");
-                  }}>
-                    Cadastro de Estoquista
-                  </Button>
-                  <Button variant="default" size="sm" className="w-full">
-                    Acessar Área do Estoque
-                  </Button>
-                </div>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/farmaceutico")}>
+                  Acessar Área Farmacêutica
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -231,17 +155,12 @@ const Index = () => {
               <CardContent className="pt-6">
                 <BarChart3 className="h-12 w-12 text-primary mb-4 mx-auto" />
                 <h4 className="font-semibold text-lg mb-2 text-center">Administradores</h4>
-                <p className="text-sm text-muted-foreground text-center mb-4">
-                  Gestão completa, relatórios e controle administrativo do sistema
+                <p className="text-sm text-muted-foreground mb-4 text-center">
+                  Dashboards analíticos, faturamento APAC e gestão econômica completa
                 </p>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full" onClick={() => navigate("/cadastro-administrador")}>
-                    Cadastrar como Administrador
-                  </Button>
-                  <Button className="w-full" onClick={() => navigate("/administrador")}>
-                    Acessar Área Administrativa
-                  </Button>
-                </div>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/administrador")}>
+                  Acessar Área Administrativa
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -249,60 +168,41 @@ const Index = () => {
       </section>
 
       {/* Impact Section */}
-      <section className="container mx-auto px-4 py-16 bg-muted/50">
+      <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h3 className="text-3xl font-bold">Impacto do Vittalis</h3>
-          
+          <h3 className="text-3xl font-bold">Nosso Impacto</h3>
           <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <p className="text-5xl font-bold text-primary mb-2">100%</p>
-              <p className="text-muted-foreground">Digitalização de protocolos</p>
+            <div className="space-y-2">
+              <p className="text-4xl font-bold text-primary">100%</p>
+              <p className="text-muted-foreground">Digital e Integrado</p>
             </div>
-            <div>
-              <p className="text-5xl font-bold text-secondary mb-2">48h</p>
-              <p className="text-muted-foreground">Antecedência nas notificações</p>
+            <div className="space-y-2">
+              <p className="text-4xl font-bold text-secondary">48h</p>
+              <p className="text-muted-foreground">Notificação Antecipada</p>
             </div>
-            <div>
-              <p className="text-5xl font-bold text-accent mb-2">24/7</p>
-              <p className="text-muted-foreground">Acesso ao histórico médico</p>
+            <div className="space-y-2">
+              <p className="text-4xl font-bold text-accent">24/7</p>
+              <p className="text-muted-foreground">Acesso ao Histórico</p>
             </div>
           </div>
-
           <p className="text-lg text-muted-foreground">
-            Comprometidos em melhorar a qualidade do tratamento oncológico na rede pública de saúde
+            Reduzindo tempo de espera, melhorando a comunicação e garantindo 
+            tratamento oncológico de qualidade para todos os brasileiros.
           </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-card/50">
+      <footer className="bg-card border-t mt-16">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <img src={logoVittalis} alt="Vittalis Logo" className="h-10 w-10 object-contain" />
-              <span className="text-xl font-bold text-primary">Vittalis</span>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <img src={logoVittalis} alt="Vittalis Logo" className="h-6 w-6 object-contain" />
+              <span className="font-semibold">Vittalis</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
-              <button onClick={() => navigate('/politica-privacidade')} className="text-muted-foreground hover:text-primary transition-colors">
-                Política de Privacidade
-              </button>
-              <button onClick={() => navigate('/termos-uso')} className="text-muted-foreground hover:text-primary transition-colors">
-                Termos de Uso
-              </button>
-              <button onClick={() => navigate('/direitos-titular')} className="text-muted-foreground hover:text-primary transition-colors">
-                Meus Direitos (LGPD)
-              </button>
-              <button onClick={() => navigate('/tratamento-dados-saude')} className="text-muted-foreground hover:text-primary transition-colors">
-                Dados de Saúde
-              </button>
-              <button onClick={() => navigate('/encarregado-dados')} className="text-muted-foreground hover:text-primary transition-colors">
-                Contato DPO
-              </button>
-            </div>
-          </div>
-          <div className="text-center text-muted-foreground text-sm">
-            <p>Sistema Público de Oncologia - Gestão Integrada de Tratamento</p>
-            <p className="mt-1">&copy; 2024 Vittalis. Sistema em conformidade com a LGPD (Lei nº 13.709/2018).</p>
+            <p className="text-sm text-muted-foreground text-center">
+              Sistema de Gestão Oncológica da Rede Pública de Saúde
+            </p>
           </div>
         </div>
       </footer>
