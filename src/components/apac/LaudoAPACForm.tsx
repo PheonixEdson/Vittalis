@@ -1,239 +1,29 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Send } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-export const LaudoAPACForm = () => {
-  const [formData, setFormData] = useState({
-    // Identificação do Estabelecimento
-    nomeEstabelecimento: "",
-    cnes: "",
-    
-    // Identificação do Paciente
-    nomePaciente: "",
-    prontuario: "",
-    cns: "",
-    dataNascimento: "",
-    sexo: "",
-    racaCor: "",
-    nomeMae: "",
-    telefoneContato: "",
-    dddContato: "",
-    nomeResponsavel: "",
-    telefoneResponsavel: "",
-    dddResponsavel: "",
-    endereco: "",
-    municipio: "",
-    codIbge: "",
-    uf: "",
-    cep: "",
-    
-    // Procedimentos
-    codigoProcedimento1: "",
-    nomeProcedimento1: "",
-    qtde1: "",
-    codigoProcedimento2: "",
-    nomeProcedimento2: "",
-    qtde2: "",
-    codigoProcedimento3: "",
-    nomeProcedimento3: "",
-    qtde3: "",
-    
-    // Justificativa
-    descricaoDiagnostico: "",
-    cid10Principal: "",
-    cid10Secundario: "",
-    cid10CausasAssociadas: "",
-    
-    // Detalhes Clínicos
-    resumoAnamnese: "",
-    examesComplementares: "",
-    justificativaProcedimento: "",
-    
-    // Solicitação
-    nomeProfissionalSolicitante: "",
-    dataSolicitacao: "",
-    documentoSolicitante: "",
-    numeroDocumentoSolicitante: "",
-    
-    // Autorização
-    nomeProfissionalAutorizador: "",
-    codOrgaoEmissor: "",
-    numeroAutorizacao: "",
-    documentoAutorizador: "",
-    numeroDocumentoAutorizador: "",
-    dataAutorizacao: "",
-    periodoValidade: "",
-    
-    // Estabelecimento Executante
-    nomeEstabelecimentoExecutante: "",
-    cnesExecutante: "",
-  });
+interface LaudoAPACFormProps {
+  formData: any;
+  setFormData: (data: any) => void;
+}
 
+const RequiredLabel = ({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) => (
+  <Label htmlFor={htmlFor} className="flex items-center gap-1">
+    {children}
+    <span className="text-destructive">*</span>
+  </Label>
+);
+
+export const LaudoAPACForm = ({ formData, setFormData }: LaudoAPACFormProps) => {
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const validateForm = () => {
-    const requiredFields = {
-      nomePaciente: "Nome do Paciente",
-      cns: "Cartão Nacional de Saúde",
-      dataNascimento: "Data de Nascimento",
-      sexo: "Sexo",
-      descricaoDiagnostico: "Descrição do Diagnóstico",
-      cid10Principal: "CID-10 Principal",
-      nomeProfissionalSolicitante: "Nome do Profissional Solicitante",
-      dataSolicitacao: "Data da Solicitação"
-    };
-
-    const missingFields: string[] = [];
-    
-    Object.entries(requiredFields).forEach(([field, label]) => {
-      if (!formData[field as keyof typeof formData]) {
-        missingFields.push(label);
-      }
-    });
-
-    return missingFields;
-  };
-
-  const handlePrint = () => {
-    const missingFields = validateForm();
-    if (missingFields.length > 0) {
-      toast({
-        title: "Campos obrigatórios não preenchidos",
-        description: `Por favor, preencha os seguintes campos: ${missingFields.join(", ")}`,
-        variant: "destructive"
-      });
-      return;
-    }
-    window.print();
-  };
-
-  const handleEnviarAdministrativo = async () => {
-    const missingFields = validateForm();
-    if (missingFields.length > 0) {
-      toast({
-        title: "Campos obrigatórios não preenchidos",
-        description: `Por favor, preencha os seguintes campos: ${missingFields.join(", ")}`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Erro de autenticação",
-          description: "Você precisa estar logado para enviar a APAC",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('apac_historico')
-        .insert({
-          paciente_id: user.id, // Temporário - deveria ser o ID do paciente real
-          medico_id: user.id,
-          tipo_apac: 'laudo',
-          status: 'pendente',
-          dados_formulario: formData,
-          data_preenchimento: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "APAC enviada com sucesso!",
-        description: "O setor administrativo receberá a APAC para processamento."
-      });
-
-      // Limpar formulário
-      setFormData({
-        nomeEstabelecimento: "",
-        cnes: "",
-        nomePaciente: "",
-        prontuario: "",
-        cns: "",
-        dataNascimento: "",
-        sexo: "",
-        racaCor: "",
-        nomeMae: "",
-        telefoneContato: "",
-        dddContato: "",
-        nomeResponsavel: "",
-        telefoneResponsavel: "",
-        dddResponsavel: "",
-        endereco: "",
-        municipio: "",
-        codIbge: "",
-        uf: "",
-        cep: "",
-        codigoProcedimento1: "",
-        nomeProcedimento1: "",
-        qtde1: "",
-        codigoProcedimento2: "",
-        nomeProcedimento2: "",
-        qtde2: "",
-        codigoProcedimento3: "",
-        nomeProcedimento3: "",
-        qtde3: "",
-        descricaoDiagnostico: "",
-        cid10Principal: "",
-        cid10Secundario: "",
-        cid10CausasAssociadas: "",
-        resumoAnamnese: "",
-        examesComplementares: "",
-        justificativaProcedimento: "",
-        nomeProfissionalSolicitante: "",
-        dataSolicitacao: "",
-        documentoSolicitante: "",
-        numeroDocumentoSolicitante: "",
-        nomeProfissionalAutorizador: "",
-        codOrgaoEmissor: "",
-        numeroAutorizacao: "",
-        documentoAutorizador: "",
-        numeroDocumentoAutorizador: "",
-        dataAutorizacao: "",
-        periodoValidade: "",
-        nomeEstabelecimentoExecutante: "",
-        cnesExecutante: "",
-      });
-
-    } catch (error) {
-      console.error('Erro ao enviar APAC:', error);
-      toast({
-        title: "Erro ao enviar APAC",
-        description: "Ocorreu um erro ao enviar a APAC. Tente novamente.",
-        variant: "destructive"
-      });
-    }
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center print:hidden">
-        <h2 className="text-2xl font-bold">Laudo Médico para Procedimentos de Alta Complexidade - APAC</h2>
-        <div className="flex gap-2">
-          <Button onClick={handlePrint} variant="outline" className="gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimir
-          </Button>
-          <Button onClick={handleEnviarAdministrativo} className="gap-2">
-            <Send className="h-4 w-4" />
-            Enviar para Administrativo
-          </Button>
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold print:hidden">Laudo Médico para Procedimentos de Alta Complexidade - APAC</h2>
 
       <Card>
         <CardHeader>
@@ -268,7 +58,7 @@ export const LaudoAPACForm = () => {
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nomePaciente">Nome do Paciente</Label>
+              <RequiredLabel htmlFor="nomePaciente">Nome do Paciente</RequiredLabel>
               <Input
                 id="nomePaciente"
                 value={formData.nomePaciente}
@@ -287,7 +77,7 @@ export const LaudoAPACForm = () => {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cns">Cartão Nacional de Saúde (CNS)</Label>
+              <RequiredLabel htmlFor="cns">Cartão Nacional de Saúde (CNS)</RequiredLabel>
               <Input
                 id="cns"
                 value={formData.cns}
@@ -295,7 +85,7 @@ export const LaudoAPACForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dataNascimento">Data de Nascimento</Label>
+              <RequiredLabel htmlFor="dataNascimento">Data de Nascimento</RequiredLabel>
               <Input
                 id="dataNascimento"
                 type="date"
@@ -304,7 +94,7 @@ export const LaudoAPACForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sexo">Sexo</Label>
+              <RequiredLabel htmlFor="sexo">Sexo</RequiredLabel>
               <Select value={formData.sexo} onValueChange={(value) => handleChange("sexo", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
@@ -523,7 +313,7 @@ export const LaudoAPACForm = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="descricaoDiagnostico">Descrição do Diagnóstico</Label>
+            <RequiredLabel htmlFor="descricaoDiagnostico">Descrição do Diagnóstico</RequiredLabel>
             <Textarea
               id="descricaoDiagnostico"
               value={formData.descricaoDiagnostico}
@@ -534,7 +324,7 @@ export const LaudoAPACForm = () => {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="cid10Principal">CID 10 Principal</Label>
+              <RequiredLabel htmlFor="cid10Principal">CID 10 Principal</RequiredLabel>
               <Input
                 id="cid10Principal"
                 value={formData.cid10Principal}
@@ -598,7 +388,7 @@ export const LaudoAPACForm = () => {
         <CardContent className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nomeProfissionalSolicitante">Nome do Profissional Solicitante</Label>
+              <RequiredLabel htmlFor="nomeProfissionalSolicitante">Nome do Profissional Solicitante</RequiredLabel>
               <Input
                 id="nomeProfissionalSolicitante"
                 value={formData.nomeProfissionalSolicitante}
@@ -606,7 +396,7 @@ export const LaudoAPACForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dataSolicitacao">Data da Solicitação</Label>
+              <RequiredLabel htmlFor="dataSolicitacao">Data da Solicitação</RequiredLabel>
               <Input
                 id="dataSolicitacao"
                 type="date"
