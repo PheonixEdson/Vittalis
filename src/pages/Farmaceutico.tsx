@@ -54,23 +54,6 @@ const Farmaceutico = () => {
   const [detalhesDialogOpen, setDetalhesDialogOpen] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<any>(null);
 
-  // Notificações de APAC de pacientes - dados vêm da área administrativa
-  const notificacoesAPAC = [
-    {
-      paciente: "Maria Santos Silva",
-      dataVencimento: "30/11/2025",
-      diasRestantes: 19,
-      medicamento: "Doxorrubicina + Ciclofosfamida"
-    },
-    {
-      paciente: "Roberto Lima Santos", 
-      dataVencimento: "05/12/2025",
-      diasRestantes: 24,
-      medicamento: "Rituximab (R-CHOP)"
-    }
-  ];
-  
-  const [apacAlertsDismissed, setApacAlertsDismissed] = useState<Set<string>>(new Set());
 
   // Mock data - catalogação de medicamentos
   const catalogoMedicamentos = [
@@ -711,42 +694,6 @@ const Farmaceutico = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Alertas APAC - Notificações da área administrativa */}
-        {notificacoesAPAC
-          .filter(notif => !apacAlertsDismissed.has(notif.paciente) && notif.diasRestantes < 30)
-          .map((notif) => (
-            <Alert key={notif.paciente} variant="destructive" className="mb-4 border-2">
-              <AlertCircle className="h-5 w-5" />
-              <AlertTitle className="text-base font-semibold">
-                Alerta: Documentação APAC Vencendo - Paciente {notif.paciente}
-              </AlertTitle>
-              <AlertDescription className="space-y-2">
-                <div className="text-sm">
-                  <p>
-                    A documentação APAC do paciente <strong>{notif.paciente}</strong> vence em{" "}
-                    <strong>{notif.dataVencimento}</strong> (faltam {notif.diasRestantes} dias).
-                  </p>
-                  <p className="mt-1 text-destructive-foreground/90">
-                    ⚠️ Medicamento afetado: <strong>{notif.medicamento}</strong>
-                  </p>
-                  <p className="mt-1 font-semibold">
-                    Sem documentação atualizada, não será possível realizar a distribuição/dispensação.
-                  </p>
-                </div>
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setApacAlertsDismissed(prev => new Set([...prev, notif.paciente]));
-                  }}
-                  className="mt-2"
-                >
-                  Dispensar Notificação
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ))
-        }
 
         <Tabs defaultValue="catalogo" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
