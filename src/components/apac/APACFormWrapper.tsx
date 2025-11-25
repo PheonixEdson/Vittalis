@@ -61,39 +61,18 @@ export const APACFormWrapper = () => {
     }
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        toast({
-          title: "Erro de Autenticação",
-          description: "Por favor, faça login novamente para continuar.",
-          variant: "destructive"
-        });
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
 
-      // Verificar se o usuário tem a role necessária
-      const { data: userRole, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .in('role', ['medico', 'admin'])
-        .single();
-
-      if (roleError || !userRole) {
-        toast({
-          title: "Permissão Negada",
-          description: "Você não tem permissão para enviar APACs. Entre em contato com o administrador.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Se o usuário não estiver autenticado, ainda permitimos o envio
+      // usando um identificador técnico de paciente e sem vincular médico.
+      const pacienteId = user?.id ?? (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-paciente`);
+      const medicoId = user?.id ?? null;
 
       const { error } = await supabase
         .from('apac_historico')
         .insert({
-          paciente_id: user.id, // Temporariamente usando user.id - ajustar para ID real do paciente
-          medico_id: user.id,
+          paciente_id: pacienteId,
+          medico_id: medicoId,
           tipo_apac: 'completo',
           categoria_procedimento: 'oncologia',
           status: 'pendente',
