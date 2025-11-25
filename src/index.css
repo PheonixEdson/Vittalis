@@ -86,3 +86,47 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos de impressão para APAC */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:text-black {
+    color: black !important;
+  }
+
+  .print\:bg-white {
+    background-color: white !important;
+  }
+
+  /* Forçar bordas pretas na impressão */
+  .print\:border-black,
+  [style*="border"] {
+    border-color: black !important;
+  }
+
+  /* Forçar fundos de cabeçalho */
+  .print\:bg-gray-100 {
+    background-color: #f3f4f6 !important;
+  }
+
+  .print\:bg-gray-50 {
+    background-color: #f9fafb !important;
+  }
+}
