@@ -105,6 +105,62 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Patient Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-3xl font-bold text-center mb-12">Para Pacientes</h3>
+          <Card className="border-primary/30 shadow-lg">
+            <CardContent className="pt-8 pb-8">
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                <div className="flex-shrink-0">
+                  <Users className="h-20 w-20 text-primary" />
+                </div>
+                <div className="flex-1 space-y-4">
+                  <h4 className="font-bold text-2xl">Área do Paciente</h4>
+                  <p className="text-muted-foreground">
+                    Acesse seu histórico médico completo, visualize agendamentos de quimioterapia, 
+                    receba notificações sobre documentação APAC e acompanhe todo seu tratamento oncológico.
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4 pt-2">
+                    <div className="flex items-start gap-2">
+                      <ClipboardList className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-sm">Histórico Médico</p>
+                        <p className="text-xs text-muted-foreground">Consultas, exames e prescrições</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Calendar className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-sm">Agendamentos</p>
+                        <p className="text-xs text-muted-foreground">Sessões e procedimentos</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Clock className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-sm">Notificações APAC</p>
+                        <p className="text-xs text-muted-foreground">Alertas de documentação</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Shield className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-sm">Dados Seguros</p>
+                        <p className="text-xs text-muted-foreground">Privacidade garantida</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="w-full md:w-auto" onClick={() => navigate("/paciente")}>
+                    Acessar Área do Paciente
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Professional Section */}
       <section className="bg-muted/50 py-16">
         <div className="container mx-auto px-4">
