@@ -111,17 +111,12 @@ export const APACFormWrapper = () => {
       if (error) throw error;
 
       toast({
-        title: "APAC enviada com sucesso",
-        description: "A APAC foi enviada para o setor administrativo. Redirecionando...",
+        title: "APAC enviada com sucesso!",
+        description: "A APAC foi enviada para o setor administrativo.",
       });
 
       setLaudoData({});
       setDadosComplementaresData({});
-
-      // Redirecionar para a área administrativa após 1.5 segundos
-      setTimeout(() => {
-        window.location.href = '/administrador';
-      }, 1500);
 
     } catch (error) {
       console.error('Erro ao enviar APAC:', error);
