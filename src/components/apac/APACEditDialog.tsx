@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Printer } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type APACHistorico = {
@@ -58,6 +58,17 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
 
   const handleDadosChange = (field: string, value: string) => {
     setDadosComplementaresData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePrint = () => {
+    toast({
+      title: "Preparando impressão",
+      description: "Gerando documento completo da APAC para impressão...",
+    });
+    
+    setTimeout(() => {
+      window.print();
+    }, 500);
   };
 
   const handleUpdate = async () => {
@@ -914,14 +925,20 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
+        <div className="flex justify-between gap-2 pt-4 border-t">
+          <Button onClick={handlePrint} variant="outline" className="gap-2">
+            <Printer className="h-4 w-4" />
+            Imprimir APAC Completa
           </Button>
-          <Button onClick={handleUpdate}>
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Salvar Alterações
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdate}>
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Salvar Alterações
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

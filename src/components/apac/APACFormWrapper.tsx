@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Printer, Send, AlertCircle } from "lucide-react";
+import { Send, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,27 +47,6 @@ export const APACFormWrapper = () => {
     });
 
     return missingFields;
-  };
-
-  const handlePrint = () => {
-    const missingFields = validateAllForms();
-    if (missingFields.length > 0) {
-      toast({
-        title: "Campos obrigatórios não preenchidos",
-        description: `Por favor, preencha os seguintes campos: ${missingFields.slice(0, 5).join(", ")}${missingFields.length > 5 ? ` e mais ${missingFields.length - 5} campos...` : ""}`,
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    toast({
-      title: "Preparando impressão",
-      description: "Gerando documento completo para impressão...",
-    });
-    
-    setTimeout(() => {
-      window.print();
-    }, 500);
   };
 
   const handleEnviarAdministrativo = async () => {
@@ -142,10 +121,6 @@ export const APACFormWrapper = () => {
       )}
 
       <div className="flex gap-2 justify-end print:hidden">
-        <Button onClick={handlePrint} variant="outline" className="gap-2">
-          <Printer className="h-4 w-4" />
-          Imprimir APAC Completa
-        </Button>
         <Button onClick={handleEnviarAdministrativo} className="gap-2">
           <Send className="h-4 w-4" />
           Enviar para Administrativo
