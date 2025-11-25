@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { LaudoAPACForm } from "./LaudoAPACForm";
 import { DadosComplementaresForm } from "./DadosComplementaresForm";
+import { CamposObrigatoriosAPAC } from "./CamposObrigatoriosAPAC";
 
 export const APACFormWrapper = () => {
   const [laudoData, setLaudoData] = useState<any>({});
@@ -150,8 +151,11 @@ export const APACFormWrapper = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="laudo" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="campos-obrigatorios" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="campos-obrigatorios">
+            Campos Obrigatórios
+          </TabsTrigger>
           <TabsTrigger value="laudo">
             Laudo Médico APAC
             {laudoData && Object.keys(laudoData).length > 0 && (
@@ -165,6 +169,10 @@ export const APACFormWrapper = () => {
             )}
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="campos-obrigatorios" className="mt-6">
+          <CamposObrigatoriosAPAC laudoData={laudoData} dadosComplementaresData={dadosComplementaresData} />
+        </TabsContent>
 
         <TabsContent value="laudo" className="mt-6">
           <LaudoAPACForm formData={laudoData} setFormData={setLaudoData} />
