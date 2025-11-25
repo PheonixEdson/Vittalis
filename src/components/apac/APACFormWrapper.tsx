@@ -61,12 +61,29 @@ export const APACFormWrapper = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (!user) {
+      if (authError || !user) {
         toast({
-          title: "Erro",
-          description: "Usuário não autenticado",
+          title: "Erro de Autenticação",
+          description: "Por favor, faça login novamente para continuar.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Verificar se o usuário tem a role necessária
+      const { data: userRole, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['medico', 'admin'])
+        .single();
+
+      if (roleError || !userRole) {
+        toast({
+          title: "Permissão Negada",
+          description: "Você não tem permissão para enviar APACs. Entre em contato com o administrador.",
           variant: "destructive"
         });
         return;
@@ -75,8 +92,8 @@ export const APACFormWrapper = () => {
       const { error } = await supabase
         .from('apac_historico')
         .insert({
-          paciente_id: laudoData.nomePaciente ? user.id : user.id, // ID do paciente
-          medico_id: user.id, // ID do médico
+          paciente_id: user.id, // Temporariamente usando user.id - ajustar para ID real do paciente
+          medico_id: user.id,
           tipo_apac: 'completo',
           categoria_procedimento: 'oncologia',
           status: 'pendente',
@@ -87,7 +104,10 @@ export const APACFormWrapper = () => {
           data_preenchimento: new Date().toISOString()
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao inserir APAC:', error);
+        throw error;
+      }
 
       toast({
         title: "APAC enviada com sucesso!",
@@ -97,11 +117,11 @@ export const APACFormWrapper = () => {
       setLaudoData({});
       setDadosComplementaresData({});
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao enviar APAC:', error);
       toast({
         title: "Erro ao enviar APAC",
-        description: "Ocorreu um erro ao enviar a APAC. Por favor, tente novamente.",
+        description: error.message || "Ocorreu um erro ao enviar a APAC. Por favor, tente novamente.",
         variant: "destructive"
       });
     }
