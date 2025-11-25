@@ -171,7 +171,12 @@ export const APACFormWrapper = () => {
         </TabsList>
 
         <TabsContent value="campos-obrigatorios" className="mt-6">
-          <CamposObrigatoriosAPAC laudoData={laudoData} dadosComplementaresData={dadosComplementaresData} />
+          <CamposObrigatoriosAPAC 
+            laudoData={laudoData} 
+            dadosComplementaresData={dadosComplementaresData}
+            setLaudoData={setLaudoData}
+            setDadosComplementaresData={setDadosComplementaresData}
+          />
         </TabsContent>
 
         <TabsContent value="laudo" className="mt-6">
