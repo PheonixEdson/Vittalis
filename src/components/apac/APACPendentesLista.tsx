@@ -3,14 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Eye, CheckCircle, XCircle } from "lucide-react";
+import { FileText, Eye, Edit } from "lucide-react";
 import { format } from "date-fns";
+import { APACEditDialog } from "./APACEditDialog";
 
 type APACHistorico = {
   id: string;
@@ -28,9 +25,7 @@ export const APACPendentesLista = () => {
   const [apacs, setApacs] = useState<APACHistorico[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApac, setSelectedApac] = useState<APACHistorico | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [novoStatus, setNovoStatus] = useState("");
-  const [observacoes, setObservacoes] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     carregarAPACs();
@@ -57,36 +52,6 @@ export const APACPendentesLista = () => {
     }
   };
 
-  const atualizarStatus = async () => {
-    if (!selectedApac || !novoStatus) return;
-
-    try {
-      const { error } = await supabase
-        .from('apac_historico')
-        .update({
-          status: novoStatus,
-          observacoes: observacoes
-        })
-        .eq('id', selectedApac.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Status atualizado",
-        description: "O status da APAC foi atualizado com sucesso."
-      });
-
-      setDialogOpen(false);
-      carregarAPACs();
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error);
-      toast({
-        title: "Erro ao atualizar status",
-        description: "Não foi possível atualizar o status da APAC.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; label: string }> = {
@@ -101,6 +66,7 @@ export const APACPendentesLista = () => {
   };
 
   const getTipoLabel = (tipo: string) => {
+    if (tipo === 'completo') return 'APAC Completa';
     return tipo === 'laudo' ? 'Laudo Médico' : 'Dados Complementares';
   };
 
@@ -163,13 +129,11 @@ export const APACPendentesLista = () => {
                           size="sm"
                           onClick={() => {
                             setSelectedApac(apac);
-                            setNovoStatus(apac.status);
-                            setObservacoes(apac.observacoes || "");
-                            setDialogOpen(true);
+                            setEditDialogOpen(true);
                           }}
                         >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Visualizar
+                          <Edit className="h-4 w-4 mr-1" />
+                          Editar
                         </Button>
                       </div>
                     </TableCell>
@@ -181,65 +145,12 @@ export const APACPendentesLista = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Detalhes da APAC</DialogTitle>
-            <DialogDescription>
-              {selectedApac && getTipoLabel(selectedApac.tipo_apac)} - {selectedApac && format(new Date(selectedApac.data_preenchimento), 'dd/MM/yyyy HH:mm')}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedApac && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Status Atual</Label>
-                  <Select value={novoStatus} onValueChange={setNovoStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pendente">Pendente</SelectItem>
-                      <SelectItem value="em_analise">Em Análise</SelectItem>
-                      <SelectItem value="aprovado">Aprovado</SelectItem>
-                      <SelectItem value="rejeitado">Rejeitado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="observacoes">Observações</Label>
-                <Textarea
-                  id="observacoes"
-                  value={observacoes}
-                  onChange={(e) => setObservacoes(e.target.value)}
-                  placeholder="Adicione observações sobre esta APAC..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="border rounded-lg p-4 bg-muted/50">
-                <h4 className="font-semibold mb-2">Dados do Formulário:</h4>
-                <pre className="text-sm whitespace-pre-wrap">
-                  {JSON.stringify(selectedApac.dados_formulario, null, 2)}
-                </pre>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={atualizarStatus}>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Atualizar Status
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <APACEditDialog
+        apac={selectedApac}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={carregarAPACs}
+      />
     </>
   );
 };

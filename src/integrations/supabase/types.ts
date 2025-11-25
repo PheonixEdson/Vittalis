@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       apac_historico: {
         Row: {
+          categoria_procedimento: string | null
           created_at: string
           dados_formulario: Json
           data_impressao: string | null
@@ -29,6 +30,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          categoria_procedimento?: string | null
           created_at?: string
           dados_formulario?: Json
           data_impressao?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          categoria_procedimento?: string | null
           created_at?: string
           dados_formulario?: Json
           data_impressao?: string | null
