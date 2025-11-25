@@ -2,10 +2,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
 import logoVittalis from "@/assets/logo-vittalis.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [password, setPassword] = useState("");
+
+  const handlePasswordSubmit = () => {
+    if (password === "Vittalis é vida") {
+      localStorage.setItem("vittalis_demo_unlocked", "true");
+      toast({
+        title: "Acesso liberado!",
+        description: "Todas as funcionalidades foram desbloqueadas.",
+      });
+      setShowPasswordDialog(false);
+      navigate("/paciente");
+    } else {
+      toast({
+        title: "Senha incorreta",
+        description: "Por favor, verifique a senha e tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -35,7 +60,7 @@ const Index = () => {
             <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
               Cadastro Admin
             </Button>
-            <Button onClick={() => navigate("/paciente")}>
+            <Button onClick={() => setShowPasswordDialog(true)}>
               Prosseguir sem Login
             </Button>
           </div>
@@ -262,6 +287,34 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Dialog de senha */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Acesso à Demonstração</DialogTitle>
+            <DialogDescription>
+              Digite a senha para desbloquear todas as funcionalidades do sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Digite a senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+              />
+            </div>
+            <Button className="w-full" onClick={handlePasswordSubmit}>
+              Entrar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

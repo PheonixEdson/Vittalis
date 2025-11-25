@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DemoLockScreen } from "@/components/DemoLockScreen";
 
 type EtapaStatus = "concluido" | "em_andamento" | "pendente" | "problema";
 
@@ -42,6 +43,7 @@ const Farmaceutico = () => {
   const [dispensacaoDialogOpen, setDispensacaoDialogOpen] = useState(false);
   const [medicamentoParaDispensar, setMedicamentoParaDispensar] = useState<any>(null);
   const [medicamentosDispensados, setMedicamentosDispensados] = useState<Medicamento[]>([]);
+  const [isLocked, setIsLocked] = useState(true);
   
   // Estados para o formulário de dispensação
   const [destinoDispensacao, setDestinoDispensacao] = useState("");
@@ -53,6 +55,11 @@ const Farmaceutico = () => {
   const [estoqueDialogOpen, setEstoqueDialogOpen] = useState(false);
   const [detalhesDialogOpen, setDetalhesDialogOpen] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<any>(null);
+
+  useEffect(() => {
+    const unlocked = localStorage.getItem("vittalis_demo_unlocked") === "true";
+    setIsLocked(!unlocked);
+  }, []);
 
 
   // Mock data - catalogação de medicamentos
@@ -997,6 +1004,13 @@ const Farmaceutico = () => {
           </TabsContent>
 
           <TabsContent value="rastreabilidade" className="space-y-4">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="Rastreabilidade - Demonstração"
+                description="A seção de rastreabilidade não está disponível na versão de demonstração."
+              />
+            ) : (
+            <>
             <Card>
               <CardHeader>
                 <CardTitle>Rastreabilidade de Medicamentos</CardTitle>
@@ -1115,9 +1129,18 @@ const Farmaceutico = () => {
                 </div>
               </CardContent>
             </Card>
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="infusoes" className="space-y-4">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="Infusões Aprovadas - Demonstração"
+                description="A seção de infusões aprovadas não está disponível na versão de demonstração."
+              />
+            ) : (
+            <>
             <Card>
               <CardHeader>
                 <CardTitle>Infusões Liberadas para Preparação</CardTitle>
@@ -1516,9 +1539,18 @@ const Farmaceutico = () => {
                 ))}
               </CardContent>
             </Card>
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="rastreio-infusoes" className="space-y-4">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="Rastreio de Infusões - Demonstração"
+                description="A seção de rastreio de infusões não está disponível na versão de demonstração."
+              />
+            ) : (
+            <>
             <Card>
               <CardHeader>
                 <CardTitle>Rastreio de Infusões</CardTitle>
@@ -1640,6 +1672,8 @@ const Farmaceutico = () => {
                 </div>
               </CardContent>
             </Card>
+            </>
+            )}
           </TabsContent>
         </Tabs>
       </div>

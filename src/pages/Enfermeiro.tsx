@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { DemoLockScreen } from "@/components/DemoLockScreen";
 
 // Tipos
 type Prescricao = {
@@ -323,6 +324,12 @@ const Enfermeiro = () => {
   const [selectedRastreio, setSelectedRastreio] = useState<RastreabilidadeItem | null>(null);
   const [showAgendamentoDialog, setShowAgendamentoDialog] = useState(false);
   const [agendamentoEdit, setAgendamentoEdit] = useState<Prescricao | null>(null);
+  const [isLocked, setIsLocked] = useState(true);
+
+  useEffect(() => {
+    const unlocked = localStorage.getItem("vittalis_demo_unlocked") === "true";
+    setIsLocked(!unlocked);
+  }, []);
 
   // Filtrar prescrições por data selecionada
   const prescricoesDoDia = useMemo(() => {
@@ -448,6 +455,12 @@ const Enfermeiro = () => {
         </div>
       </header>
 
+      {isLocked ? (
+        <DemoLockScreen 
+          title="Área de Enfermagem - Demonstração"
+          description="A área de enfermagem não está disponível na versão de demonstração."
+        />
+      ) : (
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="calendario" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
@@ -1090,6 +1103,7 @@ const Enfermeiro = () => {
           </TabsContent>
         </Tabs>
       </div>
+      )}
 
       {/* Dialog Ver Execução */}
       <Dialog open={showExecucaoDialog} onOpenChange={setShowExecucaoDialog}>

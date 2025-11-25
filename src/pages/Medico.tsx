@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, isSameDay } from "date-fns";
 import { APACFormWrapper } from "@/components/apac/APACFormWrapper";
+import { DemoLockScreen } from "@/components/DemoLockScreen";
 
 // Mock data de pacientes distribuídos em vários dias
 const pacientesData = [
@@ -789,6 +790,12 @@ const Medico = () => {
   const [showHistoricoDialog, setShowHistoricoDialog] = useState(false);
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [selectedExameIndex, setSelectedExameIndex] = useState<string>("0");
+  const [isLocked, setIsLocked] = useState(true);
+
+  useEffect(() => {
+    const unlocked = localStorage.getItem("vittalis_demo_unlocked") === "true";
+    setIsLocked(!unlocked);
+  }, []);
 
   // Filtrar pacientes por data selecionada
   const pacientesDoDia = useMemo(() => {
@@ -868,6 +875,12 @@ const Medico = () => {
         </div>
       </header>
 
+      {isLocked ? (
+        <DemoLockScreen 
+          title="Área Médica - Demonstração"
+          description="A área médica não está disponível na versão de demonstração."
+        />
+      ) : (
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="calendario" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
@@ -1128,6 +1141,7 @@ const Medico = () => {
 
         </Tabs>
       </div>
+      )}
 
       {/* Dialogs */}
       <Dialog open={showExamesDialog} onOpenChange={setShowExamesDialog}>
@@ -1252,8 +1266,6 @@ const Medico = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Remaining dialogs unchanged */}
     </div>
   );
 };

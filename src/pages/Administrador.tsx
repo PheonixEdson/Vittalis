@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { FileText, BarChart3, DollarSign, TrendingUp, Users, Home, Download, FileCheck, AlertTriangle, Info, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { PedidoMedicamentoDialog } from "@/components/dialogs/PedidoMedicamentoDialog";
 import { APACPendentesLista } from "@/components/apac/APACPendentesLista";
+import { DemoLockScreen } from "@/components/DemoLockScreen";
 
 const Administrador = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const Administrador = () => {
   const [selectedPaciente, setSelectedPaciente] = useState<any>(null);
   const [novoStatus, setNovoStatus] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  const [isLocked, setIsLocked] = useState(true);
   
   // Estados dos filtros
   const [periodoFiltro, setPeriodoFiltro] = useState("mensal");
@@ -31,6 +33,11 @@ const Administrador = () => {
   // Estados para o diálogo de pedido
   const [pedidoDialogOpen, setPedidoDialogOpen] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<{nome: string, atual: number, minimo: number} | null>(null);
+
+  useEffect(() => {
+    const unlocked = localStorage.getItem("vittalis_demo_unlocked") === "true";
+    setIsLocked(!unlocked);
+  }, []);
 
   // Função para calcular dados baseado nos filtros
   const dadosFiltrados = useMemo(() => {
@@ -1072,10 +1079,17 @@ const Administrador = () => {
           </TabsContent>
 
           <TabsContent value="apacs-recebidas" className="space-y-4">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="APACs Recebidas - Demonstração"
+                description="A seção de APACs recebidas não está disponível na versão de demonstração."
+              />
+            ) : (
             <APACPendentesLista />
+            )}
           </TabsContent>
 
-          <TabsContent value="economico" className="space-y-4">
+          <TabsContent value="dashboards" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Controle Econômico de Medicamentos</CardTitle>
@@ -1173,6 +1187,8 @@ const Administrador = () => {
                 </Card>
               </CardContent>
             </Card>
+            </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
