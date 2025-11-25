@@ -7,179 +7,202 @@ type APACPrintTemplateProps = {
 };
 
 export const APACPrintTemplate = ({ apac, laudoData, dadosComplementares }: APACPrintTemplateProps) => {
+  const borderStyle = { border: '1px solid black' };
+  const border2Style = { border: '2px solid black' };
+  const borderBottomStyle = { borderBottom: '1px solid black' };
+  const borderRightStyle = { borderRight: '1px solid black' };
+  const headerBgStyle = { backgroundColor: '#f3f4f6', WebkitPrintColorAdjust: 'exact' as const, colorAdjust: 'exact' as const };
+  const lightBgStyle = { backgroundColor: '#f9fafb', WebkitPrintColorAdjust: 'exact' as const, colorAdjust: 'exact' as const };
+
   return (
-    <div className="hidden print:block print:text-black print:bg-white">
+    <div 
+      className="hidden print:block print:text-black print:bg-white"
+      style={{ 
+        color: 'black', 
+        backgroundColor: 'white',
+        WebkitPrintColorAdjust: 'exact' as const,
+        colorAdjust: 'exact' as const
+      }}
+    >
       {/* PÁGINA 1 - LAUDO MÉDICO PARA PROCEDIMENTOS DE ALTA COMPLEXIDADE - APAC */}
-      <div className="w-full page-break-after p-6" style={{ pageBreakAfter: 'always' }}>
+      <div 
+        className="w-full p-6" 
+        style={{ 
+          pageBreakAfter: 'always',
+          color: 'black',
+          backgroundColor: 'white',
+          padding: '24px'
+        }}
+      >
         
         {/* Cabeçalho com bordas */}
-        <div className="border-2 border-black mb-3">
-          <div className="flex justify-between items-start p-2">
-            <div className="text-[9px] leading-tight">
+        <div style={{ ...border2Style, marginBottom: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '8px' }}>
+            <div style={{ fontSize: '9px', lineHeight: '1.2' }}>
               <div>Estado</div>
               <div>de Santa</div>
               <div>Catarina</div>
             </div>
-            <div className="text-center flex-1">
-              <div className="text-[9px] mb-1">Ministério da Saúde</div>
-              <div className="font-bold text-xs">
+            <div style={{ textAlign: 'center', flex: '1' }}>
+              <div style={{ fontSize: '9px', marginBottom: '4px' }}>Ministério da Saúde</div>
+              <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
                 LAUDO MÉDICO PARA PROCEDIMENTOS DE ALTA<br />
                 COMPLEXIDADE - APAC
               </div>
             </div>
-            <div className="w-16"></div>
+            <div style={{ width: '64px' }}></div>
           </div>
         </div>
 
         {/* IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (SOLICITANTE) */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (SOLICITANTE)
           </div>
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">1 - NOME DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.estabelecimento_solicitante || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>1 - NOME DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.estabelecimento_solicitante || ''}</div>
             </div>
-            <div className="w-24 p-1">
-              <div className="text-[7px] leading-tight">2 - CNES</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cnes_solicitante || ''}</div>
+            <div style={{ width: '96px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>2 - CNES</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cnes_solicitante || ''}</div>
             </div>
           </div>
         </div>
 
         {/* IDENTIFICAÇÃO DO PACIENTE */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             IDENTIFICAÇÃO DO PACIENTE
           </div>
           
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">3 - NOME DO PACIENTE</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.nome_paciente || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>3 - NOME DO PACIENTE</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nome_paciente || ''}</div>
             </div>
-            <div className="w-32 p-1">
-              <div className="text-[7px] leading-tight">4 - Nº DO PRONTUÁRIO</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.numero_prontuario || ''}</div>
+            <div style={{ width: '128px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>4 - Nº DO PRONTUÁRIO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.numero_prontuario || ''}</div>
             </div>
           </div>
 
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">5 - CARTÃO NACIONAL DE SAÚDE (CNS)</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cns_paciente || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>5 - CARTÃO NACIONAL DE SAÚDE (CNS)</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cns_paciente || ''}</div>
             </div>
-            <div className="w-28 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">6 - DATA DE NASCIMENTO</div>
-              <div className="text-[9px] font-medium mt-0.5">
+            <div style={{ width: '112px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>6 - DATA DE NASCIMENTO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
                 {laudoData?.data_nascimento ? format(new Date(laudoData.data_nascimento), 'dd/MM/yyyy') : ''}
               </div>
             </div>
-            <div className="w-20 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">7 - SEXO</div>
-              <div className="text-[8px] font-medium mt-0.5">
+            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>7 - SEXO</div>
+              <div style={{ fontSize: '8px', fontWeight: '500', marginTop: '2px' }}>
                 {laudoData?.sexo === 'M' ? '☑ Masc.' : '☐ Masc.'} {laudoData?.sexo === 'F' ? '☑ Fem.' : '☐ Fem.'}
               </div>
             </div>
-            <div className="w-20 p-1">
-              <div className="text-[7px] leading-tight">8 - RAÇA/COR</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.raca_cor || ''}</div>
+            <div style={{ width: '80px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>8 - RAÇA/COR</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.raca_cor || ''}</div>
             </div>
           </div>
 
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">9 - NOME DA MÃE</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.nome_mae || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>9 - NOME DA MÃE</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nome_mae || ''}</div>
             </div>
-            <div className="w-48 p-1">
-              <div className="text-[7px] leading-tight">10 - TELEFONE DE CONTATO</div>
-              <div className="text-[9px] font-medium mt-0.5 flex gap-2">
+            <div style={{ width: '192px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>10 - TELEFONE DE CONTATO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px', display: 'flex', gap: '8px' }}>
                 <span>DDD: {laudoData?.ddd_paciente || ''}</span>
                 <span>Nº: {laudoData?.telefone_paciente || ''}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">11 - NOME DO RESPONSÁVEL</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.nome_responsavel || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>11 - NOME DO RESPONSÁVEL</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nome_responsavel || ''}</div>
             </div>
-            <div className="w-48 p-1">
-              <div className="text-[7px] leading-tight">12 - TELEFONE DE CONTATO</div>
-              <div className="text-[9px] font-medium mt-0.5 flex gap-2">
+            <div style={{ width: '192px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>12 - TELEFONE DE CONTATO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px', display: 'flex', gap: '8px' }}>
                 <span>DDD: {laudoData?.ddd_responsavel || ''}</span>
                 <span>Nº: {laudoData?.telefone_responsavel || ''}</span>
               </div>
             </div>
           </div>
 
-          <div className="border-b border-black p-1">
-            <div className="text-[7px] leading-tight">13 - ENDEREÇO (RUA, Nº, BAIRRO)</div>
-            <div className="text-[9px] font-medium mt-0.5">{laudoData?.endereco || ''}</div>
+          <div style={{ ...borderBottomStyle, padding: '4px' }}>
+            <div style={{ fontSize: '7px', lineHeight: '1.2' }}>13 - ENDEREÇO (RUA, Nº, BAIRRO)</div>
+            <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.endereco || ''}</div>
           </div>
 
-          <div className="flex">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">14 - MUNICÍPIO DE RESIDÊNCIA</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.municipio || ''}</div>
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>14 - MUNICÍPIO DE RESIDÊNCIA</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.municipio || ''}</div>
             </div>
-            <div className="w-28 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">15 - CÓD. IBGE MUNICÍPIO</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.codigo_ibge || ''}</div>
+            <div style={{ width: '112px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>15 - CÓD. IBGE MUNICÍPIO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.codigo_ibge || ''}</div>
             </div>
-            <div className="w-16 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">16 - UF</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.uf || ''}</div>
+            <div style={{ width: '64px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>16 - UF</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.uf || ''}</div>
             </div>
-            <div className="w-24 p-1">
-              <div className="text-[7px] leading-tight">17 - CEP</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cep || ''}</div>
+            <div style={{ width: '96px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>17 - CEP</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cep || ''}</div>
             </div>
           </div>
         </div>
 
         {/* PROCEDIMENTO(S) SOLICITADO(S) */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             PROCEDIMENTO(S) SOLICITADO(S)
           </div>
           
-          <div className="border-b border-black">
-            <div className="flex border-b border-black bg-gray-50">
-              <div className="w-24 border-r border-black p-0.5 text-[7px] text-center">CÓDIGO DO PROCEDIMENTO</div>
-              <div className="flex-1 border-r border-black p-0.5 text-[7px] text-center">NOME DO PROCEDIMENTO</div>
-              <div className="w-16 p-0.5 text-[7px] text-center">QTDE</div>
+          <div style={{ ...borderBottomStyle }}>
+            <div style={{ display: 'flex', ...borderBottomStyle, ...lightBgStyle }}>
+              <div style={{ width: '96px', ...borderRightStyle, padding: '2px', fontSize: '7px', textAlign: 'center' }}>CÓDIGO DO PROCEDIMENTO</div>
+              <div style={{ flex: '1', ...borderRightStyle, padding: '2px', fontSize: '7px', textAlign: 'center' }}>NOME DO PROCEDIMENTO</div>
+              <div style={{ width: '64px', padding: '2px', fontSize: '7px', textAlign: 'center' }}>QTDE</div>
             </div>
-            <div className="flex">
-              <div className="w-24 border-r border-black p-1">
-                <div className="text-[9px] font-medium">{laudoData?.codigo_procedimento_principal || ''}</div>
+            <div style={{ display: 'flex' }}>
+              <div style={{ width: '96px', ...borderRightStyle, padding: '4px' }}>
+                <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.codigo_procedimento_principal || ''}</div>
               </div>
-              <div className="flex-1 border-r border-black p-1">
-                <div className="text-[9px] font-medium">{laudoData?.nome_procedimento_principal || ''}</div>
+              <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+                <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.nome_procedimento_principal || ''}</div>
               </div>
-              <div className="w-16 p-1">
-                <div className="text-[9px] font-medium text-center">{laudoData?.qtde_procedimento_principal || ''}</div>
+              <div style={{ width: '64px', padding: '4px' }}>
+                <div style={{ fontSize: '9px', fontWeight: '500', textAlign: 'center' }}>{laudoData?.qtde_procedimento_principal || ''}</div>
               </div>
             </div>
           </div>
 
           <div>
-            <div className="bg-gray-50 border-b border-black px-2 py-0.5 text-[8px] font-semibold">
+            <div style={{ ...lightBgStyle, ...borderBottomStyle, padding: '2px 8px', fontSize: '8px', fontWeight: '600' }}>
               PROCEDIMENTO(S) SECUNDÁRIO(S)
             </div>
             {[1, 2, 3].map((index) => (
-              <div key={index} className={`flex ${index < 3 ? 'border-b border-black' : ''}`}>
-                <div className="w-24 border-r border-black p-1">
-                  <div className="text-[9px] font-medium">{laudoData?.[`codigo_procedimento_secundario_${index}`] || ''}</div>
+              <div key={index} style={{ display: 'flex', ...(index < 3 ? borderBottomStyle : {}) }}>
+                <div style={{ width: '96px', ...borderRightStyle, padding: '4px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.[`codigo_procedimento_secundario_${index}`] || ''}</div>
                 </div>
-                <div className="flex-1 border-r border-black p-1">
-                  <div className="text-[9px] font-medium">{laudoData?.[`nome_procedimento_secundario_${index}`] || ''}</div>
+                <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.[`nome_procedimento_secundario_${index}`] || ''}</div>
                 </div>
-                <div className="w-16 p-1">
-                  <div className="text-[9px] font-medium text-center">{laudoData?.[`qtde_procedimento_secundario_${index}`] || ''}</div>
+                <div style={{ width: '64px', padding: '4px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: '500', textAlign: 'center' }}>{laudoData?.[`qtde_procedimento_secundario_${index}`] || ''}</div>
                 </div>
               </div>
             ))}
@@ -187,155 +210,155 @@ export const APACPrintTemplate = ({ apac, laudoData, dadosComplementares }: APAC
         </div>
 
         {/* JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S) */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S)
           </div>
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">DESCRIÇÃO DO DIAGNÓSTICO</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.descricao_diagnostico || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DESCRIÇÃO DO DIAGNÓSTICO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.descricao_diagnostico || ''}</div>
             </div>
-            <div className="w-20 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">CID 10 PRINCIPAL</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cid10_principal || ''}</div>
+            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 PRINCIPAL</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10_principal || ''}</div>
             </div>
-            <div className="w-20 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">CID 10 SECUNDÁRIO</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cid10_secundario || ''}</div>
+            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 SECUNDÁRIO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10_secundario || ''}</div>
             </div>
-            <div className="w-24 p-1">
-              <div className="text-[7px] leading-tight">CID 10 CAUSAS ASSOCIADAS</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cid10_causas_associadas || ''}</div>
+            <div style={{ width: '96px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 CAUSAS ASSOCIADAS</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10_causas_associadas || ''}</div>
             </div>
           </div>
         </div>
 
         {/* RESUMO DA ANAMNESE E EXAME FÍSICO */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             RESUMO DA ANAMNESE E EXAME FÍSICO
           </div>
-          <div className="p-1.5 min-h-[50px]">
-            <div className="text-[9px] leading-relaxed whitespace-pre-wrap">{laudoData?.resumo_anamnese || ''}</div>
+          <div style={{ padding: '6px', minHeight: '50px' }}>
+            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.resumo_anamnese || ''}</div>
           </div>
         </div>
 
         {/* EXAMES COMPLEMENTARES REALIZADOS */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             EXAMES COMPLEMENTARES REALIZADOS
           </div>
-          <div className="p-1.5 min-h-[50px]">
-            <div className="text-[9px] leading-relaxed whitespace-pre-wrap">{laudoData?.exames_complementares || ''}</div>
+          <div style={{ padding: '6px', minHeight: '50px' }}>
+            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.exames_complementares || ''}</div>
           </div>
         </div>
 
         {/* JUSTIFICATIVA DO PROCEDIMENTO */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             JUSTIFICATIVA DO PROCEDIMENTO
           </div>
-          <div className="p-1.5 min-h-[50px]">
-            <div className="text-[9px] leading-relaxed whitespace-pre-wrap">{laudoData?.justificativa_procedimento || ''}</div>
+          <div style={{ padding: '6px', minHeight: '50px' }}>
+            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.justificativa_procedimento || ''}</div>
           </div>
         </div>
 
         {/* SOLICITAÇÃO */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             SOLICITAÇÃO
           </div>
-          <div className="flex">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">NOME DO PROFISSIONAL SOLICITANTE</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.nome_profissional_solicitante || ''}</div>
-              <div className="text-[7px] leading-tight mt-2">DOCUMENTO</div>
-              <div className="text-[8px] mt-0.5">
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO PROFISSIONAL SOLICITANTE</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nome_profissional_solicitante || ''}</div>
+              <div style={{ fontSize: '7px', lineHeight: '1.2', marginTop: '8px' }}>DOCUMENTO</div>
+              <div style={{ fontSize: '8px', marginTop: '2px' }}>
                 {laudoData?.documento_profissional_solicitante?.includes('CNS') || laudoData?.tipo_doc_solicitante === 'CNS' ? '☑ CNS' : '☐ CNS'} 
                 {' '}
                 {laudoData?.documento_profissional_solicitante?.includes('CPF') || laudoData?.tipo_doc_solicitante === 'CPF' ? '☑ CPF' : '☐ CPF'}
               </div>
-              <div className="text-[9px] font-medium mt-0.5">
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
                 NÚMERO DO DOCUMENTO (CNS/CPF): {laudoData?.documento_profissional_solicitante || ''}
               </div>
             </div>
-            <div className="w-32 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">DATA DA SOLICITAÇÃO</div>
-              <div className="text-[9px] font-medium mt-0.5">
+            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DATA DA SOLICITAÇÃO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
                 {laudoData?.data_solicitacao ? format(new Date(laudoData.data_solicitacao), 'dd/MM/yyyy') : ''}
               </div>
             </div>
-            <div className="w-40 p-1">
-              <div className="text-[7px] leading-tight">ASSINATURA E CARIMBO</div>
-              <div className="min-h-[35px] border-b border-gray-300 mt-8"></div>
+            <div style={{ width: '160px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ASSINATURA E CARIMBO</div>
+              <div style={{ minHeight: '35px', borderBottom: '1px solid #d1d5db', marginTop: '32px' }}></div>
             </div>
           </div>
         </div>
 
         {/* AUTORIZAÇÃO */}
-        <div className="border border-black mb-2">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={{ ...borderStyle, marginBottom: '8px' }}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             AUTORIZAÇÃO
           </div>
-          <div className="flex border-b border-black">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">NOME DO PROFISSIONAL AUTORIZADOR</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.nome_profissional_autorizador || ''}</div>
+          <div style={{ display: 'flex', ...borderBottomStyle }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO PROFISSIONAL AUTORIZADOR</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nome_profissional_autorizador || ''}</div>
             </div>
-            <div className="w-32 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">COD ÓRGÃO EMISSOR</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.codigo_orgao_emissor || ''}</div>
+            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>COD ÓRGÃO EMISSOR</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.codigo_orgao_emissor || ''}</div>
             </div>
-            <div className="w-40 p-1">
-              <div className="text-[7px] leading-tight">NÚMERO DA AUTORIZAÇÃO (APAC)</div>
-              <div className="text-[9px] font-medium mt-0.5">{apac?.id?.substring(0, 13) || ''}</div>
+            <div style={{ width: '160px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NÚMERO DA AUTORIZAÇÃO (APAC)</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{apac?.id?.substring(0, 13) || ''}</div>
             </div>
           </div>
-          <div className="flex">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">DOCUMENTO</div>
-              <div className="text-[8px] mt-0.5">
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DOCUMENTO</div>
+              <div style={{ fontSize: '8px', marginTop: '2px' }}>
                 {laudoData?.documento_profissional_autorizador?.includes('CNS') || laudoData?.tipo_doc_autorizador === 'CNS' ? '☑ CNS' : '☐ CNS'} 
                 {' '}
                 {laudoData?.documento_profissional_autorizador?.includes('CPF') || laudoData?.tipo_doc_autorizador === 'CPF' ? '☑ CPF' : '☐ CPF'}
               </div>
-              <div className="text-[9px] font-medium mt-0.5">
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
                 NÚMERO DO DOCUMENTO (CNS/CPF): {laudoData?.documento_profissional_autorizador || ''}
               </div>
             </div>
-            <div className="w-32 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">DATA DA AUTORIZAÇÃO</div>
-              <div className="text-[9px] font-medium mt-0.5">
+            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DATA DA AUTORIZAÇÃO</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
                 {laudoData?.data_autorizacao ? format(new Date(laudoData.data_autorizacao), 'dd/MM/yyyy') : ''}
               </div>
             </div>
-            <div className="w-40 p-1">
-              <div className="text-[7px] leading-tight">ASSINATURA E CARIMBO</div>
-              <div className="min-h-[20px] border-b border-gray-300 mt-4"></div>
+            <div style={{ width: '160px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ASSINATURA E CARIMBO</div>
+              <div style={{ minHeight: '20px', borderBottom: '1px solid #d1d5db', marginTop: '16px' }}></div>
             </div>
           </div>
-          <div className="flex">
-            <div className="flex-1 p-1">
-              <div className="text-[7px] leading-tight">PERÍODO DE VALIDADE DA APAC</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.periodo_validade || ''}</div>
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>PERÍODO DE VALIDADE DA APAC</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.periodo_validade || ''}</div>
             </div>
           </div>
         </div>
 
         {/* IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (EXECUTANTE) */}
-        <div className="border border-black">
-          <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+        <div style={borderStyle}>
+          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (EXECUTANTE)
           </div>
-          <div className="flex">
-            <div className="flex-1 border-r border-black p-1">
-              <div className="text-[7px] leading-tight">NOME DO ESTABELECIMENTO DE SAÚDE EXECUTANTE</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.estabelecimento_executante || ''}</div>
+          <div style={{ display: 'flex' }}>
+            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO ESTABELECIMENTO DE SAÚDE EXECUTANTE</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.estabelecimento_executante || ''}</div>
             </div>
-            <div className="w-24 p-1">
-              <div className="text-[7px] leading-tight">CNES</div>
-              <div className="text-[9px] font-medium mt-0.5">{laudoData?.cnes_executante || ''}</div>
+            <div style={{ width: '96px', padding: '4px' }}>
+              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CNES</div>
+              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cnes_executante || ''}</div>
             </div>
           </div>
         </div>
@@ -343,45 +366,45 @@ export const APACPrintTemplate = ({ apac, laudoData, dadosComplementares }: APAC
 
       {/* PÁGINA 2 - DADOS COMPLEMENTARES (se houver) */}
       {(dadosComplementares?.estadiamento || dadosComplementares?.finalidade) && (
-        <div className="w-full p-6">
-          <div className="border-2 border-black mb-3">
-            <div className="text-center p-2">
-              <div className="text-[9px]">Sistema Único de Saúde</div>
-              <div className="font-bold text-xs">DADOS COMPLEMENTARES DO PROCEDIMENTO</div>
-              <div className="text-[9px]">Autorização de Procedimento Ambulatorial de Alta Complexidade</div>
+        <div className="w-full p-6" style={{ padding: '24px' }}>
+          <div style={{ ...border2Style, marginBottom: '12px' }}>
+            <div style={{ textAlign: 'center', padding: '8px' }}>
+              <div style={{ fontSize: '9px' }}>Sistema Único de Saúde</div>
+              <div style={{ fontWeight: 'bold', fontSize: '12px' }}>DADOS COMPLEMENTARES DO PROCEDIMENTO</div>
+              <div style={{ fontSize: '9px' }}>Autorização de Procedimento Ambulatorial de Alta Complexidade</div>
             </div>
           </div>
 
-          <div className="border border-black mb-2">
-            <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+          <div style={{ ...borderStyle, marginBottom: '8px' }}>
+            <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
               INFORMAÇÕES ONCOLÓGICAS
             </div>
-            <div className="grid grid-cols-4">
-              <div className="border-r border-black p-1">
-                <div className="text-[7px] leading-tight">ESTADIAMENTO</div>
-                <div className="text-[9px] font-medium mt-0.5">{dadosComplementares?.estadiamento || ''}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+              <div style={{ ...borderRightStyle, padding: '4px' }}>
+                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ESTADIAMENTO</div>
+                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.estadiamento || ''}</div>
               </div>
-              <div className="border-r border-black p-1">
-                <div className="text-[7px] leading-tight">FINALIDADE</div>
-                <div className="text-[9px] font-medium mt-0.5">{dadosComplementares?.finalidade || ''}</div>
+              <div style={{ ...borderRightStyle, padding: '4px' }}>
+                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>FINALIDADE</div>
+                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.finalidade || ''}</div>
               </div>
-              <div className="border-r border-black p-1">
-                <div className="text-[7px] leading-tight">TIPO DE ATENDIMENTO</div>
-                <div className="text-[9px] font-medium mt-0.5">{dadosComplementares?.tipo_atendimento || ''}</div>
+              <div style={{ ...borderRightStyle, padding: '4px' }}>
+                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>TIPO DE ATENDIMENTO</div>
+                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.tipo_atendimento || ''}</div>
               </div>
-              <div className="p-1">
-                <div className="text-[7px] leading-tight">TURNO</div>
-                <div className="text-[9px] font-medium mt-0.5">{dadosComplementares?.turno || ''}</div>
+              <div style={{ padding: '4px' }}>
+                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>TURNO</div>
+                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.turno || ''}</div>
               </div>
             </div>
           </div>
 
-          <div className="border border-black">
-            <div className="bg-gray-100 border-b border-black px-2 py-0.5 font-bold text-[9px]">
+          <div style={borderStyle}>
+            <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
               OBSERVAÇÕES
             </div>
-            <div className="p-2 min-h-[100px]">
-              <div className="text-[9px] leading-relaxed whitespace-pre-wrap">{apac?.observacoes || ''}</div>
+            <div style={{ padding: '8px', minHeight: '100px' }}>
+              <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{apac?.observacoes || ''}</div>
             </div>
           </div>
         </div>
