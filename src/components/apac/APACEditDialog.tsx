@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Printer } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { APACPrintTemplate } from "./APACPrintTemplate";
 
 type APACHistorico = {
   id: string;
@@ -63,7 +64,7 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
   const handlePrint = () => {
     toast({
       title: "Preparando impressão",
-      description: "Gerando documento completo da APAC para impressão...",
+      description: "Gerando fichas APAC preenchidas para impressão...",
     });
     
     setTimeout(() => {
@@ -110,7 +111,14 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
+      {/* Template de impressão - oculto na tela, visível na impressão */}
+      <APACPrintTemplate 
+        apac={apac} 
+        laudoData={laudoData} 
+        dadosComplementares={dadosComplementaresData} 
+      />
+      
+      <DialogContent className="max-w-6xl max-h-[90vh] print:hidden">
         <DialogHeader>
           <DialogTitle>Editar APAC - Setor Administrativo</DialogTitle>
           <DialogDescription>
