@@ -547,6 +547,13 @@ const Administrador = () => {
           </TabsContent>
 
           <TabsContent value="dashboards" className="space-y-6">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="Dashboards - Demonstração"
+                description="A seção de dashboards não está disponível na versão de demonstração."
+              />
+            ) : (
+            <>
             {/* Filtros */}
             <Card>
               <CardHeader>
@@ -1076,6 +1083,8 @@ const Administrador = () => {
                 </CardContent>
               </Card>
             </div>
+            </>
+            )}
           </TabsContent>
 
           <TabsContent value="apacs-recebidas" className="space-y-4">
@@ -1089,7 +1098,14 @@ const Administrador = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="dashboards" className="space-y-6">
+          <TabsContent value="economico" className="space-y-4">
+            {isLocked ? (
+              <DemoLockScreen 
+                title="Controle Econômico - Demonstração"
+                description="A seção de controle econômico não está disponível na versão de demonstração."
+              />
+            ) : (
+            <>
             <Card>
               <CardHeader>
                 <CardTitle>Controle Econômico de Medicamentos</CardTitle>
@@ -1187,7 +1203,7 @@ const Administrador = () => {
                 </Card>
               </CardContent>
             </Card>
-            </div>
+            </>
             )}
           </TabsContent>
         </Tabs>
