@@ -96,9 +96,10 @@ export const APACFormWrapper = () => {
       const { error } = await supabase
         .from('apac_historico')
         .insert({
-          paciente_id: user.id,
-          medico_id: user.id,
-          tipo_apac: 'oncologia',
+          paciente_id: laudoData.nomePaciente ? user.id : user.id, // ID do paciente
+          medico_id: user.id, // ID do médico
+          tipo_apac: 'completo',
+          categoria_procedimento: 'oncologia',
           status: 'pendente',
           dados_formulario: {
             laudo: laudoData,
@@ -111,11 +112,16 @@ export const APACFormWrapper = () => {
 
       toast({
         title: "APAC enviada com sucesso",
-        description: "A APAC foi enviada para o setor administrativo e está aguardando análise.",
+        description: "A APAC foi enviada para o setor administrativo. Redirecionando...",
       });
 
       setLaudoData({});
       setDadosComplementaresData({});
+
+      // Redirecionar para a área administrativa após 1.5 segundos
+      setTimeout(() => {
+        window.location.href = '/administrador';
+      }, 1500);
 
     } catch (error) {
       console.error('Erro ao enviar APAC:', error);
