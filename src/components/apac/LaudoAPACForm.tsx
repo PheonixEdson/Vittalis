@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { validateSigtapCode, formatSigtapCodeMessage } from "@/lib/utils";
+import { useState } from "react";
 
 interface LaudoAPACFormProps {
   formData: any;
@@ -17,8 +19,19 @@ const RequiredLabel = ({ children, htmlFor }: { children: React.ReactNode; htmlF
 );
 
 export const LaudoAPACForm = ({ formData, setFormData }: LaudoAPACFormProps) => {
+  const [sigtapError, setSigtapError] = useState<string>("");
+
   const handleChange = (field: string, value: string) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSigtapChange = (value: string) => {
+    handleChange("tipoTratamentoSigtap", value);
+    if (value && !validateSigtapCode(value)) {
+      setSigtapError(formatSigtapCodeMessage());
+    } else {
+      setSigtapError("");
+    }
   };
 
   return (
@@ -384,9 +397,13 @@ export const LaudoAPACForm = ({ formData, setFormData }: LaudoAPACFormProps) => 
             <Input
               id="tipoTratamentoSigtap"
               value={formData.tipoTratamentoSigtap}
-              onChange={(e) => handleChange("tipoTratamentoSigtap", e.target.value)}
-              placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
+              onChange={(e) => handleSigtapChange(e.target.value)}
+              placeholder="Ex: 03.04.05.006-7"
+              className={sigtapError ? "border-red-500" : ""}
             />
+            {sigtapError && (
+              <p className="text-sm text-red-500">{sigtapError}</p>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Printer } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { APACPrintTemplate } from "./APACPrintTemplate";
+import { validateSigtapCode, formatSigtapCodeMessage } from "@/lib/utils";
 
 type APACHistorico = {
   id: string;
@@ -43,6 +44,8 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
   const [observacoes, setObservacoes] = useState("");
   const [laudoData, setLaudoData] = useState<any>({});
   const [dadosComplementaresData, setDadosComplementaresData] = useState<any>({});
+  const [sigtapLaudoError, setSigtapLaudoError] = useState<string>("");
+  const [sigtapDadosError, setSigtapDadosError] = useState<string>("");
 
   useEffect(() => {
     if (apac) {
@@ -55,10 +58,24 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
 
   const handleLaudoChange = (field: string, value: string) => {
     setLaudoData((prev: any) => ({ ...prev, [field]: value }));
+    if (field === "tipoTratamentoSigtap") {
+      if (value && !validateSigtapCode(value)) {
+        setSigtapLaudoError(formatSigtapCodeMessage());
+      } else {
+        setSigtapLaudoError("");
+      }
+    }
   };
 
   const handleDadosChange = (field: string, value: string) => {
     setDadosComplementaresData((prev: any) => ({ ...prev, [field]: value }));
+    if (field === "tipoTratamentoSigtap") {
+      if (value && !validateSigtapCode(value)) {
+        setSigtapDadosError(formatSigtapCodeMessage());
+      } else {
+        setSigtapDadosError("");
+      }
+    }
   };
 
   const handlePrint = () => {
@@ -74,6 +91,25 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
 
   const handleUpdate = async () => {
     if (!apac) return;
+
+    // Validar código SIGTAP antes de salvar
+    if (laudoData.tipoTratamentoSigtap && !validateSigtapCode(laudoData.tipoTratamentoSigtap)) {
+      toast({
+        title: "Código SIGTAP inválido",
+        description: "O formato do código SIGTAP no Laudo Médico deve ser XX.XX.XX.XXX-X (exemplo: 03.04.05.006-7)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (dadosComplementaresData.tipoTratamentoSigtap && !validateSigtapCode(dadosComplementaresData.tipoTratamentoSigtap)) {
+      toast({
+        title: "Código SIGTAP inválido",
+        description: "O formato do código SIGTAP nos Dados Complementares deve ser XX.XX.XX.XXX-X (exemplo: 03.04.05.006-7)",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -425,8 +461,12 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
                         id="tipoTratamentoSigtap"
                         value={laudoData.tipoTratamentoSigtap || ""}
                         onChange={(e) => handleLaudoChange("tipoTratamentoSigtap", e.target.value)}
-                        placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
+                        placeholder="Ex: 03.04.05.006-7"
+                        className={sigtapLaudoError ? "border-red-500" : ""}
                       />
+                      {sigtapLaudoError && (
+                        <p className="text-sm text-red-500">{sigtapLaudoError}</p>
+                      )}
                     </div>
                     <div>
                       <RequiredLabel htmlFor="descricaoDiagnostico">Descrição do Diagnóstico</RequiredLabel>
@@ -659,8 +699,12 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
                         id="tipoTratamentoSigtap"
                         value={dadosComplementaresData.tipoTratamentoSigtap || ""}
                         onChange={(e) => handleDadosChange("tipoTratamentoSigtap", e.target.value)}
-                        placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
+                        placeholder="Ex: 03.04.05.006-7"
+                        className={sigtapDadosError ? "border-red-500" : ""}
                       />
+                      {sigtapDadosError && (
+                        <p className="text-sm text-red-500">{sigtapDadosError}</p>
+                      )}
                     </div>
                   </div>
                 </div>

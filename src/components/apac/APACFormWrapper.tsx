@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LaudoAPACForm } from "./LaudoAPACForm";
 import { DadosComplementaresForm } from "./DadosComplementaresForm";
 import { CamposObrigatoriosAPAC } from "./CamposObrigatoriosAPAC";
+import { validateSigtapCode } from "@/lib/utils";
 
 export const APACFormWrapper = () => {
   const [laudoData, setLaudoData] = useState<any>({});
@@ -55,6 +56,28 @@ export const APACFormWrapper = () => {
       toast({
         title: "Campos obrigatórios não preenchidos",
         description: `Por favor, preencha os seguintes campos: ${missingFields.slice(0, 5).join(", ")}${missingFields.length > 5 ? ` e mais ${missingFields.length - 5} campos...` : ""}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validar código SIGTAP se preenchido
+    const sigtapLaudo = laudoData.tipoTratamentoSigtap;
+    const sigtapDados = dadosComplementaresData.tipoTratamentoSigtap;
+    
+    if (sigtapLaudo && !validateSigtapCode(sigtapLaudo)) {
+      toast({
+        title: "Código SIGTAP inválido",
+        description: "O formato do código SIGTAP no Laudo Médico deve ser XX.XX.XX.XXX-X (exemplo: 03.04.05.006-7)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (sigtapDados && !validateSigtapCode(sigtapDados)) {
+      toast({
+        title: "Código SIGTAP inválido",
+        description: "O formato do código SIGTAP nos Dados Complementares deve ser XX.XX.XX.XXX-X (exemplo: 03.04.05.006-7)",
         variant: "destructive"
       });
       return;
