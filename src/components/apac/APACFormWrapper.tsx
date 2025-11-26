@@ -61,18 +61,38 @@ export const APACFormWrapper = () => {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      // Se o usuário não estiver autenticado, ainda permitimos o envio
-      // usando um identificador técnico de paciente e sem vincular médico.
-      const pacienteId = user?.id ?? (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-paciente`);
-      const medicoId = user?.id ?? null;
+      if (userError || !user) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado como médico para enviar APACs.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Verificar se o usuário tem a role de médico
+      const { data: roles, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['medico', 'admin']);
+
+      if (roleError || !roles || roles.length === 0) {
+        toast({
+          title: "Permissão negada",
+          description: "Apenas médicos podem enviar APACs. Entre em contato com o administrador.",
+          variant: "destructive"
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('apac_historico')
         .insert({
-          paciente_id: pacienteId,
-          medico_id: medicoId,
+          paciente_id: user.id,
+          medico_id: user.id,
           tipo_apac: 'completo',
           categoria_procedimento: 'oncologia',
           status: 'pendente',
