@@ -420,6 +420,15 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
                   <h3 className="font-semibold text-lg">Justificativa</h3>
                   <div className="space-y-4">
                     <div>
+                      <Label htmlFor="tipoTratamentoSigtap">Tipo de Tratamento (de acordo com a tabela SIGTAP)</Label>
+                      <Input
+                        id="tipoTratamentoSigtap"
+                        value={laudoData.tipoTratamentoSigtap || ""}
+                        onChange={(e) => handleLaudoChange("tipoTratamentoSigtap", e.target.value)}
+                        placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
+                      />
+                    </div>
+                    <div>
                       <RequiredLabel htmlFor="descricaoDiagnostico">Descrição do Diagnóstico</RequiredLabel>
                       <Textarea
                         id="descricaoDiagnostico"
@@ -642,6 +651,15 @@ export const APACEditDialog = ({ apac, open, onOpenChange, onUpdate }: APACEditD
                         type="date"
                         value={dadosComplementaresData.dataDiagnostico || ""}
                         onChange={(e) => handleDadosChange("dataDiagnostico", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tipoTratamentoSigtap">Tipo de Tratamento (de acordo com a tabela SIGTAP)</Label>
+                      <Input
+                        id="tipoTratamentoSigtap"
+                        value={dadosComplementaresData.tipoTratamentoSigtap || ""}
+                        onChange={(e) => handleDadosChange("tipoTratamentoSigtap", e.target.value)}
+                        placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
                       />
                     </div>
                   </div>

@@ -119,6 +119,16 @@ export const DadosComplementaresForm = ({ formData, setFormData }: DadosCompleme
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tipoTratamentoSigtap">Tipo de Tratamento (de acordo com a tabela SIGTAP)</Label>
+            <Input
+              id="tipoTratamentoSigtap"
+              value={formData.tipoTratamentoSigtap}
+              onChange={(e) => handleChange("tipoTratamentoSigtap", e.target.value)}
+              placeholder="Ex: 03.04.02.019-2 - Quimioterapia do Carcinoma de Mama"
+            />
+          </div>
         </CardContent>
       </Card>
 

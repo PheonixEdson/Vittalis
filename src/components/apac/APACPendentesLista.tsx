@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Eye, Edit } from "lucide-react";
+import { FileText, Eye, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { APACEditDialog } from "./APACEditDialog";
 
@@ -49,6 +49,35 @@ export const APACPendentesLista = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (apacId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta APAC? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('apac_historico')
+        .delete()
+        .eq('id', apacId);
+
+      if (error) throw error;
+
+      toast({
+        title: "APAC excluída",
+        description: "A APAC foi excluída com sucesso."
+      });
+
+      carregarAPACs();
+    } catch (error) {
+      console.error('Erro ao excluir APAC:', error);
+      toast({
+        title: "Erro ao excluir APAC",
+        description: "Não foi possível excluir a APAC.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -134,6 +163,14 @@ export const APACPendentesLista = () => {
                         >
                           <Edit className="h-4 w-4 mr-1" />
                           Editar
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(apac.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Excluir
                         </Button>
                       </div>
                     </TableCell>
