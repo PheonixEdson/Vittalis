@@ -12,7 +12,7 @@ export const DemoLockScreen = ({
   description = "Esta seção não está disponível na versão de demonstração."
 }: DemoLockScreenProps) => {
   const handleContact = () => {
-    window.location.href = "mailto:contato@vittalis.com.br?subject=Solicitar Demonstração Completa";
+    window.open("https://w.app/vittalis", "_blank");
   };
 
   return (
