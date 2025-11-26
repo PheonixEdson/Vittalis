@@ -7,414 +7,364 @@ type APACPrintTemplateProps = {
 };
 
 export const APACPrintTemplate = ({ apac, laudoData, dadosComplementares }: APACPrintTemplateProps) => {
-  const borderStyle = { border: '1px solid black' };
-  const border2Style = { border: '2px solid black' };
-  const borderBottomStyle = { borderBottom: '1px solid black' };
-  const borderRightStyle = { borderRight: '1px solid black' };
-  const headerBgStyle = { backgroundColor: '#f3f4f6', WebkitPrintColorAdjust: 'exact' as const, colorAdjust: 'exact' as const };
-  const lightBgStyle = { backgroundColor: '#f9fafb', WebkitPrintColorAdjust: 'exact' as const, colorAdjust: 'exact' as const };
-
   return (
-    <div 
-      className="hidden print:block print:text-black print:bg-white"
-      style={{ 
-        color: 'black', 
-        backgroundColor: 'white',
-        WebkitPrintColorAdjust: 'exact' as const,
-        colorAdjust: 'exact' as const
-      }}
-    >
-      {/* PÁGINA 1 - LAUDO MÉDICO PARA PROCEDIMENTOS DE ALTA COMPLEXIDADE - APAC */}
-      <div 
-        className="w-full p-6" 
-        style={{ 
-          pageBreakAfter: 'always',
-          color: 'black',
-          backgroundColor: 'white',
-          padding: '24px'
-        }}
-      >
-        
-        {/* Cabeçalho com bordas */}
-        <div style={{ ...border2Style, marginBottom: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '8px' }}>
-            <div style={{ fontSize: '9px', lineHeight: '1.2' }}>
-              <div>Estado</div>
-              <div>de Santa</div>
-              <div>Catarina</div>
-            </div>
-            <div style={{ textAlign: 'center', flex: '1' }}>
-              <div style={{ fontSize: '9px', marginBottom: '4px' }}>Ministério da Saúde</div>
-              <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
-                LAUDO MÉDICO PARA PROCEDIMENTOS DE ALTA<br />
-                COMPLEXIDADE - APAC
-              </div>
-            </div>
-            <div style={{ width: '64px' }}></div>
-          </div>
-        </div>
+    <div className="hidden print:block print:text-black print:bg-white p-8 space-y-6">
+      {/* Cabeçalho */}
+      <div className="text-center border-b-2 border-black pb-4 mb-6">
+        <h1 className="text-2xl font-bold">AUTORIZAÇÃO DE PROCEDIMENTO DE ALTA COMPLEXIDADE - APAC</h1>
+        <p className="text-sm mt-2">Ministério da Saúde</p>
+      </div>
 
-        {/* IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (SOLICITANTE) */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (SOLICITANTE)
-          </div>
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>1 - NOME DO ESTABELECIMENTO DE SAÚDE SOLICITANTE</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomeEstabelecimento || laudoData?.estabelecimento_solicitante || ''}</div>
-            </div>
-            <div style={{ width: '96px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>2 - CNES</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cnes || laudoData?.cnes_solicitante || ''}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* IDENTIFICAÇÃO DO PACIENTE */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            IDENTIFICAÇÃO DO PACIENTE
-          </div>
-          
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>3 - NOME DO PACIENTE</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomePaciente || laudoData?.nome_paciente || ''}</div>
-            </div>
-            <div style={{ width: '128px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>4 - Nº DO PRONTUÁRIO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.prontuario || laudoData?.numero_prontuario || ''}</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>5 - CARTÃO NACIONAL DE SAÚDE (CNS)</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cns || laudoData?.cns_paciente || ''}</div>
-            </div>
-            <div style={{ width: '112px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>6 - DATA DE NASCIMENTO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
-                {laudoData?.dataNascimento || laudoData?.data_nascimento ? format(new Date(laudoData?.dataNascimento || laudoData?.data_nascimento), 'dd/MM/yyyy') : ''}
-              </div>
-            </div>
-            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>7 - SEXO</div>
-              <div style={{ fontSize: '8px', fontWeight: '500', marginTop: '2px' }}>
-                {laudoData?.sexo === 'M' ? '☑ Masc.' : '☐ Masc.'} {laudoData?.sexo === 'F' ? '☑ Fem.' : '☐ Fem.'}
-              </div>
-            </div>
-            <div style={{ width: '80px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>8 - RAÇA/COR</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.racaCor || laudoData?.raca_cor || ''}</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>9 - NOME DA MÃE</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomeMae || laudoData?.nome_mae || ''}</div>
-            </div>
-            <div style={{ width: '192px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>10 - TELEFONE DE CONTATO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px', display: 'flex', gap: '8px' }}>
-                <span>DDD: {laudoData?.dddContato || laudoData?.ddd_paciente || ''}</span>
-                <span>Nº: {laudoData?.telefoneContato || laudoData?.telefone_paciente || ''}</span>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>11 - NOME DO RESPONSÁVEL</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomeResponsavel || laudoData?.nome_responsavel || ''}</div>
-            </div>
-            <div style={{ width: '192px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>12 - TELEFONE DE CONTATO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px', display: 'flex', gap: '8px' }}>
-                <span>DDD: {laudoData?.dddResponsavel || laudoData?.ddd_responsavel || ''}</span>
-                <span>Nº: {laudoData?.telefoneResponsavel || laudoData?.telefone_responsavel || ''}</span>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ ...borderBottomStyle, padding: '4px' }}>
-            <div style={{ fontSize: '7px', lineHeight: '1.2' }}>13 - ENDEREÇO (RUA, Nº, BAIRRO)</div>
-            <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.endereco || ''}</div>
-          </div>
-
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>14 - MUNICÍPIO DE RESIDÊNCIA</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.municipio || ''}</div>
-            </div>
-            <div style={{ width: '112px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>15 - CÓD. IBGE MUNICÍPIO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.codIbge || laudoData?.codigo_ibge || ''}</div>
-            </div>
-            <div style={{ width: '64px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>16 - UF</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.uf || ''}</div>
-            </div>
-            <div style={{ width: '96px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>17 - CEP</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cep || ''}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* PROCEDIMENTO(S) SOLICITADO(S) */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            PROCEDIMENTO(S) SOLICITADO(S)
-          </div>
-          
-          <div style={{ ...borderBottomStyle }}>
-            <div style={{ display: 'flex', ...borderBottomStyle, ...lightBgStyle }}>
-              <div style={{ width: '96px', ...borderRightStyle, padding: '2px', fontSize: '7px', textAlign: 'center' }}>CÓDIGO DO PROCEDIMENTO</div>
-              <div style={{ flex: '1', ...borderRightStyle, padding: '2px', fontSize: '7px', textAlign: 'center' }}>NOME DO PROCEDIMENTO</div>
-              <div style={{ width: '64px', padding: '2px', fontSize: '7px', textAlign: 'center' }}>QTDE</div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div style={{ width: '96px', ...borderRightStyle, padding: '4px' }}>
-                <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.codigoProcedimento1 || laudoData?.codigo_procedimento_principal || ''}</div>
-              </div>
-              <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-                <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.nomeProcedimento1 || laudoData?.nome_procedimento_principal || ''}</div>
-              </div>
-              <div style={{ width: '64px', padding: '4px' }}>
-                <div style={{ fontSize: '9px', fontWeight: '500', textAlign: 'center' }}>{laudoData?.qtde1 || laudoData?.qtde_procedimento_principal || ''}</div>
-              </div>
-            </div>
-          </div>
-
+      {/* IDENTIFICAÇÃO DO ESTABELECIMENTO */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">IDENTIFICAÇÃO DO ESTABELECIMENTO SOLICITANTE</h2>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <div style={{ ...lightBgStyle, ...borderBottomStyle, padding: '2px 8px', fontSize: '8px', fontWeight: '600' }}>
-              PROCEDIMENTO(S) SECUNDÁRIO(S)
+            <p className="text-xs font-semibold text-gray-600">Nome do Estabelecimento:</p>
+            <p className="text-sm">{laudoData?.nomeEstabelecimento || laudoData?.estabelecimento_solicitante || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">CNES:</p>
+            <p className="text-sm">{laudoData?.cnes || laudoData?.cnes_solicitante || '-'}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* IDENTIFICAÇÃO DO PACIENTE */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">IDENTIFICAÇÃO DO PACIENTE</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Nome do Paciente:</p>
+            <p className="text-sm">{laudoData?.nomePaciente || laudoData?.nome_paciente || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Nº Prontuário:</p>
+            <p className="text-sm">{laudoData?.prontuario || laudoData?.numero_prontuario || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">CNS:</p>
+            <p className="text-sm">{laudoData?.cns || laudoData?.cns_paciente || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Data de Nascimento:</p>
+            <p className="text-sm">
+              {laudoData?.dataNascimento || laudoData?.data_nascimento 
+                ? format(new Date(laudoData?.dataNascimento || laudoData?.data_nascimento), 'dd/MM/yyyy') 
+                : '-'}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Sexo:</p>
+            <p className="text-sm">{laudoData?.sexo === 'M' ? 'Masculino' : laudoData?.sexo === 'F' ? 'Feminino' : '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Raça/Cor:</p>
+            <p className="text-sm">{laudoData?.racaCor || laudoData?.raca_cor || '-'}</p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs font-semibold text-gray-600">Nome da Mãe:</p>
+            <p className="text-sm">{laudoData?.nomeMae || laudoData?.nome_mae || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Telefone:</p>
+            <p className="text-sm">({laudoData?.dddContato || laudoData?.ddd_paciente || '-'}) {laudoData?.telefoneContato || laudoData?.telefone_paciente || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Nome do Responsável:</p>
+            <p className="text-sm">{laudoData?.nomeResponsavel || laudoData?.nome_responsavel || '-'}</p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs font-semibold text-gray-600">Endereço:</p>
+            <p className="text-sm">{laudoData?.endereco || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Município:</p>
+            <p className="text-sm">{laudoData?.municipio || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">UF:</p>
+            <p className="text-sm">{laudoData?.uf || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">CEP:</p>
+            <p className="text-sm">{laudoData?.cep || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Código IBGE:</p>
+            <p className="text-sm">{laudoData?.codIbge || laudoData?.codigo_ibge || '-'}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* PROCEDIMENTOS SOLICITADOS */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">PROCEDIMENTOS SOLICITADOS</h2>
+        <div className="mb-4">
+          <p className="text-sm font-semibold mb-2">Procedimento Principal:</p>
+          <div className="grid grid-cols-3 gap-2 text-sm">
+            <div>
+              <span className="text-xs text-gray-600">Código: </span>
+              {laudoData?.codigoProcedimento1 || laudoData?.codigo_procedimento_principal || '-'}
             </div>
-            {[2, 3, 4].map((index) => (
-              <div key={index} style={{ display: 'flex', ...(index < 4 ? borderBottomStyle : {}) }}>
-                <div style={{ width: '96px', ...borderRightStyle, padding: '4px' }}>
-                  <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.[`codigoProcedimento${index}`] || laudoData?.[`codigo_procedimento_secundario_${index - 1}`] || ''}</div>
+            <div>
+              <span className="text-xs text-gray-600">Nome: </span>
+              {laudoData?.nomeProcedimento1 || laudoData?.nome_procedimento_principal || '-'}
+            </div>
+            <div>
+              <span className="text-xs text-gray-600">Quantidade: </span>
+              {laudoData?.qtde1 || laudoData?.qtde_procedimento_principal || '-'}
+            </div>
+          </div>
+        </div>
+        {(laudoData?.codigoProcedimento2 || laudoData?.codigoProcedimento3 || laudoData?.codigoProcedimento4) && (
+          <div>
+            <p className="text-sm font-semibold mb-2">Procedimentos Secundários:</p>
+            {[2, 3, 4].map((index) => {
+              const hasData = laudoData?.[`codigoProcedimento${index}`] || laudoData?.[`codigo_procedimento_secundario_${index - 1}`];
+              if (!hasData) return null;
+              return (
+                <div key={index} className="grid grid-cols-3 gap-2 text-sm mb-2">
+                  <div>
+                    <span className="text-xs text-gray-600">Código: </span>
+                    {laudoData?.[`codigoProcedimento${index}`] || laudoData?.[`codigo_procedimento_secundario_${index - 1}`] || '-'}
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Nome: </span>
+                    {laudoData?.[`nomeProcedimento${index}`] || laudoData?.[`nome_procedimento_secundario_${index - 1}`] || '-'}
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Quantidade: </span>
+                    {laudoData?.[`qtde${index}`] || laudoData?.[`qtde_procedimento_secundario_${index - 1}`] || '-'}
+                  </div>
                 </div>
-                <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-                  <div style={{ fontSize: '9px', fontWeight: '500' }}>{laudoData?.[`nomeProcedimento${index}`] || laudoData?.[`nome_procedimento_secundario_${index - 1}`] || ''}</div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* TIPO DE TRATAMENTO SIGTAP */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">TIPO DE TRATAMENTO (TABELA SIGTAP)</h2>
+        <p className="text-sm">{laudoData?.tipoTratamentoSigtap || dadosComplementares?.tipoTratamentoSigtap || '-'}</p>
+      </section>
+
+      {/* DIAGNÓSTICO */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">DIAGNÓSTICO</h2>
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Descrição do Diagnóstico:</p>
+            <p className="text-sm">{laudoData?.descricaoDiagnostico || laudoData?.descricao_diagnostico || '-'}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-600">CID-10 Principal:</p>
+              <p className="text-sm">{laudoData?.cid10Principal || laudoData?.cid10_principal || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600">CID-10 Secundário:</p>
+              <p className="text-sm">{laudoData?.cid10Secundario || laudoData?.cid10_secundario || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600">CID-10 Causas Associadas:</p>
+              <p className="text-sm">{laudoData?.cid10CausasAssociadas || laudoData?.cid10_causas_associadas || '-'}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ANAMNESE E EXAME FÍSICO */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">RESUMO DA ANAMNESE E EXAME FÍSICO</h2>
+        <p className="text-sm whitespace-pre-wrap">{laudoData?.resumoAnamnese || laudoData?.resumo_anamnese || '-'}</p>
+      </section>
+
+      {/* EXAMES COMPLEMENTARES */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">EXAMES COMPLEMENTARES REALIZADOS</h2>
+        <p className="text-sm whitespace-pre-wrap">{laudoData?.examesComplementares || laudoData?.exames_complementares || '-'}</p>
+      </section>
+
+      {/* JUSTIFICATIVA */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">JUSTIFICATIVA DO PROCEDIMENTO</h2>
+        <p className="text-sm whitespace-pre-wrap">{laudoData?.justificativaProcedimento || laudoData?.justificativa_procedimento || '-'}</p>
+      </section>
+
+      {/* SOLICITAÇÃO */}
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">SOLICITAÇÃO</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Nome do Profissional Solicitante:</p>
+            <p className="text-sm">{laudoData?.nomeProfissionalSolicitante || laudoData?.nome_profissional_solicitante || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Documento (CNS/CPF):</p>
+            <p className="text-sm">{laudoData?.documentoProfissionalSolicitante || laudoData?.documento_profissional_solicitante || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-gray-600">Data da Solicitação:</p>
+            <p className="text-sm">
+              {laudoData?.dataSolicitacao || laudoData?.data_solicitacao 
+                ? format(new Date(laudoData?.dataSolicitacao || laudoData?.data_solicitacao), 'dd/MM/yyyy') 
+                : '-'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* AUTORIZAÇÃO */}
+      {(laudoData?.nomeProfissionalAutorizador || laudoData?.nome_profissional_autorizador) && (
+        <section className="border border-black p-4">
+          <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">AUTORIZAÇÃO</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-600">Nome do Profissional Autorizador:</p>
+              <p className="text-sm">{laudoData?.nomeProfissionalAutorizador || laudoData?.nome_profissional_autorizador || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600">Documento (CNS/CPF):</p>
+              <p className="text-sm">{laudoData?.documentoProfissionalAutorizador || laudoData?.documento_profissional_autorizador || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600">Data da Autorização:</p>
+              <p className="text-sm">
+                {laudoData?.dataAutorizacao || laudoData?.data_autorizacao 
+                  ? format(new Date(laudoData?.dataAutorizacao || laudoData?.data_autorizacao), 'dd/MM/yyyy') 
+                  : '-'}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ESTABELECIMENTO EXECUTOR */}
+      {(laudoData?.nomeEstabelecimentoExecutor || laudoData?.nome_estabelecimento_executor) && (
+        <section className="border border-black p-4">
+          <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">IDENTIFICAÇÃO DO ESTABELECIMENTO EXECUTOR</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-600">Nome do Estabelecimento:</p>
+              <p className="text-sm">{laudoData?.nomeEstabelecimentoExecutor || laudoData?.nome_estabelecimento_executor || '-'}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-600">CNES:</p>
+              <p className="text-sm">{laudoData?.cnesExecutor || laudoData?.cnes_executor || '-'}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* DADOS COMPLEMENTARES - ONCOLOGIA */}
+      {dadosComplementares && Object.keys(dadosComplementares).length > 0 && (
+        <>
+          <div className="page-break mt-8 pt-8 border-t-4 border-black"></div>
+          
+          <div className="text-center border-b-2 border-black pb-4 mb-6">
+            <h1 className="text-2xl font-bold">DADOS COMPLEMENTARES - ONCOLOGIA</h1>
+          </div>
+
+          {/* DIAGNÓSTICO ONCOLÓGICO */}
+          <section className="border border-black p-4">
+            <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">DIAGNÓSTICO ONCOLÓGICO</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-600">CID-10 Topografia:</p>
+                <p className="text-sm">{dadosComplementares?.cid10Topografia || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Localização do Tumor:</p>
+                <p className="text-sm">{dadosComplementares?.localizacaoTumor || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Diagnóstico Citohistopatológico:</p>
+                <p className="text-sm">{dadosComplementares?.diagnosticoCitoHistopatologico || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Data do Diagnóstico:</p>
+                <p className="text-sm">
+                  {dadosComplementares?.dataDiagnostico 
+                    ? format(new Date(dadosComplementares.dataDiagnostico), 'dd/MM/yyyy') 
+                    : '-'}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ESTADIAMENTO */}
+          {(dadosComplementares?.estadiamentoT || dadosComplementares?.estadiamentoN || dadosComplementares?.estadiamentoM) && (
+            <section className="border border-black p-4">
+              <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">ESTADIAMENTO TNM</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600">Tumor (T):</p>
+                  <p className="text-sm">{dadosComplementares?.estadiamentoT || '-'}</p>
                 </div>
-                <div style={{ width: '64px', padding: '4px' }}>
-                  <div style={{ fontSize: '9px', fontWeight: '500', textAlign: 'center' }}>{laudoData?.[`qtde${index}`] || laudoData?.[`qtde_procedimento_secundario_${index - 1}`] || ''}</div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600">Linfonodos (N):</p>
+                  <p className="text-sm">{dadosComplementares?.estadiamentoN || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600">Metástase (M):</p>
+                  <p className="text-sm">{dadosComplementares?.estadiamentoM || '-'}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </section>
+          )}
 
-        {/* JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S) */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S)
-          </div>
-
-          <div style={{ padding: '4px', ...borderBottomStyle }}>
-            <div style={{ fontSize: '7px', lineHeight: '1.2', marginBottom: '2px' }}>TIPO DE TRATAMENTO (DE ACORDO COM A TABELA SIGTAP)</div>
-            <div style={{ fontSize: '9px', fontWeight: '500', minHeight: '20px' }}>{laudoData?.tipoTratamentoSigtap || dadosComplementares?.tipoTratamentoSigtap || ''}</div>
-          </div>
-
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DESCRIÇÃO DO DIAGNÓSTICO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.descricaoDiagnostico || laudoData?.descricao_diagnostico || ''}</div>
-            </div>
-            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 PRINCIPAL</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10Principal || laudoData?.cid10_principal || ''}</div>
-            </div>
-            <div style={{ width: '80px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 SECUNDÁRIO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10Secundario || laudoData?.cid10_secundario || ''}</div>
-            </div>
-            <div style={{ width: '96px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CID 10 CAUSAS ASSOCIADAS</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cid10CausasAssociadas || laudoData?.cid10_causas_associadas || ''}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* RESUMO DA ANAMNESE E EXAME FÍSICO */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            RESUMO DA ANAMNESE E EXAME FÍSICO
-          </div>
-          <div style={{ padding: '6px', minHeight: '50px' }}>
-            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.resumoAnamnese || laudoData?.resumo_anamnese || ''}</div>
-          </div>
-        </div>
-
-        {/* EXAMES COMPLEMENTARES REALIZADOS */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            EXAMES COMPLEMENTARES REALIZADOS
-          </div>
-          <div style={{ padding: '6px', minHeight: '50px' }}>
-            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.examesComplementares || laudoData?.exames_complementares || ''}</div>
-          </div>
-        </div>
-
-        {/* JUSTIFICATIVA DO PROCEDIMENTO */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            JUSTIFICATIVA DO PROCEDIMENTO
-          </div>
-          <div style={{ padding: '6px', minHeight: '50px' }}>
-            <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{laudoData?.justificativaProcedimento || laudoData?.justificativa_procedimento || ''}</div>
-          </div>
-        </div>
-
-        {/* SOLICITAÇÃO */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            SOLICITAÇÃO
-          </div>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO PROFISSIONAL SOLICITANTE</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomeProfissionalSolicitante || laudoData?.nome_profissional_solicitante || ''}</div>
-              <div style={{ fontSize: '7px', lineHeight: '1.2', marginTop: '8px' }}>DOCUMENTO</div>
-              <div style={{ fontSize: '8px', marginTop: '2px' }}>
-                {(laudoData?.documentoProfissionalSolicitante || laudoData?.documento_profissional_solicitante || '').includes('CNS') || laudoData?.tipoDocSolicitante === 'CNS' || laudoData?.tipo_doc_solicitante === 'CNS' ? '☑ CNS' : '☐ CNS'} 
-                {' '}
-                {(laudoData?.documentoProfissionalSolicitante || laudoData?.documento_profissional_solicitante || '').includes('CPF') || laudoData?.tipoDocSolicitante === 'CPF' || laudoData?.tipo_doc_solicitante === 'CPF' ? '☑ CPF' : '☐ CPF'}
+          {/* TRATAMENTO */}
+          <section className="border border-black p-4">
+            <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">INFORMAÇÕES DO TRATAMENTO</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Finalidade do Tratamento:</p>
+                <p className="text-sm">{dadosComplementares?.finalidadeTratamento || '-'}</p>
               </div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
-                NÚMERO DO DOCUMENTO (CNS/CPF): {laudoData?.documentoProfissionalSolicitante || laudoData?.documento_profissional_solicitante || ''}
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Tipo de Atendimento:</p>
+                <p className="text-sm">{dadosComplementares?.tipoAtendimento || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Turno:</p>
+                <p className="text-sm">{dadosComplementares?.turno || '-'}</p>
               </div>
             </div>
-            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DATA DA SOLICITAÇÃO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
-                {laudoData?.dataSolicitacao || laudoData?.data_solicitacao ? format(new Date(laudoData?.dataSolicitacao || laudoData?.data_solicitacao), 'dd/MM/yyyy') : ''}
-              </div>
-            </div>
-            <div style={{ width: '160px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ASSINATURA E CARIMBO</div>
-              <div style={{ minHeight: '35px', borderBottom: '1px solid #d1d5db', marginTop: '32px' }}></div>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        {/* AUTORIZAÇÃO */}
-        <div style={{ ...borderStyle, marginBottom: '8px' }}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            AUTORIZAÇÃO
-          </div>
-          <div style={{ display: 'flex', ...borderBottomStyle }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO PROFISSIONAL AUTORIZADOR</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.nomeProfissionalAutorizador || laudoData?.nome_profissional_autorizador || ''}</div>
-            </div>
-            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>COD ÓRGÃO EMISSOR</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.codigoOrgaoEmissor || laudoData?.codigo_orgao_emissor || ''}</div>
-            </div>
-            <div style={{ width: '160px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NÚMERO DA AUTORIZAÇÃO (APAC)</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{apac?.id?.substring(0, 13) || ''}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DOCUMENTO</div>
-              <div style={{ fontSize: '8px', marginTop: '2px' }}>
-                {(laudoData?.documentoProfissionalAutorizador || laudoData?.documento_profissional_autorizador || '').includes('CNS') || laudoData?.tipoDocAutorizador === 'CNS' || laudoData?.tipo_doc_autorizador === 'CNS' ? '☑ CNS' : '☐ CNS'} 
-                {' '}
-                {(laudoData?.documentoProfissionalAutorizador || laudoData?.documento_profissional_autorizador || '').includes('CPF') || laudoData?.tipoDocAutorizador === 'CPF' || laudoData?.tipo_doc_autorizador === 'CPF' ? '☑ CPF' : '☐ CPF'}
-              </div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
-                NÚMERO DO DOCUMENTO (CNS/CPF): {laudoData?.documentoProfissionalAutorizador || laudoData?.documento_profissional_autorizador || ''}
-              </div>
-            </div>
-            <div style={{ width: '128px', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DATA DA AUTORIZAÇÃO</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>
-                {laudoData?.dataAutorizacao || laudoData?.data_autorizacao ? format(new Date(laudoData?.dataAutorizacao || laudoData?.data_autorizacao), 'dd/MM/yyyy') : ''}
-              </div>
-            </div>
-            <div style={{ width: '160px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ASSINATURA E CARIMBO</div>
-              <div style={{ minHeight: '20px', borderBottom: '1px solid #d1d5db', marginTop: '16px' }}></div>
-            </div>
-          </div>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: '1', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>PERÍODO DE VALIDADE DA APAC</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.periodoValidade || laudoData?.periodo_validade || ''}</div>
-            </div>
-          </div>
-        </div>
+          {/* OBSERVAÇÕES */}
+          {dadosComplementares?.observacoes && (
+            <section className="border border-black p-4">
+              <h2 className="text-lg font-bold mb-3 bg-gray-100 -m-4 p-2 mb-4">OBSERVAÇÕES GERAIS</h2>
+              <p className="text-sm whitespace-pre-wrap">{dadosComplementares.observacoes}</p>
+            </section>
+          )}
+        </>
+      )}
 
-        {/* IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (EXECUTANTE) */}
-        <div style={borderStyle}>
-          <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-            IDENTIFICAÇÃO DO ESTABELECIMENTO DE SAÚDE (EXECUTANTE)
-          </div>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>NOME DO ESTABELECIMENTO DE SAÚDE EXECUTANTE</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.estabelecimentoExecutante || laudoData?.estabelecimento_executante || ''}</div>
+      {/* RODAPÉ COM ASSINATURAS */}
+      <div className="mt-12 pt-8 space-y-12">
+        <div className="grid grid-cols-2 gap-8">
+          <div className="text-center">
+            <div className="border-t border-black pt-2">
+              <p className="text-sm font-semibold">Assinatura do Médico Solicitante</p>
+              <p className="text-xs text-gray-600 mt-1">{laudoData?.nomeProfissionalSolicitante || laudoData?.nome_profissional_solicitante || ''}</p>
             </div>
-            <div style={{ width: '96px', padding: '4px' }}>
-              <div style={{ fontSize: '7px', lineHeight: '1.2' }}>CNES</div>
-              <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{laudoData?.cnesExecutante || laudoData?.cnes_executante || ''}</div>
+          </div>
+          <div className="text-center">
+            <div className="border-t border-black pt-2">
+              <p className="text-sm font-semibold">Data</p>
+              <p className="text-xs text-gray-600 mt-1">
+                {laudoData?.dataSolicitacao || laudoData?.data_solicitacao 
+                  ? format(new Date(laudoData?.dataSolicitacao || laudoData?.data_solicitacao), 'dd/MM/yyyy') 
+                  : '____/____/________'}
+              </p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* PÁGINA 2 - DADOS COMPLEMENTARES (sempre mostrar se existir qualquer dado) */}
-      {(dadosComplementares && Object.keys(dadosComplementares).length > 0) && (
-        <div className="w-full p-6" style={{ padding: '24px' }}>
-          <div style={{ ...border2Style, marginBottom: '12px' }}>
-            <div style={{ textAlign: 'center', padding: '8px' }}>
-              <div style={{ fontSize: '9px' }}>Sistema Único de Saúde</div>
-              <div style={{ fontWeight: 'bold', fontSize: '12px' }}>DADOS COMPLEMENTARES DO PROCEDIMENTO</div>
-              <div style={{ fontSize: '9px' }}>Autorização de Procedimento Ambulatorial de Alta Complexidade</div>
-            </div>
-          </div>
-
-          <div style={{ ...borderStyle, marginBottom: '8px' }}>
-            <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-              INFORMAÇÕES ONCOLÓGICAS
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
-              <div style={{ ...borderRightStyle, padding: '4px' }}>
-                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>ESTADIAMENTO</div>
-                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.estadiamento || ''}</div>
-              </div>
-              <div style={{ ...borderRightStyle, padding: '4px' }}>
-                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>FINALIDADE</div>
-                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.finalidade || ''}</div>
-              </div>
-              <div style={{ ...borderRightStyle, padding: '4px' }}>
-                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>TIPO DE ATENDIMENTO</div>
-                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.tipo_atendimento || ''}</div>
-              </div>
-              <div style={{ padding: '4px' }}>
-                <div style={{ fontSize: '7px', lineHeight: '1.2' }}>TURNO</div>
-                <div style={{ fontSize: '9px', fontWeight: '500', marginTop: '2px' }}>{dadosComplementares?.turno || ''}</div>
-              </div>
-            </div>
-          </div>
-
-          <div style={borderStyle}>
-            <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
-              OBSERVAÇÕES
-            </div>
-            <div style={{ padding: '8px', minHeight: '100px' }}>
-              <div style={{ fontSize: '9px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{apac?.observacoes || ''}</div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
