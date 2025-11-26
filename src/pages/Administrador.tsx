@@ -412,6 +412,15 @@ const Administrador = () => {
           </TabsList>
 
           <TabsContent value="faturamento" className="space-y-4">
+            <Alert className="border-l-4 border-l-success">
+              <Info className="h-4 w-4" />
+              <AlertTitle>APACs Recebidas para Faturamento</AlertTitle>
+              <AlertDescription>
+                As APACs aprovadas na aba "APACs Recebidas" aparecem aqui para gestão de prazos e 
+                faturamento. Verifique a documentação e os procedimentos antes de enviar ao SUS.
+              </AlertDescription>
+            </Alert>
+
             {/* Alertas de APAC */}
             {alertasApac.length > 0 && (
               <div className="space-y-3">
@@ -1094,7 +1103,19 @@ const Administrador = () => {
                 description="A seção de APACs recebidas não está disponível na versão de demonstração."
               />
             ) : (
-            <APACPendentesLista />
+            <>
+              <Alert className="border-l-4 border-l-primary">
+                <Info className="h-4 w-4" />
+                <AlertTitle>Correlação com Faturamento</AlertTitle>
+                <AlertDescription>
+                  As APACs listadas abaixo estão disponíveis para processamento na aba "Faturamento APAC". 
+                  Complete o preenchimento, imprima os documentos e atualize o status para "Aprovado" 
+                  para que sejam automaticamente consideradas no faturamento hospitalar.
+                </AlertDescription>
+              </Alert>
+              
+              <APACPendentesLista />
+            </>
             )}
           </TabsContent>
 

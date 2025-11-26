@@ -214,6 +214,12 @@ export const APACPrintTemplate = ({ apac, laudoData, dadosComplementares }: APAC
           <div style={{ ...headerBgStyle, ...borderBottomStyle, padding: '2px 8px', fontWeight: 'bold', fontSize: '9px' }}>
             JUSTIFICATIVA DO(S) PROCEDIMENTO(S) SOLICITADO(S)
           </div>
+
+          <div style={{ padding: '4px', ...borderBottomStyle }}>
+            <div style={{ fontSize: '7px', lineHeight: '1.2', marginBottom: '2px' }}>TIPO DE TRATAMENTO (DE ACORDO COM A TABELA SIGTAP)</div>
+            <div style={{ fontSize: '9px', fontWeight: '500', minHeight: '20px' }}>{laudoData?.tipoTratamentoSigtap || dadosComplementares?.tipoTratamentoSigtap || ''}</div>
+          </div>
+
           <div style={{ display: 'flex', ...borderBottomStyle }}>
             <div style={{ flex: '1', ...borderRightStyle, padding: '4px' }}>
               <div style={{ fontSize: '7px', lineHeight: '1.2' }}>DESCRIÇÃO DO DIAGNÓSTICO</div>
