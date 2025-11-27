@@ -33,17 +33,48 @@ const Index = () => {
     }
   };
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={logoVittalis} alt="Vittalis Logo" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-primary">Vittalis</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Sistema Público de Oncologia</p>
+          <div className="flex items-center gap-3 md:gap-8">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection("hero")}>
+              <img src={logoVittalis} alt="Vittalis Logo" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-primary">Vittalis</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Sistema Público de Oncologia</p>
+              </div>
             </div>
+            
+            {/* Desktop Quick Navigation */}
+            <nav className="hidden md:flex gap-4 text-sm">
+              <button 
+                onClick={() => scrollToSection("funcionalidades")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Funcionalidades
+              </button>
+              <button 
+                onClick={() => scrollToSection("pacientes")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Pacientes
+              </button>
+              <button 
+                onClick={() => scrollToSection("profissionais")}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                Profissionais
+              </button>
+            </nav>
           </div>
           
           {/* Desktop Navigation */}
@@ -79,7 +110,30 @@ const Index = () => {
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-3 mt-6">
+              
+              {/* Navigation Links */}
+              <div className="flex flex-col gap-2 mt-4 mb-4 border-b pb-4">
+                <button
+                  onClick={() => scrollToSection("funcionalidades")}
+                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
+                >
+                  Funcionalidades
+                </button>
+                <button
+                  onClick={() => scrollToSection("pacientes")}
+                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
+                >
+                  Área de Pacientes
+                </button>
+                <button
+                  onClick={() => scrollToSection("profissionais")}
+                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
+                >
+                  Área de Profissionais
+                </button>
+              </div>
+              
+              <div className="flex flex-col gap-3">
                 <Button 
                   variant="outline" 
                   onClick={() => navigate("/cadastro-paciente")}
@@ -134,7 +188,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
+      <section id="hero" className="container mx-auto px-4 py-16 text-center scroll-mt-20">
         <div className="max-w-3xl mx-auto space-y-6">
           <img src={logoVittalis} alt="Vittalis Logo" className="h-20 w-20 object-contain mx-auto" />
           <h2 className="text-5xl font-bold text-foreground">
@@ -151,7 +205,7 @@ const Index = () => {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-16">
+      <section id="funcionalidades" className="container mx-auto px-4 py-16 scroll-mt-20">
         <h3 className="text-3xl font-bold text-center mb-12">Funcionalidades</h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="border-primary/20 hover:border-primary/40 transition-colors">
@@ -197,7 +251,7 @@ const Index = () => {
       </section>
 
       {/* Patient Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section id="pacientes" className="container mx-auto px-4 py-16 scroll-mt-20">
         <div className="max-w-4xl mx-auto">
           <h3 className="text-3xl font-bold text-center mb-12">Para Pacientes</h3>
           <Card className="border-primary/30 shadow-lg">
@@ -253,7 +307,7 @@ const Index = () => {
       </section>
 
       {/* Professional Section */}
-      <section className="bg-muted/50 py-16">
+      <section id="profissionais" className="bg-muted/50 py-16 scroll-mt-20">
         <div className="container mx-auto px-4">
           <h3 className="text-3xl font-bold text-center mb-12">Para Profissionais de Saúde</h3>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -315,7 +369,7 @@ const Index = () => {
       </section>
 
       {/* Impact Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section id="impacto" className="container mx-auto px-4 py-16 scroll-mt-20">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h3 className="text-3xl font-bold">Nosso Impacto</h3>
           <div className="grid md:grid-cols-3 gap-8">
