@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield } from "lucide-react";
+import { Calendar, ClipboardList, Pill, BarChart3, Users, Clock, Shield, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import logoVittalis from "@/assets/logo-vittalis.png";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,32 +39,68 @@ const Index = () => {
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoVittalis} alt="Vittalis Logo" className="h-14 w-14 object-contain" />
+            <img src={logoVittalis} alt="Vittalis Logo" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
             <div>
-              <h1 className="text-2xl font-bold text-primary">Vittalis</h1>
-              <p className="text-xs text-muted-foreground">Sistema Público de Oncologia</p>
+              <h1 className="text-xl md:text-2xl font-bold text-primary">Vittalis</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Sistema Público de Oncologia</p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex gap-2 xl:gap-3">
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-paciente")}>
               Cadastro Paciente
             </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-medico")}>
               Cadastro Médico
             </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-enfermeiro")}>
               Cadastro Enfermeiro
             </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-farmaceutico")}>
               Cadastro Farmacêutico
             </Button>
-            <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-administrador")}>
               Cadastro Admin
             </Button>
-            <Button onClick={() => setShowPasswordDialog(true)}>
+            <Button size="sm" onClick={() => setShowPasswordDialog(true)}>
               Prosseguir sem Login
             </Button>
           </div>
+
+          {/* Mobile Navigation */}
+          <Sheet>
+            <SheetTrigger asChild className="lg:hidden">
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-3 mt-6">
+                <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
+                  Cadastro Paciente
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
+                  Cadastro Médico
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
+                  Cadastro Enfermeiro
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
+                  Cadastro Farmacêutico
+                </Button>
+                <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
+                  Cadastro Admin
+                </Button>
+                <Button onClick={() => setShowPasswordDialog(true)}>
+                  Prosseguir sem Login
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
