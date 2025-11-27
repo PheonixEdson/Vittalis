@@ -71,7 +71,7 @@ const Index = () => {
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="transition-all hover:scale-105">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -80,22 +80,51 @@ const Index = () => {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-3 mt-6">
-                <Button variant="outline" onClick={() => navigate("/cadastro-paciente")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/cadastro-paciente")}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: "50ms" }}
+                >
                   Cadastro Paciente
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/cadastro-medico")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/cadastro-medico")}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: "100ms" }}
+                >
                   Cadastro Médico
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/cadastro-enfermeiro")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/cadastro-enfermeiro")}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: "150ms" }}
+                >
                   Cadastro Enfermeiro
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/cadastro-farmaceutico")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/cadastro-farmaceutico")}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: "200ms" }}
+                >
                   Cadastro Farmacêutico
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/cadastro-administrador")}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/cadastro-administrador")}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: "250ms" }}
+                >
                   Cadastro Admin
                 </Button>
-                <Button onClick={() => setShowPasswordDialog(true)}>
+                <Button 
+                  onClick={() => setShowPasswordDialog(true)}
+                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-lg"
+                  style={{ animationDelay: "300ms" }}
+                >
                   Prosseguir sem Login
                 </Button>
               </div>
