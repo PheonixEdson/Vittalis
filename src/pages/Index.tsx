@@ -44,146 +44,159 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-8">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection("hero")}>
-              <img src={logoVittalis} alt="Vittalis Logo" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
+              <img src={logoVittalis} alt="Vittalis Logo" className="h-10 w-10 md:h-12 md:w-12 object-contain" />
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-primary">Vittalis</h1>
+                <h1 className="text-lg md:text-xl font-bold text-primary">Vittalis</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">Sistema Público de Oncologia</p>
               </div>
             </div>
             
-            {/* Desktop Quick Navigation */}
-            <nav className="hidden md:flex gap-4 text-sm">
+            {/* Desktop Navigation - Links Internos */}
+            <nav className="hidden lg:flex items-center gap-6">
               <button 
                 onClick={() => scrollToSection("funcionalidades")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
               >
                 Funcionalidades
               </button>
               <button 
                 onClick={() => scrollToSection("pacientes")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
               >
                 Pacientes
               </button>
               <button 
                 onClick={() => scrollToSection("profissionais")}
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
               >
                 Profissionais
               </button>
-            </nav>
-          </div>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex gap-2 xl:gap-3">
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-paciente")}>
-              Cadastro Paciente
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-medico")}>
-              Cadastro Médico
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-enfermeiro")}>
-              Cadastro Enfermeiro
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-farmaceutico")}>
-              Cadastro Farmacêutico
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate("/cadastro-administrador")}>
-              Cadastro Admin
-            </Button>
-            <Button size="sm" onClick={() => setShowPasswordDialog(true)}>
-              Prosseguir sem Login
-            </Button>
-          </div>
-
-          {/* Mobile Navigation */}
-          <Sheet>
-            <SheetTrigger asChild className="lg:hidden">
-              <Button variant="outline" size="icon" className="transition-all hover:scale-105">
-                <Menu className="h-5 w-5" />
+              
+              {/* Separador */}
+              <div className="h-6 w-px bg-border"></div>
+              
+              {/* Botão de Acesso */}
+              <Button size="sm" onClick={() => setShowPasswordDialog(true)} className="shadow-sm">
+                Acessar Sistema
               </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-              </SheetHeader>
-              
-              {/* Navigation Links */}
-              <div className="flex flex-col gap-2 mt-4 mb-4 border-b pb-4">
-                <button
-                  onClick={() => scrollToSection("funcionalidades")}
-                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
-                >
-                  Funcionalidades
-                </button>
-                <button
-                  onClick={() => scrollToSection("pacientes")}
-                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
-                >
-                  Área de Pacientes
-                </button>
-                <button
-                  onClick={() => scrollToSection("profissionais")}
-                  className="text-left px-3 py-2 rounded-md hover:bg-muted transition-colors text-sm"
-                >
-                  Área de Profissionais
-                </button>
-              </div>
-              
-              <div className="flex flex-col gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/cadastro-paciente")}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
-                  style={{ animationDelay: "50ms" }}
-                >
-                  Cadastro Paciente
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <Sheet>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="outline" size="icon" className="transition-all hover:scale-105">
+                  <Menu className="h-5 w-5" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/cadastro-medico")}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
-                  style={{ animationDelay: "100ms" }}
-                >
-                  Cadastro Médico
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/cadastro-enfermeiro")}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
-                  style={{ animationDelay: "150ms" }}
-                >
-                  Cadastro Enfermeiro
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/cadastro-farmaceutico")}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
-                  style={{ animationDelay: "200ms" }}
-                >
-                  Cadastro Farmacêutico
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/cadastro-administrador")}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-md"
-                  style={{ animationDelay: "250ms" }}
-                >
-                  Cadastro Admin
-                </Button>
-                <Button 
-                  onClick={() => setShowPasswordDialog(true)}
-                  className="animate-fade-in-up transition-all hover:scale-[1.02] hover:shadow-lg"
-                  style={{ animationDelay: "300ms" }}
-                >
-                  Prosseguir sem Login
-                </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[320px] sm:w-[380px] overflow-y-auto">
+                <SheetHeader className="mb-6">
+                  <SheetTitle className="text-left">Menu de Navegação</SheetTitle>
+                </SheetHeader>
+                
+                {/* Navegação Interna */}
+                <div className="mb-6">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Navegação
+                  </h3>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => scrollToSection("funcionalidades")}
+                      className="text-left px-4 py-3 rounded-lg hover:bg-accent/50 transition-all text-sm font-medium flex items-center gap-2"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                      Funcionalidades
+                    </button>
+                    <button
+                      onClick={() => scrollToSection("pacientes")}
+                      className="text-left px-4 py-3 rounded-lg hover:bg-accent/50 transition-all text-sm font-medium flex items-center gap-2"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                      Área de Pacientes
+                    </button>
+                    <button
+                      onClick={() => scrollToSection("profissionais")}
+                      className="text-left px-4 py-3 rounded-lg hover:bg-accent/50 transition-all text-sm font-medium flex items-center gap-2"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                      Área de Profissionais
+                    </button>
+                  </div>
+                </div>
+
+                {/* Divisor */}
+                <div className="border-t mb-6"></div>
+                
+                {/* Acesso Rápido */}
+                <div className="mb-6">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Acesso ao Sistema
+                  </h3>
+                  <Button 
+                    onClick={() => setShowPasswordDialog(true)}
+                    className="w-full mb-4 shadow-sm"
+                  >
+                    Acessar Sistema
+                  </Button>
+                </div>
+
+                {/* Divisor */}
+                <div className="border-t mb-6"></div>
+                
+                {/* Cadastros */}
+                <div>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Cadastro de Usuários
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/cadastro-paciente")}
+                      className="justify-start"
+                      size="sm"
+                    >
+                      Cadastro Paciente
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/cadastro-medico")}
+                      className="justify-start"
+                      size="sm"
+                    >
+                      Cadastro Médico
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/cadastro-enfermeiro")}
+                      className="justify-start"
+                      size="sm"
+                    >
+                      Cadastro Enfermeiro
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/cadastro-farmaceutico")}
+                      className="justify-start"
+                      size="sm"
+                    >
+                      Cadastro Farmacêutico
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/cadastro-administrador")}
+                      className="justify-start"
+                      size="sm"
+                    >
+                      Cadastro Admin
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
